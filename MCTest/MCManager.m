@@ -20,7 +20,7 @@
         _advertiser = nil;
     }
     
-    [self setupPeerAndSessionWithDisplayName:@"Jack's iPhone"];
+    [self setupPeerAndSessionWithDisplayName:@"iPhone"];
     [self advertiseSelf];
     [self browse];
     
@@ -39,14 +39,12 @@
     _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:emptyDict serviceType:@"crowd"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
-    NSLog(@"started advertising");
 }
 
 - (void)browse {
     _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_peerID serviceType:@"crowd"];
     [_browser setDelegate:self];
     [_browser startBrowsingForPeers];
-    NSLog(@"started browsing");
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error {
@@ -55,7 +53,7 @@
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     NSLog(@"found peer");
-    [_browser invitePeer:peerID toSession:_session withContext:[NSData data] timeout:-1];
+    [browser invitePeer:peerID toSession:self.session withContext:nil timeout:30.0];
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -68,12 +66,10 @@
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
     NSLog(@"did recieve invitation from peer");
-    MCSession *session = [[MCSession alloc] initWithPeer:peerID
-                                        securityIdentity:nil
-                                    encryptionPreference:MCEncryptionNone];
-    session.delegate = self;
+    NSLog(@"%@", peerID);
+    NSLog(@"%@", _peerID);
     
-    invitationHandler(YES, session);
+    invitationHandler(YES, self.session);
 }
 
 
