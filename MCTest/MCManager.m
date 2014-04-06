@@ -112,7 +112,8 @@
     if ([[array objectAtIndex:0] isEqualToData:_publicKey]) { //if sender's public key matches ours... else do nothing.
         AGVerifyKey *verifyKey = [[AGVerifyKey alloc] initWithKey:_publicKey];
         BOOL isValid = NO;
-        if ([array objectAtIndex:2] != nil) {
+        NSLog(@"array count: %lu", (unsigned long)[array count]);
+        if ([array count] > 2) {
             isValid = [verifyKey verify:[array objectAtIndex:1] signature:[array objectAtIndex:2]];
         }
         if (isValid) {

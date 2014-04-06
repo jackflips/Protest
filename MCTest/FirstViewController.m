@@ -83,7 +83,7 @@
                                       withMode:MCSessionSendDataReliable
                                          error:&error];
     } else {
-        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.manager.publicKey, dataToSend, nil, nil];
+        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.manager.publicKey, dataToSend, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         [_appDelegate.manager.session sendData:data
                                        toPeers:allPeers
