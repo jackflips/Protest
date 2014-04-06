@@ -99,11 +99,10 @@
     [_txtMessage resignFirstResponder];
 }
 
-- (void)appendMessage:(id)sender {
+- (void)appendMessage:(NSArray*)sender {
     MCPeerID *peerID = [sender objectAtIndex:1];
     NSString *peerDisplayName = peerID.displayName;
-    NSData *receivedData = [sender objectAtIndex:0];
-    NSString *receivedText = [[NSString alloc] initWithData:receivedData encoding:NSUTF8StringEncoding];
+    NSData *receivedText = [sender objectAtIndex:0];
     
     [_tvChat performSelectorOnMainThread:@selector(setText:) withObject:[_tvChat.text stringByAppendingString:[NSString stringWithFormat:@"%@ wrote:\n%@\n\n", peerDisplayName, receivedText]] waitUntilDone:NO];
     
