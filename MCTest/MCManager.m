@@ -68,18 +68,27 @@
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
     NSLog(@"did recieve invitation from peer");
+    MCSession *session = [[MCSession alloc] initWithPeer:peerID
+                                        securityIdentity:nil
+                                    encryptionPreference:MCEncryptionNone];
+    session.delegate = self;
+    
+    invitationHandler(YES, session);
 }
 
 
 -(void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"peer did change state");
+    NSLog(@"%d", state);
     if (state == MCSessionStateConnected) {
+        NSLog(@"connected?");
         NSString *str = @"you are connected good job";
         NSData* data = [str dataUsingEncoding:NSUTF8StringEncoding];
         NSError *error = nil;
         [_session sendData:data toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
     }
 }
+
 
 
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID{
