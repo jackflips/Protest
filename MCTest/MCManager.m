@@ -21,7 +21,6 @@
     }
     
     [self setupPeerAndSessionWithDisplayName:@"Jack's iPhone"];
-    
     [self advertiseSelf];
     [self browse];
     
@@ -74,11 +73,19 @@
 
 -(void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"peer did change state");
+    if (state == MCSessionStateConnected) {
+        NSString *str = @"you are connected good job";
+        NSData* data = [str dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *error = nil;
+        [_session sendData:data toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+    }
 }
 
 
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID{
     NSLog(@"session did receive data");
+    NSString* newStr = [NSString stringWithUTF8String:[data bytes]];
+    NSLog(@"%@", newStr);
 }
 
 

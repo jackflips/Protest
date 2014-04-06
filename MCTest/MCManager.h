@@ -15,6 +15,7 @@
 @property (nonatomic, strong) MCSession *session;
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
+@property (nonatomic, strong) NSMutableArray *peers;
 
 
 @end
