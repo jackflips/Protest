@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
 
-@interface ViewController : UIViewController 
+@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource> {
+    NSArray *tableSource;
+}
 
 @property (nonatomic, strong) AppDelegate *appDelegate;
 

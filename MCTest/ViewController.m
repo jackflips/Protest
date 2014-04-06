@@ -19,8 +19,36 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    tableSource = [NSArray arrayWithObjects:@"TA Strike", @"Murder Bad", @"Stealing Bad", nil];
 	// Do any additional setup after loading the view, typically from a nib.
 }
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [tableSource count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *simpleTableIdentifier = @"SimpleTableCell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
+    }
+    
+    cell.textLabel.text = [tableSource objectAtIndex:indexPath.row];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row == 0) {
+        [self joinProtest:nil];
+    }
+}
+
 - (IBAction)joinProtest:(id)sender {
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
