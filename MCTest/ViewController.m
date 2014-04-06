@@ -28,7 +28,7 @@
     _appDelegate.firstViewController = firstViewController;
     [_appDelegate.window.rootViewController presentViewController: firstViewController animated:YES completion:nil];
     
-    [_appDelegate.manager connect];
+    [_appDelegate.manager joinProtest];
 }
 
 - (IBAction)startProtest:(id)sender {

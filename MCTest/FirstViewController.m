@@ -97,10 +97,9 @@
 }
 
 - (void)appendMessage:(NSArray*)sender {
-    NSLog(@"appending message");
     MCPeerID *peerID = [sender objectAtIndex:1];
     NSString *peerDisplayName = peerID.displayName;
-    NSData *receivedText = [sender objectAtIndex:0];
+    NSString *receivedText = [[NSString alloc] initWithData:[sender objectAtIndex:0] encoding:NSUTF8StringEncoding];
     
     [_tvChat performSelectorOnMainThread:@selector(setText:) withObject:[_tvChat.text stringByAppendingString:[NSString stringWithFormat:@"%@ wrote:\n%@\n\n", peerDisplayName, receivedText]] waitUntilDone:NO];
     

@@ -23,5 +23,6 @@
 - (id)initWithPublicKey:(NSData *)publicKey;
 - (void)connect;
 - (void)setPublicKey:(NSData *)publicKey;
+- (void)joinProtest;
 
 @end

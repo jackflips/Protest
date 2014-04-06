@@ -51,6 +51,11 @@
     [self browse];
 }
 
+- (void)joinProtest {
+    [self setupPeerAndSessionWithDisplayName:@"protester"];
+    [self advertiseSelf];
+}
+
 - (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
     _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
     
