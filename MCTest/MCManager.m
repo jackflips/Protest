@@ -8,6 +8,7 @@
 
 #import "MCManager.h"
 #import "FirstViewController.h"
+#import "AppDelegate.h"
 
 
 @implementation MCManager
@@ -96,19 +97,12 @@
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"peer did change state");
     NSLog(@"%ld", state);
-    if (state == MCSessionStateConnected) {
-        NSLog(@"connected?");
-        NSString *str = @"you are connected good job";
-        NSError *error = nil;
-        NSArray *array = [[NSArray alloc] initWithObjects:_publicKey, str, nil];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
-        [_session sendData:data toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
-    }
 }
 
 
 
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID{
+    AppDelegate *_appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     if ([[array objectAtIndex:0] isEqualToData:_publicKey]) { //if sender's public key matches ours... else do nothing.
         AGVerifyKey *verifyKey = [[AGVerifyKey alloc] initWithKey:_publicKey];
@@ -117,13 +111,11 @@
         if ([array count] > 2) {
             isValid = [verifyKey verify:[array objectAtIndex:1] signature:[array objectAtIndex:2]];
         }
-        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-        FirstViewController *firstViewController = (FirstViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
-
+        NSLog(@"%d", isValid);
         if (isValid) {
-            [firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //from leader
+            [_appDelegate.firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //from leader
         } else {
-            [firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //reg message
+            [_appDelegate.firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //reg message
         }
     }
 }

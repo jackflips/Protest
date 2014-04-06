@@ -24,7 +24,16 @@
                                 </state>
                                 <connections>
                                     <action selector="startProtest:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Hvj-Lr-4fl"/>
-                                    <segue destination="DnO-nl-sYc" kind="modal" id="6nM-Ar-vyC"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8su-90-5Zb">
+                                <rect key="frame" x="119" y="331" width="83" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Join Protest">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="joinProtest:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="csJ-Iz-fMf"/>
                                 </connections>
                             </button>
                         </subviews>

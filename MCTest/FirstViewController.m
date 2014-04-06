@@ -97,6 +97,7 @@
 }
 
 - (void)appendMessage:(NSArray*)sender {
+    NSLog(@"appending message");
     MCPeerID *peerID = [sender objectAtIndex:1];
     NSString *peerDisplayName = peerID.displayName;
     NSData *receivedText = [sender objectAtIndex:0];
