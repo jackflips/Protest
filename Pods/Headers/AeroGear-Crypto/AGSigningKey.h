@@ -1,0 +1,1 @@
+../../AeroGear-Crypto/crypto-sdk/AGSigningKey.h

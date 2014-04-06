@@ -16,6 +16,10 @@
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) NSMutableArray *peers;
+@property (nonatomic, strong) NSData *publicKey;
 
+- (id)initWithPublicKey:(NSData *)publicKey;
+- (void)connect;
+- (void)setPublicKey:(NSData *)publicKey;
 
 @end

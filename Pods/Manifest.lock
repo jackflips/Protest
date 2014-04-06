@@ -1,0 +1,13 @@
+PODS:
+  - AeroGear-Crypto (0.2.3):
+    - libsodium-ios (~> 0.4.5)
+  - libsodium-ios (0.4.5)
+
+DEPENDENCIES:
+  - AeroGear-Crypto (= 0.2.3)
+
+SPEC CHECKSUMS:
+  AeroGear-Crypto: 2962f012b6333c606159728fc5bba0175306c7e6
+  libsodium-ios: 200aff3a4d5496bef36214fca21b85b04d722dea
+
+COCOAPODS: 0.31.1

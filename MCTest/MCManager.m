@@ -18,13 +18,32 @@
         _session = nil;
         _browser = nil;
         _advertiser = nil;
+        _publicKey = nil;
     }
+    return self;
+}
+
+- (id)initWithPublicKey:(NSData *)publicKey{
+    self = [super init];
     
+    if (self) {
+        _peerID = nil;
+        _session = nil;
+        _browser = nil;
+        _advertiser = nil;
+        _publicKey = publicKey;
+    }
+    return self;
+}
+
+- (void)setPublicKey:(NSData *)publicKey {
+    _publicKey = publicKey;
+}
+
+- (void)connect {
     [self setupPeerAndSessionWithDisplayName:@"iPhone"];
     [self advertiseSelf];
     [self browse];
-    
-    return self;
 }
 
 - (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
@@ -53,7 +72,7 @@
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     NSLog(@"found peer");
-    [browser invitePeer:peerID toSession:self.session withContext:nil timeout:30.0];
+    [browser invitePeer:peerID toSession:self.session withContext:_publicKey timeout:30.0];
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -65,22 +84,20 @@
 }
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
-    NSLog(@"did recieve invitation from peer");
-    NSLog(@"%@", peerID);
-    NSLog(@"%@", _peerID);
-    
+    _publicKey = context;
     invitationHandler(YES, self.session);
 }
 
 
--(void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
+- (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"peer did change state");
     NSLog(@"%d", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected?");
         NSString *str = @"you are connected good job";
-        NSData* data = [str dataUsingEncoding:NSUTF8StringEncoding];
         NSError *error = nil;
+        NSArray *array = [[NSArray alloc] initWithObjects:_publicKey, str, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         [_session sendData:data toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
     }
 }
@@ -88,9 +105,16 @@
 
 
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID{
-    NSLog(@"session did receive data");
-    NSString* newStr = [NSString stringWithUTF8String:[data bytes]];
-    NSLog(@"%@", newStr);
+    NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    if ([[array objectAtIndex:0] isEqualToData:_publicKey]) { //if sender's public key matches ours... else do nothing.
+        NSDictionary *dict = @{@"data": data,
+                               @"peerID": peerID
+                               };
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"MCDidReceiveDataNotification"
+                                                            object:nil
+                                                          userInfo:dict];
+    }
 }
 
 

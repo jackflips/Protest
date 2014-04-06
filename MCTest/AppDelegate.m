@@ -12,7 +12,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    manager = [[MCManager alloc] init];
+    _manager = [[MCManager alloc] init];
     return YES;
 }
 							
