@@ -19,7 +19,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    tableSource = [NSArray arrayWithObjects:@"TA Strike", @"Murder Bad", @"Stealing Bad", nil];
+    tableSource = [NSArray arrayWithObjects:@"TA Strike", @"Murder is Bad", @"Stealing is Bad", nil];
 	// Do any additional setup after loading the view, typically from a nib.
 }
 

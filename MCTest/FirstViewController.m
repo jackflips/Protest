@@ -13,7 +13,10 @@
 #import "FirstViewController.h"
 #import "AppDelegate.h"
 
-@interface FirstViewController ()
+@interface FirstViewController () <MKMapViewDelegate> {
+    MKPolyline *_routeOverlay;
+    MKRoute *_currentRoute;
+}
 
 @property (nonatomic, strong) AppDelegate *appDelegate;
 
@@ -27,6 +30,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _mapView.delegate = self;
+    _mapView.showsUserLocation = YES;
 	// Do any additional setup after loading the view, typically from a nib.
     
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -37,6 +43,53 @@
                                              selector:@selector(didReceiveDataWithNotification:)
                                                  name:@"MCDidReceiveDataNotification"
                                                object:nil];
+}
+
+- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
+{
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(userLocation.coordinate, 800, 800);
+    [_mapView setRegion:[self.mapView regionThatFits:region] animated:YES];
+    
+    // Make a directions request
+    MKDirectionsRequest *directionsRequest = [MKDirectionsRequest new];
+    // Start at our current location
+    MKMapItem *source = [MKMapItem mapItemForCurrentLocation];
+    [directionsRequest setSource:source];
+    // Make the destination
+    CLLocationCoordinate2D destinationCoords = CLLocationCoordinate2DMake(36.977321, -122.053631);
+    MKPlacemark *destinationPlacemark = [[MKPlacemark alloc] initWithCoordinate:destinationCoords addressDictionary:nil];
+    MKMapItem *destination = [[MKMapItem alloc] initWithPlacemark:destinationPlacemark];
+    [directionsRequest setDestination:destination];
+    
+    MKDirections *directions = [[MKDirections alloc] initWithRequest:directionsRequest];
+    [directions calculateDirectionsWithCompletionHandler:^(MKDirectionsResponse *response, NSError *error) {
+        // We're done
+        
+        // Now handle the result
+        if (error) {
+            NSLog(@"There was an error getting your directions");
+            return;
+        }
+    
+    // So there wasn't an error - let's plot those routes
+        _currentRoute = [response.routes firstObject];
+        [self plotRouteOnMap:_currentRoute];
+    }];
+
+}
+     
+- (void)plotRouteOnMap:(MKRoute *)route
+{
+    if(_routeOverlay) {
+        [self.mapView removeOverlay:_routeOverlay];
+    }
+    
+    // Update the ivar
+    _routeOverlay = route.polyline;
+    
+    // Add it to the map
+    [self.mapView addOverlay:_routeOverlay];
+    
 }
 
 - (void)didReceiveMemoryWarning

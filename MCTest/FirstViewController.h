@@ -7,11 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+@import MapKit;
 
-@interface FirstViewController : UIViewController <UITextFieldDelegate>
+@interface FirstViewController : UIViewController <UITextFieldDelegate, MKMapViewDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *txtMessage;
 @property (weak, nonatomic) IBOutlet UITextView *tvChat;
 
+@property (strong, nonatomic) IBOutlet MKMapView *mapView;
 
 - (IBAction)sendMessage:(id)sender;
 - (IBAction)cancelMessage:(id)sender;
