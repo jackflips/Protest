@@ -149,6 +149,15 @@
     [_txtMessage resignFirstResponder];
 }
 
+- (void)appendMessageFromLeader:(NSArray*)sender {
+    MCPeerID *peerID = [sender objectAtIndex:1];
+    NSString *peerDisplayName = peerID.displayName;
+    NSString *receivedText = [[NSString alloc] initWithData:[sender objectAtIndex:0] encoding:NSUTF8StringEncoding];
+    
+    [_tvChat performSelectorOnMainThread:@selector(setText:) withObject:[_tvChat.text stringByAppendingString:[NSString stringWithFormat:@"%@ (LEADER) wrote:\n%@\n\n", peerDisplayName, receivedText]] waitUntilDone:NO];
+    
+}
+
 - (void)appendMessage:(NSArray*)sender {
     MCPeerID *peerID = [sender objectAtIndex:1];
     NSString *peerDisplayName = peerID.displayName;

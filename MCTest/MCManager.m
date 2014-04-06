@@ -118,7 +118,7 @@
         }
         NSLog(@"%d", isValid);
         if (isValid) {
-            [_appDelegate.firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //from leader
+            [_appDelegate.firstViewController appendMessageFromLeader:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //from leader
         } else {
             [_appDelegate.firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //reg message
         }
