@@ -15,6 +15,7 @@
 
 - (IBAction)sendMessage:(id)sender;
 - (IBAction)cancelMessage:(id)sender;
+- (void)appendMessage:(id)sender;
 
 
 @end

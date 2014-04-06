@@ -38,7 +38,7 @@
         <!--First View Controller - First-->
         <scene sceneID="Zag-6C-GBN">
             <objects>
-                <viewController title="First" id="DnO-nl-sYc" customClass="FirstViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FirstViewController" title="First" useStoryboardIdentifierAsRestorationIdentifier="YES" id="DnO-nl-sYc" customClass="FirstViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="5Vp-my-bZT"/>
                         <viewControllerLayoutGuide type="bottom" id="mb9-1g-sTc"/>

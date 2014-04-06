@@ -7,6 +7,7 @@
 //
 
 #import "MCManager.h"
+#import "FirstViewController.h"
 
 
 @implementation MCManager
@@ -116,10 +117,13 @@
         if ([array count] > 2) {
             isValid = [verifyKey verify:[array objectAtIndex:1] signature:[array objectAtIndex:2]];
         }
+        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+        FirstViewController *firstViewController = (FirstViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
+
         if (isValid) {
-            NSLog(@"%@", [array objectAtIndex:1]); //from leader
+            [firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //from leader
         } else {
-            NSLog(@"%@", [array objectAtIndex:1]); //reg message
+            [firstViewController appendMessage:[NSArray arrayWithObjects:[array objectAtIndex:1], peerID, nil]]; //reg message
         }
     }
 }

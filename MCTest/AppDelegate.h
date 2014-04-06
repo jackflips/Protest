@@ -9,11 +9,13 @@
 #import <UIKit/UIKit.h>
 #import "MCManager.h"
 #import "AeroGearCrypto.h"
+#import "FirstViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) AGSigningKey *key;
 @property (strong, nonatomic) MCManager *manager;
+@property (strong, nonatomic) FirstViewController *firstViewController;
 
 @end
