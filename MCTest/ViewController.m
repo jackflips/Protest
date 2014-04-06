@@ -7,8 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "AGSigningKey.h"
-#import "AGVerifyKey.h"
+#import "AeroGearCrypto.h"
 #import "MCManager.h"
 
 @interface ViewController ()
@@ -25,21 +24,17 @@
 
 - (IBAction)startProtest:(id)sender {
     NSData *message = [@"My bonnie lies over the ocean" dataUsingEncoding:NSUTF8StringEncoding];
-    
-    AGSigningKey *signingKey = [[AGSigningKey alloc] init];
-    AGVerifyKey *verifyKey = [[AGVerifyKey alloc] initWithKey:signingKey.publicKey];
+    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    _appDelegate.key = [[AGSigningKey alloc] init];
+    AGVerifyKey *verifyKey = [[AGVerifyKey alloc] initWithKey:_appDelegate.key.publicKey];
     // sign the message
-    NSData *signedMessage = [signingKey sign:message];
+    NSData *signedMessage = [_appDelegate.key sign:message];
     
-    // should detect corrupted signature
-    NSMutableData *corruptedSignature = [NSMutableData dataWithLength:64];
     BOOL isValid = [verifyKey verify:message signature:signedMessage];
     
-    // isValid should be YES
-    isValid = [verifyKey verify:message signature:corruptedSignature];
-    
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [_appDelegate.manager setPublicKey:signingKey.publicKey];
+    _appDelegate.manager.leader = YES;
+    [_appDelegate.manager setPublicKey:_appDelegate.key.publicKey];
     [_appDelegate.manager connect];
 }
 

@@ -74,12 +74,22 @@
     NSData *dataToSend = [_txtMessage.text dataUsingEncoding:NSUTF8StringEncoding];
     NSArray *allPeers = _appDelegate.manager.session.connectedPeers;
     NSError *error;
-    
-    [_appDelegate.manager.session sendData:dataToSend
-                                     toPeers:allPeers
-                                    withMode:MCSessionSendDataReliable
-                                       error:&error];
-    
+    if (_appDelegate.manager.leader == YES) {
+        NSData *signedMessage = [_appDelegate.key sign:dataToSend];
+        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.manager.publicKey, dataToSend, signedMessage, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+        [_appDelegate.manager.session sendData:data
+                                       toPeers:allPeers
+                                      withMode:MCSessionSendDataReliable
+                                         error:&error];
+    } else {
+        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.manager.publicKey, dataToSend, nil, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+        [_appDelegate.manager.session sendData:data
+                                       toPeers:allPeers
+                                      withMode:MCSessionSendDataReliable
+                                         error:&error];
+    }
     if (error) {
         NSLog(@"%@", [error localizedDescription]);
     }

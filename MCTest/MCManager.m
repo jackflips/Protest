@@ -8,6 +8,7 @@
 
 #import "MCManager.h"
 
+
 @implementation MCManager
 
 - (id)init{
@@ -19,6 +20,7 @@
         _browser = nil;
         _advertiser = nil;
         _publicKey = nil;
+        _leader = NO;
     }
     return self;
 }
@@ -32,6 +34,7 @@
         _browser = nil;
         _advertiser = nil;
         _publicKey = publicKey;
+        _leader = NO;
     }
     return self;
 }
@@ -91,7 +94,7 @@
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"peer did change state");
-    NSLog(@"%d", state);
+    NSLog(@"%ld", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected?");
         NSString *str = @"you are connected good job";
@@ -107,13 +110,16 @@
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID{
     NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     if ([[array objectAtIndex:0] isEqualToData:_publicKey]) { //if sender's public key matches ours... else do nothing.
-        NSDictionary *dict = @{@"data": data,
-                               @"peerID": peerID
-                               };
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"MCDidReceiveDataNotification"
-                                                            object:nil
-                                                          userInfo:dict];
+        AGVerifyKey *verifyKey = [[AGVerifyKey alloc] initWithKey:_publicKey];
+        BOOL isValid = NO;
+        if ([array objectAtIndex:2] != nil) {
+            isValid = [verifyKey verify:[array objectAtIndex:1] signature:[array objectAtIndex:2]];
+        }
+        if (isValid) {
+            NSLog(@"%@", [array objectAtIndex:1]); //from leader
+        } else {
+            NSLog(@"%@", [array objectAtIndex:1]); //reg message
+        }
     }
 }
 

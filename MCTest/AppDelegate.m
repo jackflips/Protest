@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "MCManager.h"
 
 @implementation AppDelegate
 

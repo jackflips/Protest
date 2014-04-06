@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
+#import "AeroGearCrypto.h"
 
 @interface MCManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate>
 
@@ -17,6 +18,7 @@
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) NSMutableArray *peers;
 @property (nonatomic, strong) NSData *publicKey;
+@property (nonatomic, assign) BOOL leader;
 
 - (id)initWithPublicKey:(NSData *)publicKey;
 - (void)connect;
