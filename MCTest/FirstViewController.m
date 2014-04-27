@@ -121,19 +121,22 @@
 #pragma mark - Private method implementation
 
 -(void)sendMyMessage{
-    NSData *dataToSend = [_txtMessage.text dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [_appDelegate.manager sendMessage:_txtMessage.text]
+    
+    /*
     NSArray *allPeers = _appDelegate.manager.session.connectedPeers;
     NSError *error;
     if (_appDelegate.manager.leader == YES) {
-        NSData *signedMessage = [_appDelegate.key sign:dataToSend];
-        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.manager.publicKey, dataToSend, signedMessage, nil];
+        NSData *signedMessage = [_appDelegate.myKey sign:dataToSend];
+        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.leaderKey, dataToSend, signedMessage, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         [_appDelegate.manager.session sendData:data
                                        toPeers:allPeers
                                       withMode:MCSessionSendDataReliable
                                          error:&error];
     } else {
-        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.manager.publicKey, dataToSend, nil];
+        NSArray *array = [[NSArray alloc] initWithObjects:_appDelegate.leaderKey, dataToSend, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         [_appDelegate.manager.session sendData:data
                                        toPeers:allPeers
@@ -143,6 +146,7 @@
     if (error) {
         NSLog(@"%@", [error localizedDescription]);
     }
+     */
     
     [_tvChat setText:[_tvChat.text stringByAppendingString:[NSString stringWithFormat:@"I wrote:\n%@\n\n", _txtMessage.text]]];
     [_txtMessage setText:@""];
@@ -155,7 +159,6 @@
     NSString *receivedText = [[NSString alloc] initWithData:[sender objectAtIndex:0] encoding:NSUTF8StringEncoding];
     
     [_tvChat performSelectorOnMainThread:@selector(setText:) withObject:[_tvChat.text stringByAppendingString:[NSString stringWithFormat:@"%@ (LEADER) wrote:\n%@\n\n", peerDisplayName, receivedText]] waitUntilDone:NO];
-    
 }
 
 - (void)appendMessage:(NSArray*)sender {

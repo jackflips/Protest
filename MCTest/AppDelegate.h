@@ -14,7 +14,8 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) AGSigningKey *key;
+@property (strong, nonatomic) NSData *leaderKey;
+@property (strong, nonatomic) AGSigningKey *myKey;
 @property (strong, nonatomic) MCManager *manager;
 @property (strong, nonatomic) FirstViewController *firstViewController;
 
