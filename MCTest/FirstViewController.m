@@ -122,7 +122,7 @@
 
 -(void)sendMyMessage{
     
-    [_appDelegate.manager sendMessage:_txtMessage.text]
+    [_appDelegate.manager sendMessage:_txtMessage.text];
     
     /*
     NSArray *allPeers = _appDelegate.manager.session.connectedPeers;
