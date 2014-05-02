@@ -11,15 +11,15 @@
 
 @interface Graph : NSObject
 
-@property (nonatomic, strong) NSData *key;
+@property (nonatomic) SecKeyRef key;
 @property (nonatomic, strong) NSMutableArray *peers;
 @property (nonatomic, strong) MCSession *session;
 @property (nonatomic) CFAbsoluteTime age;
 @property (nonatomic) BOOL requestOut;
 @property (nonatomic) BOOL isParent;
 
-- (id)initWithKey:(NSData*)key andSession:(MCSession*)session;
-- (id)initWithKey:(NSData*)key;
+- (id)initWithKey:(SecKeyRef)key andSession:(MCSession*)session;
+- (id)initWithKey:(SecKeyRef)key;
 - (void)resetAge;
 - (CFAbsoluteTime)getAgeSinceReset;
 

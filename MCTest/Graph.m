@@ -18,7 +18,7 @@
     return CFAbsoluteTimeGetCurrent() - _age;
 }
 
-- (id)initWithKey:(NSData*)key andSession:(id)session {
+- (id)initWithKey:(SecKeyRef)key andSession:(id)session {
     self = [super init];
     _key = key;
     _session = session;
@@ -29,7 +29,7 @@
     return self;
 }
 
-- (id)initWithKey:(NSData*)key {
+- (id)initWithKey:(SecKeyRef)key {
     self = [super init];
     _key = key;
     _session = nil;
