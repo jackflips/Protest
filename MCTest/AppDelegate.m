@@ -14,13 +14,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    _manager = [[MCManager alloc] init];
-    //I think the font is called Futura Std-Medium, other one is called Gotham
     return YES;
 }
 
 -(void)addMessageToChat:(Message*)message {
-    NSLog(@"testing2");
     [_firstViewController addMessage:message];
 }
 							

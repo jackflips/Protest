@@ -23,6 +23,8 @@
     [super viewDidLoad];
     _protests = [NSMutableArray array];
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    _appDelegate.manager = [[MCManager alloc] init];
+    [_appDelegate.manager browseForProtests];
 
     _appDelegate.viewController = self;
     tableSource = [NSMutableArray arrayWithObjects:@"Tahrir Square Allstars", @"John/Yoko Bed-in", @"Prague Spring Breakers", nil];
