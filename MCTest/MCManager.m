@@ -156,7 +156,7 @@ static const double PRUNE = 30.0;
     //data schema: { nameOfProtest, boolPassword, myPublicKey }
     BOOL isPassword = NO;
     if (_password) isPassword = YES;
-    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, isPassword, _cryptoManager.publicKey, nil];
+    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, isPassword, [self getPublicKeyBitsFromKey:_cryptoManager.publicKey], nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
     [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
 }
