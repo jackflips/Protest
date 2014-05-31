@@ -79,6 +79,7 @@ static const double PRUNE = 30.0;
 
 - (void)browseForProtests {
     [self setupPeerAndSessionWithDisplayName:_userID];
+    [self advertiseSelf];
     
 }
 
