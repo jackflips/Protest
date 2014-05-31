@@ -127,7 +127,7 @@
     }];
 }
 
-- (void)startProtest:(NSString*)nameOfProtest {
+- (void)startProtest {
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager.leader = YES;
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
