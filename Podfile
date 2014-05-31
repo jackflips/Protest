@@ -1,1 +1,0 @@
-pod "AeroGear-Crypto", '0.2.3'

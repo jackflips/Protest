@@ -7,18 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
-@import MapKit;
+#import "Message.h"
 
-@interface FirstViewController : UIViewController <UITextFieldDelegate, MKMapViewDelegate>
+@interface FirstViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITextField *txtMessage;
 @property (weak, nonatomic) IBOutlet UITextView *tvChat;
+@property (strong, nonatomic) IBOutlet UILabel *protestName;
+@property (strong, nonatomic) IBOutlet UITableView *chatTable;
+@property (strong, nonatomic) NSMutableArray *chatSource;
+@property (strong, nonatomic) NSMutableArray *availAvatars;
+@property (strong, nonatomic) NSMutableDictionary *avatarForUser;
 
-@property (strong, nonatomic) IBOutlet MKMapView *mapView;
 
-- (IBAction)sendMessage:(id)sender;
-- (IBAction)cancelMessage:(id)sender;
-- (void)appendMessage:(id)sender;
-- (void)appendMessageFromLeader:(NSArray*)sender;
+- (void)addMessage:(Message*)message;
+- (void)protestNameCallback:(NSString*)name;
 
 
 @end

@@ -7,12 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AppDelegate.h"
 
-@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource> {
-    NSArray *tableSource;
+@class AppDelegate;
+
+@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate> {
+    NSMutableArray *tableSource;
 }
 
-@property (nonatomic, strong) AppDelegate *appDelegate;
+@property (nonatomic, strong) NSMutableArray *protests;
+@property (nonatomic, strong) IBOutlet UITableView *tableView;
+
+- (void)addProtestToList:(NSDictionary*)protest;
+
 
 @end

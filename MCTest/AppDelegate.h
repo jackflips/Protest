@@ -7,16 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MCManager.h"
-#import "AeroGearCrypto.h"
+#import "Message.h"
 #import "FirstViewController.h"
+#import "MCManager.h"
+
+@class ViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) NSData *leaderKey;
-@property (strong, nonatomic) AGSigningKey *myKey;
+@property (nonatomic) SecKeyRef leaderKey;
 @property (strong, nonatomic) MCManager *manager;
 @property (strong, nonatomic) FirstViewController *firstViewController;
+@property (strong, nonatomic) ViewController *viewController;
+
+-(void)addMessageToChat:(Message*)message;
 
 @end
