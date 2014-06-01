@@ -175,6 +175,7 @@ static const double PRUNE = 30.0;
     if (context) {
         NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
         NSLog(@"%@", contextArray);
+        [_appDelegate.viewController addProtestToList:[contextArray objectAtIndex:0] password:[[contextArray objectAtIndex:1] boolValue] health:1];
         //invitationHandler(YES, self.session);
     }
 }
