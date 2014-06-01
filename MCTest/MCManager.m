@@ -156,7 +156,8 @@ static const double PRUNE = 30.0;
     //data schema: { nameOfProtest, boolPassword, myPublicKey }
     BOOL isPassword = NO;
     if (_password) isPassword = YES;
-    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, isPassword, [self getPublicKeyBitsFromKey:_cryptoManager.publicKey], nil];
+    NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
     [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
 }
@@ -172,13 +173,14 @@ static const double PRUNE = 30.0;
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
     if (context) {
-        NSLog(@"%@", context);
-        invitationHandler(YES, self.session);
+        NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
+        NSLog(@"%@", contextArray);
+        //invitationHandler(YES, self.session);
     }
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
-    NSLog(@"%ld", state);
+    NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
         NSError *error;
         NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
