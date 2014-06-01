@@ -17,7 +17,6 @@
 @property (nonatomic, strong) NSMutableArray *protests;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 
-- (void)addProtestToList:(NSString*)protest;
-
+- (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health;
 
 @end

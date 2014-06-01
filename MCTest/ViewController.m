@@ -16,6 +16,26 @@
 
 @end
 
+@interface Protest : NSObject
+
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic) BOOL passwordNeeded;
+@property (nonatomic) int health;
+
+@end
+
+@implementation Protest
+
+- (id)initWithName:(NSString*)name passwordNeeded:(BOOL)passwordNeeded andHealth:(int)health {
+    self = [super init];
+    _name = name;
+    _passwordNeeded = passwordNeeded;
+    _health = health;
+    return self;
+}
+
+@end
+
 @implementation ViewController
 
 - (void)viewDidLoad
@@ -27,7 +47,10 @@
     [_appDelegate.manager browseForProtests];
 
     _appDelegate.viewController = self;
-    tableSource = [NSMutableArray arrayWithObjects:@"Tahrir Square Allstars", @"John/Yoko Bed-in", @"Prague Spring Breakers", nil];
+    tableSource = [NSMutableArray array];
+    Protest *sampleProt = [[Protest alloc] initWithName:@"Tahrir Square Allstars" passwordNeeded:YES andHealth:1];
+    [tableSource addObject:sampleProt];
+    //other sample protest names: @"John/Yoko Bed-in", @"Prague Spring Breakers"
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.titleLabel.text = @"";
@@ -49,10 +72,14 @@
     NSLog(@"uh");
 }
 
-- (void)addProtestToList:(NSString*)protest {
-    if (![tableSource containsObject:protest]) {
-        [tableSource addObject:protest];
+- (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health {
+    Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
+    for (Protest *prot in tableSource) {
+        if ([prot.name isEqualToString:nameOfProtest]) {
+            [tableSource removeObject:prot];
+        }
     }
+    [tableSource addObject:protest];
     [_tableView reloadData];
 }
 
@@ -68,22 +95,35 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
-    static NSString *simpleTableIdentifier = @"SimpleTableCell";
-    
+    //boilerplate tableview setup
+    static NSString *simpleTableIdentifier = @"ProtestCell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
     
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
     }
-    
-    cell.textLabel.text = [tableSource objectAtIndex:indexPath.row];
-    
     cell.backgroundView = [[UIImageView alloc] initWithImage:[ [UIImage imageNamed:@"rowimage.png"] stretchableImageWithLeftCapWidth:0.0 topCapHeight:5.0] ];
     cell.selectedBackgroundView =  [[UIImageView alloc] initWithImage:[ [UIImage imageNamed:@"rowimage.png"] stretchableImageWithLeftCapWidth:0.0 topCapHeight:5.0] ];
-    cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"greendotlocked.png"]];
+    
+    Protest *thisProtest = [tableSource objectAtIndex:indexPath.row];
+    cell.textLabel.text = thisProtest.name;
+    NSString *cellAccessoryViewImage;
+    if (thisProtest.health == 1) {
+        if (thisProtest.passwordNeeded) {
+            cellAccessoryViewImage = @"greendotlocked.png";
+        } else {
+            cellAccessoryViewImage = @"greendot.png";
+        }
+    } else {
+        if (thisProtest.passwordNeeded) {
+            cellAccessoryViewImage = @"yellowdotlocked.png";
+        } else {
+            cellAccessoryViewImage = @"yellowdotlocked.png";
+        }
+    }
+    cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:cellAccessoryViewImage]];
     cell.textLabel.font = [UIFont fontWithName:@"Futura Std" size:21];
     cell.textLabel.textColor = [UIColor colorWithRed:0.349 green:0.349 blue:0.349 alpha:1];
-    
     return cell;
 }
 
