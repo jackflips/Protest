@@ -49,11 +49,9 @@
     NSLog(@"uh");
 }
 
-- (void)addProtestToList:(NSDictionary*)protest {
-    [tableSource removeAllObjects];
-    [_protests addObject:protest];
-    for (NSDictionary *dict in _protests) {
-        [tableSource addObject:[dict objectForKey:@"name"]];
+- (void)addProtestToList:(NSString*)protest {
+    if (![tableSource containsObject:protest]) {
+        [tableSource addObject:protest];
     }
     [_tableView reloadData];
 }

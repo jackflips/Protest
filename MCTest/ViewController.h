@@ -17,7 +17,7 @@
 @property (nonatomic, strong) NSMutableArray *protests;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 
-- (void)addProtestToList:(NSDictionary*)protest;
+- (void)addProtestToList:(NSString*)protest;
 
 
 @end
