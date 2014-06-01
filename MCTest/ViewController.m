@@ -59,8 +59,6 @@
     [button setBackgroundImage:[UIImage imageNamed:@"addbutton.png"]
                       forState:UIControlStateNormal];
     [self.view addSubview:button];
-    
-    [_appDelegate.manager browseForProtests];
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
 }
 

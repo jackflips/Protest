@@ -80,7 +80,6 @@ static const double PRUNE = 30.0;
 - (void)browseForProtests {
     [self setupPeerAndSessionWithDisplayName:_userID];
     [self advertiseSelf];
-    
 }
 
 - (void)connectToPeer:(MCPeerID*)peer password:(NSString*)password {
@@ -113,6 +112,7 @@ static const double PRUNE = 30.0;
 - (void)browse {
     _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_peerID serviceType:@"Protest"];
     [_browser setDelegate:self];
+    [_advertiser stopAdvertisingPeer];
     [_browser startBrowsingForPeers];
 }
 
