@@ -44,7 +44,7 @@
     _protests = [NSMutableArray array];
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager = [[MCManager alloc] init];
-    [_appDelegate.manager browseForProtests];
+    [_appDelegate.manager searchForProtests];
 
     _appDelegate.viewController = self;
     tableSource = [NSMutableArray array];
@@ -52,13 +52,13 @@
     [tableSource addObject:sampleProt];
     //other sample protest names: @"John/Yoko Bed-in", @"Prague Spring Breakers"
     
-    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    button.titleLabel.text = @"";
-    button.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
-    [button addTarget:self action:@selector(startProtest) forControlEvents:UIControlEventTouchUpInside];
-    [button setBackgroundImage:[UIImage imageNamed:@"addbutton.png"]
+    _startProtestButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _startProtestButton.titleLabel.text = @"";
+    _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
+    [_startProtestButton addTarget:self action:@selector(startProtest) forControlEvents:UIControlEventTouchUpInside];
+    [_startProtestButton setBackgroundImage:[UIImage imageNamed:@"addbutton.png"]
                       forState:UIControlStateNormal];
-    [self.view addSubview:button];
+    [self.view addSubview:_startProtestButton];
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
 }
 
@@ -122,6 +122,7 @@
     cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:cellAccessoryViewImage]];
     cell.textLabel.font = [UIFont fontWithName:@"Futura Std" size:21];
     cell.textLabel.textColor = [UIColor colorWithRed:0.349 green:0.349 blue:0.349 alpha:1];
+    _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
     return cell;
 }
 

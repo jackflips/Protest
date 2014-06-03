@@ -73,11 +73,13 @@ static const double PRUNE = 30.0;
 - (void)startProtest:(NSString*)name password:(NSString*)password {
     _nameOfProtest = name;
     _password = password;
+    [_advertiser stopAdvertisingPeer];
     [self setupPeerAndSessionWithDisplayName:_userID];
     [self connect];
 }
 
-- (void)browseForProtests {
+- (void)searchForProtests {
+    NSLog(@"advertising self 4 protests");
     [self setupPeerAndSessionWithDisplayName:_userID];
     [self advertiseSelf];
 }
@@ -107,12 +109,12 @@ static const double PRUNE = 30.0;
     _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:emptyDict serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
+    NSLog(@"now advertising");
 }
 
 - (void)browse {
     _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_peerID serviceType:@"Protest"];
     [_browser setDelegate:self];
-    [_advertiser stopAdvertisingPeer];
     [_browser startBrowsingForPeers];
 }
 
