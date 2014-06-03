@@ -99,6 +99,7 @@ static const double PRUNE = 30.0;
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
     [_advertiser stopAdvertisingPeer];
+    NSLog(@"told to join protest");
     void (^invitationHandler)(BOOL accept, MCSession *session) = [_foundProtests objectForKey:protestName];
     invitationHandler(YES, _session);
 }
