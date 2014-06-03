@@ -172,6 +172,7 @@ static const double PRUNE = 30.0;
 
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
+    NSLog(@"received invite from peer!");
     if (context) {
         NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
         NSLog(@"%@", contextArray);
