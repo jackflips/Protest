@@ -48,8 +48,10 @@
     _txtMessage.hidden = YES;
     
     UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [spinner setColor:[UIColor grayColor]];
     [spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
     [self.view addSubview:spinner]; // spinner is not visible until started
+    [spinner startAnimating];
 }
 
 - (void)protestNameCallback:(NSString*)name {
