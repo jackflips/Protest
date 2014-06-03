@@ -11,7 +11,6 @@
 
 @interface FirstViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITextField *txtMessage;
-@property (weak, nonatomic) IBOutlet UITextView *tvChat;
 @property (strong, nonatomic) IBOutlet UILabel *protestName;
 @property (strong, nonatomic) IBOutlet UITableView *chatTable;
 @property (strong, nonatomic) NSMutableArray *chatSource;

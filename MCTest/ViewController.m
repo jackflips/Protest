@@ -148,19 +148,16 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     UITextField *passwordTextField = [alertView textFieldAtIndex:0];
     //make call to network - will return success or failiure.
-    NSString *pw = @"hey";
-    if ([passwordTextField.text isEqualToString:pw]) {
-        NSIndexPath *path = [NSIndexPath indexPathForRow:alertView.tag inSection:0];
-        UITableViewCell *cell = [_tableView cellForRowAtIndexPath:path];
-        [self joinProtest:cell.textLabel.text];
-    }
+    NSIndexPath *path = [NSIndexPath indexPathForRow:alertView.tag inSection:0];
+    UITableViewCell *cell = [_tableView cellForRowAtIndexPath:path];
+    [self joinProtest:cell.textLabel.text password:passwordTextField.text];
 }
 
-- (void)joinProtest:(NSString*)nameOfProtest {
+- (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password {
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     FirstViewController *firstViewController = (FirstViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
     _appDelegate.firstViewController = firstViewController;
-    [_appDelegate.manager joinProtest];
+    [_appDelegate.manager joinProtest:nameOfProtest password:password];
     [_appDelegate.window.rootViewController presentViewController:firstViewController animated:YES completion:^{
         [firstViewController protestNameCallback:nameOfProtest];
     }];

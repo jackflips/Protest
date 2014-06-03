@@ -31,8 +31,9 @@
 @property (nonatomic, strong) NSData *leadersPublicKey;
 @property (nonatomic, strong) NSString *password;
 @property (nonatomic, strong) NSString *nameOfProtest;
+@property (nonatomic, strong) NSMutableDictionary *foundProtests;
 
-- (void)joinProtest;
+- (void)joinProtest:(NSString*)protestName password:(NSString*)password;
 - (void)startProtest:(NSString*)name password:(NSString*)password;
 - (void)pruneTree;
 - (void)sendMessage:(NSString*)message;

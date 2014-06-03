@@ -30,7 +30,6 @@
     
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    _txtMessage.delegate = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveDataWithNotification:)
@@ -44,6 +43,9 @@
     }
     _avatarForUser = [[NSMutableDictionary alloc] init];
     
+    _protestName.hidden = YES;
+    _chatTable.hidden = YES;
+    _txtMessage.hidden = YES;
 }
 
 - (void)protestNameCallback:(NSString*)name {
@@ -83,10 +85,6 @@
 
 - (IBAction)sendMessage:(id)sender {
     [self sendMyMessage];
-}
-
-- (IBAction)cancelMessage:(id)sender {
-    [_txtMessage resignFirstResponder];
 }
 
 - (IBAction)exitButtonPressed:(id)sender {

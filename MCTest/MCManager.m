@@ -1,7 +1,4 @@
 //
-//  MCManager.m
-//  MCTest
-//
 //  Created by John Rogers on 4/5/14.
 //  Copyright (c) 2014 John Rogers. All rights reserved.
 //
@@ -18,6 +15,13 @@ static const double PRUNE = 30.0;
 
 @end
 
+@interface FoundProtest : NSObject
+
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
+
+@end
+
 @implementation MCManager
 
 - (id)init{
@@ -31,12 +35,12 @@ static const double PRUNE = 30.0;
         _leadersPublicKey = nil;
         _leader = NO;
         _sessions = [[NSMutableDictionary alloc] init];
-        _currentRequestingPeers = [[NSMutableArray alloc] init];
         _allMessages = [[NSMutableDictionary alloc] init];
         _userID = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] substringToIndex:8];
         _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         _password = nil;
         _nameOfProtest = nil;
+        _foundProtests = [NSMutableDictionary dictionary];
         
         _cryptoManager = [[WJLPkcsContext alloc] init];
     }
@@ -93,9 +97,10 @@ static const double PRUNE = 30.0;
     [self browse];
 }
 
-- (void)joinProtest {
-    [self setupPeerAndSessionWithDisplayName:_userID];
-    //[self advertiseSelf];
+- (void)joinProtest:(NSString*)protestName password:(NSString*)password {
+    [_advertiser stopAdvertisingPeer];
+    void (^invitationHandler)(BOOL accept, MCSession *session) = [_foundProtests objectForKey:protestName];
+    invitationHandler(YES, _session);
 }
 
 - (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
@@ -172,14 +177,12 @@ static const double PRUNE = 30.0;
     NSLog(@"advertiser fucked up");
 }
 
-
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
     NSLog(@"received invite from peer!");
     if (context) {
         NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
-        NSLog(@"%@", contextArray);
+        [_foundProtests setObject:invitationHandler forKey:[contextArray objectAtIndex:0]];
         [_appDelegate.viewController addProtestToList:[contextArray objectAtIndex:0] password:[[contextArray objectAtIndex:1] boolValue] health:1];
-        //invitationHandler(YES, self.session);
     }
 }
 
