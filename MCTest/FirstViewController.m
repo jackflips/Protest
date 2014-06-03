@@ -46,6 +46,10 @@
     _protestName.hidden = YES;
     _chatTable.hidden = YES;
     _txtMessage.hidden = YES;
+    
+    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
+    [self.view addSubview:spinner]; // spinner is not visible until started
 }
 
 - (void)protestNameCallback:(NSString*)name {
