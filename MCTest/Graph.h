@@ -17,6 +17,7 @@
 @property (nonatomic) CFAbsoluteTime age;
 @property (nonatomic) BOOL requestOut;
 @property (nonatomic) BOOL isParent;
+@property (nonatomic) BOOL isQuarantined;
 
 - (id)initWithKey:(SecKeyRef)key andSession:(MCSession*)session;
 - (id)initWithKey:(SecKeyRef)key;

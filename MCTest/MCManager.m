@@ -28,7 +28,8 @@ static const double PRUNE = 30.0;
     self = [super init];
     
     if (self) {
-        _session = nil;
+        _advertisingSession = nil;
+        _browsingSession = nil;
         _peerID = nil;
         _browser = nil;
         _advertiser = nil;
@@ -78,22 +79,17 @@ static const double PRUNE = 30.0;
     _nameOfProtest = name;
     _password = password;
     [_advertiser stopAdvertisingPeer];
-    [self setupPeerAndSessionWithDisplayName:_userID];
+    [self setupPeerAndSessionWithDisplayName:_userID session:_browsingSession];
     [self connect];
 }
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
-    [self setupPeerAndSessionWithDisplayName:_userID];
+    [self setupPeerAndSessionWithDisplayName:_userID session:_advertisingSession];
     [self advertiseSelf];
 }
 
-- (void)connectToPeer:(MCPeerID*)peer password:(NSString*)password {
-    [_browser invitePeer:peer toSession:_session withContext:[password dataUsingEncoding:NSUTF8StringEncoding] timeout:30.0];
-}
-
-- (void)connect {
-    [self setupPeerAndSessionWithDisplayName:_userID];
+- (void)connect { //this is where you want to advertise as well.
     [self browse];
 }
 
@@ -101,13 +97,13 @@ static const double PRUNE = 30.0;
     [_advertiser stopAdvertisingPeer];
     NSLog(@"told to join protest");
     void (^invitationHandler)(BOOL accept, MCSession *session) = [_foundProtests objectForKey:protestName];
-    invitationHandler(YES, _session);
+    invitationHandler(YES, _advertisingSession);
 }
 
-- (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
+- (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName session:(MCSession*)session{
     _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
-    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
-    _session.delegate = self;
+    session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    session.delegate = self;
 }
 
 - (void)advertiseSelf {
@@ -167,7 +163,7 @@ static const double PRUNE = 30.0;
     NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
     NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
-    [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
+    [browser invitePeer:peerID toSession:_browsingSession withContext:data timeout:120.0];
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -188,15 +184,22 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
-    NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
-        NSError *error;
-        NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
-        NSArray *allPeers = _session.connectedPeers;
-        [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
-        if (error) {
-            NSLog(@"%@", [error localizedDescription]);
+        if (session == _advertisingSession) {
+            NSLog(@"connected tho");
+            NSError *error;
+            NSArray *array;
+            if (_password) {
+                array = [[NSArray alloc] initWithObjects:@"Hello", _password, _cryptoManager.publicKey, nil];
+            } else {
+                array = [[NSArray alloc] initWithObjects:@"Hello", _cryptoManager.publicKey, nil];
+            }
+            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+            NSArray *allPeers = _advertisingSession.connectedPeers;
+            [_advertisingSession sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+            if (error) {
+                NSLog(@"%@", [error localizedDescription]);
+            }
         }
     }
 }
@@ -271,7 +274,10 @@ static const double PRUNE = 30.0;
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     Graph *thisPeer = [_sessions objectForKey:peerID];
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Keyflag"]) {
+    if ([[data objectAtIndex:0] isEqualToString:@"Hello"]) {
+        if ([data count] > 2) { //
+            
+        }
         Graph *newPeer = [[Graph alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
         [_sessions setObject:newPeer forKey:peerID];
         _session = nil;
