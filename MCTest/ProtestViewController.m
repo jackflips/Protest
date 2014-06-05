@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 John Rogers. All rights reserved.
 //
 
-#import "ViewController.h"
-#import "MCManager.h"
+#import "ProtestViewController.h"
+#import "ConnectionManager.h"
 #import "AppDelegate.h"
 
-@interface ViewController ()
+@interface ProtestViewController ()
 
 @property (nonatomic, retain) AppDelegate *appDelegate;
 
@@ -36,14 +36,14 @@
 
 @end
 
-@implementation ViewController
+@implementation ProtestViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     _protests = [NSMutableArray array];
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
-    _appDelegate.manager = [[MCManager alloc] init];
+    _appDelegate.manager = [[ConnectionManager alloc] init];
     [_appDelegate.manager searchForProtests];
 
     _appDelegate.viewController = self;

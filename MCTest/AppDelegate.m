@@ -7,8 +7,8 @@
 //
 
 #import "AppDelegate.h"
-#import "MCManager.h"
-#import "ViewController.h"
+#import "ConnectionManager.h"
+#import "ProtestViewController.h"
 
 @implementation AppDelegate
 

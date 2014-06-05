@@ -10,7 +10,7 @@
 
 @class AppDelegate;
 
-@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate> {
+@interface ProtestViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate> {
     NSMutableArray *tableSource;
 }
 

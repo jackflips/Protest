@@ -3,26 +3,19 @@
 //  Copyright (c) 2014 John Rogers. All rights reserved.
 //
 
-#import "MCManager.h"
+#import "ConnectionManager.h"
 #import "FirstViewController.h"
 #import "AppDelegate.h"
 
 static const double PRUNE = 30.0;
 
-@interface MCManager()
+@interface ConnectionManager()
 
 @property (nonatomic, retain) AppDelegate *appDelegate;
 
 @end
 
-@interface FoundProtest : NSObject
-
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
-
-@end
-
-@implementation MCManager
+@implementation ConnectionManager
 
 - (id)init{
     self = [super init];
@@ -42,6 +35,7 @@ static const double PRUNE = 30.0;
         _password = nil;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
+        _quarantinedProtests = [NSMutableDictionary dictionary];
         
         _cryptoManager = [[WJLPkcsContext alloc] init];
     }
@@ -107,8 +101,9 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiseSelf {
-    NSDictionary *emptyDict = [[NSDictionary alloc] init];
-    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:emptyDict serviceType:@"Protest"];
+    NSDictionary *dict = [[NSDictionary alloc] init];
+    [dict setValue:_peerID forKeyPath:@"id"];
+    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:dict serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
     NSLog(@"now advertising");
@@ -156,14 +151,16 @@ static const double PRUNE = 30.0;
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     NSLog(@"found peer");
-    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    //data schema: { nameOfProtest, boolPassword, myPublicKey }
-    BOOL isPassword = NO;
-    if (_password) isPassword = YES;
-    NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
-    [browser invitePeer:peerID toSession:_browsingSession withContext:data timeout:120.0];
+    if ([info objectForKey:@"id"]) {
+        _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        //data schema: { nameOfProtest, boolPassword, myPublicKey }
+        BOOL isPassword = NO;
+        if (_password) isPassword = YES;
+        NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
+        [browser invitePeer:peerID toSession:_browsingSession withContext:data timeout:120.0];
+    }
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -201,6 +198,10 @@ static const double PRUNE = 30.0;
                 NSLog(@"%@", [error localizedDescription]);
             }
         }
+        else if (session == _browsingSession) {
+            [_quarantinedProtests setObject:_browsingSession forKey:_browsingSession.myPeerID];
+            [self setupPeerAndSessionWithDisplayName:_userID session:_browsingSession]; //maybe a bug here, _browsingSession getting reassigned?
+        }
     }
 }
 
@@ -213,14 +214,14 @@ static const double PRUNE = 30.0;
 }
 
 - (void)gossip {
-    for (Graph *peer in _sessions) {
-        NSArray *array = [[NSArray alloc] initWithObjects:@"GossipRequest", nil];
+    for (Peer *peer in _sessions) {
+        NSArray *array = @[@"GossipRequest"];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         data = [self encryptMessage:data andPublicKey:peer.key];
-        NSArray *allPeers = peer.session.connectedPeers;
+        NSArray *peerAddress = peer.session.connectedPeers;
         NSError *error;
         peer.requestOut = YES;
-        [peer.session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+        [peer.session sendData:data toPeers:[NSArray arrayWithObject:peerAddress] withMode:MCSessionSendDataReliable error:&error];
         if (error) {
             NSLog(@"%@", [error localizedDescription]);
         }
@@ -228,7 +229,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)pruneTree {
-    for (Graph __strong *peer in _sessions) {
+    for (Peer __strong *peer in _sessions) {
         if ([peer getAgeSinceReset] > PRUNE) {
             peer = nil;
         }
@@ -236,7 +237,7 @@ static const double PRUNE = 30.0;
 }
 
 - (BOOL)needsToRefreshPeerList {
-    for (Graph *session in _sessions) {
+    for (Peer *session in _sessions) {
         if ([session getAgeSinceReset] > PRUNE) {
             return YES;
         }
@@ -244,10 +245,10 @@ static const double PRUNE = 30.0;
     return NO;
 }
 
-- (void)sendFirstOrderPeerTree:(Graph*)peer {
+- (void)sendFirstOrderPeerTree:(Peer*)peer {
     NSError *error;
     NSArray *peerId = peer.session.connectedPeers; //remember, just one peer per session.
-    for (Graph* graph in _sessions) {
+    for (Peer* graph in _sessions) {
         if ([graph getAgeSinceReset] < PRUNE) {
             NSArray *gossipResponse = [[NSArray alloc] initWithObjects:@"GossipResponse", _cryptoManager.publicKey, graph.key, nil];
             NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:gossipResponse];
@@ -258,12 +259,12 @@ static const double PRUNE = 30.0;
 }
 
 - (BOOL)updateParents {
-    for (Graph *peer in _sessions) {
+    for (Peer *peer in _sessions) {
         if (peer.requestOut) {
             return YES;
         }
     }
-    for (Graph *peer in _sessions) {
+    for (Peer *peer in _sessions) {
         peer.isParent = NO;
     }
     return NO;
@@ -272,15 +273,29 @@ static const double PRUNE = 30.0;
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     NSData *decryptedData = [_cryptoManager decrypt:messageData];
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-    Graph *thisPeer = [_sessions objectForKey:peerID];
+    Peer *thisPeer = [_sessions objectForKey:peerID];
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Hello"]) {
-        if ([data count] > 2) { //
-            
+    //@"Hello", _password, _cryptoManager.publicKey
+    //@"Hello", key
+    if ([[data objectAtIndex:0] isEqualToString:@"Hello"]) { //only the browsing session would ever get this.
+        if ([data count] > 2)  {
+            if (![[data objectAtIndex:1] isEqualToString:_password]) {
+                NSArray *arr = @[@"WrongPassword"];
+                NSData *data = [NSKeyedArchiver archivedDataWithRootObject:arr];
+                NSArray *allPeers = session.connectedPeers;
+                NSError *error;
+                [session sendData:data toPeers:@[allPeers] withMode:MCSessionSendDataReliable error:&error];
+                return;
+            } else {
+                Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2]) andSession:session];
+                [_sessions setObject:newPeer forKey:peerID];
+                [_quarantinedProtests removeObjectForKey:peerID];
+            }
+        } else {
+            Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:session];
+            [_sessions setObject:newPeer forKey:peerID];
+            [_quarantinedProtests removeObjectForKey:peerID];
         }
-        Graph *newPeer = [[Graph alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
-        [_sessions setObject:newPeer forKey:peerID];
-        _session = nil;
         [self gossip];
     }
     
@@ -297,9 +312,9 @@ static const double PRUNE = 30.0;
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipResponse"]) {
         //check length of nsarray to see if it is multihop response or 1
         if ([data count] > 2) { //multihop repsponse
-            for (Graph *peer in _sessions) {
+            for (Peer *peer in _sessions) {
                 if ([(NSData*)peer.key isEqualToData:(NSData*)[data objectAtIndex:1]]) {
-                    [peer.peers addObject:[[Graph alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2])]];
+                    [peer.peers addObject:[[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2])]];
                 }
             }
         } else if ([data count] <= 2) { //first order response
@@ -307,7 +322,7 @@ static const double PRUNE = 30.0;
             thisPeer.requestOut = NO;
             //forward requests to parents. we clear the parent list if all peers have returned
             if ([self updateParents]) {
-                for (Graph *peer in _sessions) {
+                for (Peer *peer in _sessions) {
                     if (peer.isParent) {
                         NSError *error;
                         NSArray *gossipResponse = [[NSArray alloc] initWithObjects:@"GossipResponse", _cryptoManager.publicKey, [data objectAtIndex:1], nil];
@@ -355,11 +370,14 @@ static const double PRUNE = 30.0;
             }
         }
     }
+    else if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
+        //disconnect and say wrong password in viewController
+    }
 }
 
 - (void)forwardMessage:(NSData*)data {
     for (MCPeerID* key in _sessions) {
-        Graph *peer = [_sessions objectForKey:key];
+        Peer *peer = [_sessions objectForKey:key];
         data = [_cryptoManager encrypt:data WithPublicKey:peer.key];
         NSError *error;
         [peer.session sendData:data toPeers:[NSArray arrayWithObject:key] withMode:MCSessionSendDataReliable error:&error];
@@ -407,8 +425,8 @@ static const double PRUNE = 30.0;
             [candidates addObject:[_sessions objectForKey:key]];
         }
     }
-    Graph *firstHop = [candidates objectAtIndex:arc4random() % [candidates count]];
-    Graph *secondHop = [firstHop.peers objectAtIndex:arc4random() % firstHop.peers.count];
+    Peer *firstHop = [candidates objectAtIndex:arc4random() % [candidates count]];
+    Peer *secondHop = [firstHop.peers objectAtIndex:arc4random() % firstHop.peers.count];
     MCPeerID *secondHopPeerID = [secondHop.session.connectedPeers objectAtIndex:0];
     NSData *secondHopData = [_cryptoManager encrypt:data WithPublicKey:secondHop.key];
     //intermediate hop data is like [@"Forward", Public key to forward to, data]

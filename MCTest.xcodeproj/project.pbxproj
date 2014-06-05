@@ -19,7 +19,7 @@
 		AD0DF5E218F1F9CC00E0DE91 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD0DF5E118F1F9CC00E0DE91 /* MapKit.framework */; };
 		AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */; };
 		AD4B7BC31913CB2900EFED68 /* Message.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BC21913CB2900EFED68 /* Message.m */; };
-		AD70ACC718FA257F00FBBEC8 /* Graph.m in Sources */ = {isa = PBXBuildFile; fileRef = AD70ACC618FA257F00FBBEC8 /* Graph.m */; };
+		AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */ = {isa = PBXBuildFile; fileRef = AD70ACC618FA257F00FBBEC8 /* Peer.m */; };
 		AD79606B192155B90022EA58 /* greendot.png in Resources */ = {isa = PBXBuildFile; fileRef = AD79606A192155B90022EA58 /* greendot.png */; };
 		AD79606D19215C590022EA58 /* greendot@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD79606C19215C590022EA58 /* greendot@2x.png */; };
 		AD79608819215E680022EA58 /* orangedot.png in Resources */ = {isa = PBXBuildFile; fileRef = AD79608619215E680022EA58 /* orangedot.png */; };
@@ -89,14 +89,14 @@
 		ADA5D00B18F0B35E004CEE2C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D00A18F0B35E004CEE2C /* main.m */; };
 		ADA5D00F18F0B35E004CEE2C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */; };
 		ADA5D01218F0B35E004CEE2C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D01018F0B35E004CEE2C /* Main.storyboard */; };
-		ADA5D01518F0B35E004CEE2C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D01418F0B35E004CEE2C /* ViewController.m */; };
+		ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */; };
 		ADA5D01718F0B35E004CEE2C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D01618F0B35E004CEE2C /* Images.xcassets */; };
 		ADA5D01E18F0B35E004CEE2C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADA5D01D18F0B35E004CEE2C /* XCTest.framework */; };
 		ADA5D01F18F0B35E004CEE2C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADA5CFFE18F0B35E004CEE2C /* Foundation.framework */; };
 		ADA5D02018F0B35E004CEE2C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADA5D00218F0B35E004CEE2C /* UIKit.framework */; };
 		ADA5D02818F0B35E004CEE2C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D02618F0B35E004CEE2C /* InfoPlist.strings */; };
 		ADA5D02A18F0B35E004CEE2C /* MCTestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D02918F0B35E004CEE2C /* MCTestTests.m */; };
-		ADA5D03518F0B3FF004CEE2C /* MCManager.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D03418F0B3FF004CEE2C /* MCManager.m */; };
+		ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,8 +133,8 @@
 		AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WJLPkcsContext.m; sourceTree = "<group>"; };
 		AD4B7BC11913CB2900EFED68 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Message.h; path = ../Message.h; sourceTree = "<group>"; };
 		AD4B7BC21913CB2900EFED68 /* Message.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Message.m; path = ../Message.m; sourceTree = "<group>"; };
-		AD70ACC518FA257E00FBBEC8 /* Graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Graph.h; sourceTree = "<group>"; };
-		AD70ACC618FA257F00FBBEC8 /* Graph.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Graph.m; sourceTree = "<group>"; };
+		AD70ACC518FA257E00FBBEC8 /* Peer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Peer.h; sourceTree = "<group>"; };
+		AD70ACC618FA257F00FBBEC8 /* Peer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Peer.m; sourceTree = "<group>"; };
 		AD79606A192155B90022EA58 /* greendot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = greendot.png; sourceTree = "<group>"; };
 		AD79606C19215C590022EA58 /* greendot@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "greendot@2x.png"; sourceTree = "<group>"; };
 		AD79608619215E680022EA58 /* orangedot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = orangedot.png; sourceTree = "<group>"; };
@@ -209,16 +209,16 @@
 		ADA5D00D18F0B35E004CEE2C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		ADA5D01118F0B35E004CEE2C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		ADA5D01318F0B35E004CEE2C /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		ADA5D01418F0B35E004CEE2C /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		ADA5D01318F0B35E004CEE2C /* ProtestViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProtestViewController.h; sourceTree = "<group>"; };
+		ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProtestViewController.m; sourceTree = "<group>"; };
 		ADA5D01618F0B35E004CEE2C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		ADA5D01C18F0B35E004CEE2C /* MCTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MCTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA5D01D18F0B35E004CEE2C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		ADA5D02518F0B35E004CEE2C /* MCTestTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MCTestTests-Info.plist"; sourceTree = "<group>"; };
 		ADA5D02718F0B35E004CEE2C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ADA5D02918F0B35E004CEE2C /* MCTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MCTestTests.m; sourceTree = "<group>"; };
-		ADA5D03318F0B3FF004CEE2C /* MCManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCManager.h; sourceTree = "<group>"; };
-		ADA5D03418F0B3FF004CEE2C /* MCManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCManager.m; sourceTree = "<group>"; };
+		ADA5D03318F0B3FF004CEE2C /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionManager.h; sourceTree = "<group>"; };
+		ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -388,14 +388,14 @@
 				ADA5D00D18F0B35E004CEE2C /* AppDelegate.h */,
 				ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */,
 				ADA5D01018F0B35E004CEE2C /* Main.storyboard */,
-				ADA5D01318F0B35E004CEE2C /* ViewController.h */,
-				ADA5D01418F0B35E004CEE2C /* ViewController.m */,
+				ADA5D01318F0B35E004CEE2C /* ProtestViewController.h */,
+				ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */,
 				ADA5D01618F0B35E004CEE2C /* Images.xcassets */,
 				ADA5D00518F0B35E004CEE2C /* Supporting Files */,
-				ADA5D03318F0B3FF004CEE2C /* MCManager.h */,
-				ADA5D03418F0B3FF004CEE2C /* MCManager.m */,
-				AD70ACC518FA257E00FBBEC8 /* Graph.h */,
-				AD70ACC618FA257F00FBBEC8 /* Graph.m */,
+				ADA5D03318F0B3FF004CEE2C /* ConnectionManager.h */,
+				ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */,
+				AD70ACC518FA257E00FBBEC8 /* Peer.h */,
+				AD70ACC618FA257F00FBBEC8 /* Peer.m */,
 				AD8D656018F1282800200485 /* FirstViewController.h */,
 				AD8D656118F1282800200485 /* FirstViewController.m */,
 				AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */,
@@ -596,12 +596,12 @@
 				AD07AE1A191358A200161EC0 /* RNOpenSSLDecryptor.m in Sources */,
 				AD07AE15191358A200161EC0 /* RNCryptor.m in Sources */,
 				AD07AE1B191358A200161EC0 /* RNOpenSSLEncryptor.m in Sources */,
-				AD70ACC718FA257F00FBBEC8 /* Graph.m in Sources */,
+				AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */,
 				AD07AE16191358A200161EC0 /* RNCryptorEngine.m in Sources */,
 				AD07AE17191358A200161EC0 /* RNDecryptor.m in Sources */,
-				ADA5D01518F0B35E004CEE2C /* ViewController.m in Sources */,
+				ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */,
 				AD4B7BC31913CB2900EFED68 /* Message.m in Sources */,
-				ADA5D03518F0B3FF004CEE2C /* MCManager.m in Sources */,
+				ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */,
 				AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */,
 				AD8D656218F1282800200485 /* FirstViewController.m in Sources */,
 				AD07AE19191358A200161EC0 /* RNOpenSSLCryptor.m in Sources */,

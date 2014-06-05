@@ -1,14 +1,12 @@
 //
-//  Graph.m
-//  MCTest
 //
 //  Created by John Rogers on 4/12/14.
 //  Copyright (c) 2014 John Rogers. All rights reserved.
 //
 
-#import "Graph.h"
+#import "Peer.h"
 
-@implementation Graph
+@implementation Peer
 
 - (void)resetAge {
     _age = CFAbsoluteTimeGetCurrent();
