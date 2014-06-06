@@ -74,12 +74,14 @@ static const double PRUNE = 30.0;
     _password = password;
     [_advertiser stopAdvertisingPeer];
     _browsingSession = [self setupPeerAndSessionWithDisplayName:_userID];
+    _browsingSession.delegate = self;
     [self connect:_browsingSession];
 }
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
     _advertisingSession = [self setupPeerAndSessionWithDisplayName:_userID];
+    _advertisingSession.delegate = self;
     [self advertiseSelf];
 }
 
