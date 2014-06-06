@@ -155,7 +155,7 @@
 
 - (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password {
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    FirstViewController *firstViewController = (FirstViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
+    ChatViewController *firstViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
     _appDelegate.firstViewController = firstViewController;
     [_appDelegate.manager joinProtest:nameOfProtest password:password];
     [_appDelegate.window.rootViewController presentViewController:firstViewController animated:YES completion:^{
@@ -167,7 +167,7 @@
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager.leader = YES;
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    FirstViewController *firstViewController = (FirstViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
+    ChatViewController *firstViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
     _appDelegate.firstViewController = firstViewController;
     [_appDelegate.manager startProtest:@"First Protest" password:@"hey"];
     [_appDelegate.window.rootViewController presentViewController:firstViewController animated:YES completion:^{

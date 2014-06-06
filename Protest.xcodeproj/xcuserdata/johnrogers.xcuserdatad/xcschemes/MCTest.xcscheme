@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
                BuildableName = "MCTest.app"
-               BlueprintName = "MCTest"
-               ReferencedContainer = "container:MCTest.xcodeproj">
+               BlueprintName = "Protest"
+               ReferencedContainer = "container:Protest.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,8 +34,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "ADA5D01B18F0B35E004CEE2C"
                BuildableName = "MCTestTests.xctest"
-               BlueprintName = "MCTestTests"
-               ReferencedContainer = "container:MCTest.xcodeproj">
+               BlueprintName = "ProtestTests"
+               ReferencedContainer = "container:Protest.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -44,8 +44,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
             BuildableName = "MCTest.app"
-            BlueprintName = "MCTest"
-            ReferencedContainer = "container:MCTest.xcodeproj">
+            BlueprintName = "Protest"
+            ReferencedContainer = "container:Protest.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -63,8 +63,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
             BuildableName = "MCTest.app"
-            BlueprintName = "MCTest"
-            ReferencedContainer = "container:MCTest.xcodeproj">
+            BlueprintName = "Protest"
+            ReferencedContainer = "container:Protest.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -81,8 +81,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
             BuildableName = "MCTest.app"
-            BlueprintName = "MCTest"
-            ReferencedContainer = "container:MCTest.xcodeproj">
+            BlueprintName = "Protest"
+            ReferencedContainer = "container:Protest.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

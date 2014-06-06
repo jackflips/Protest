@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "Message.h"
 
-@interface FirstViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
+@interface ChatViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITextField *txtMessage;
 @property (strong, nonatomic) IBOutlet UILabel *protestName;
 @property (strong, nonatomic) IBOutlet UITableView *chatTable;

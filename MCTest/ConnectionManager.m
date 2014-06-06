@@ -4,7 +4,7 @@
 //
 
 #import "ConnectionManager.h"
-#import "FirstViewController.h"
+#import "ChatViewController.h"
 #import "AppDelegate.h"
 
 static const double PRUNE = 30.0;

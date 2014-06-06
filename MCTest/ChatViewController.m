@@ -10,10 +10,10 @@
 //  MCDemo
 //
 
-#import "FirstViewController.h"
+#import "ChatViewController.h"
 #import "AppDelegate.h"
 
-@interface FirstViewController ()
+@interface ChatViewController ()
 
 @property (nonatomic, strong) AppDelegate *appDelegate;
 
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation FirstViewController
+@implementation ChatViewController
 
 - (void)viewDidLoad
 {

@@ -9,13 +9,6 @@
 /* Begin PBXBuildFile section */
 		AD00E8B1193484170032B9CD /* blue_text_bubble@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD00E8AF193484170032B9CD /* blue_text_bubble@2x.png */; };
 		AD00E8B2193484170032B9CD /* blue_text_bubble.png in Resources */ = {isa = PBXBuildFile; fileRef = AD00E8B0193484170032B9CD /* blue_text_bubble.png */; };
-		AD07AE15191358A200161EC0 /* RNCryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE08191358A200161EC0 /* RNCryptor.m */; };
-		AD07AE16191358A200161EC0 /* RNCryptorEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE0A191358A200161EC0 /* RNCryptorEngine.m */; };
-		AD07AE17191358A200161EC0 /* RNDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE0C191358A200161EC0 /* RNDecryptor.m */; };
-		AD07AE18191358A200161EC0 /* RNEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE0E191358A200161EC0 /* RNEncryptor.m */; };
-		AD07AE19191358A200161EC0 /* RNOpenSSLCryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE10191358A200161EC0 /* RNOpenSSLCryptor.m */; };
-		AD07AE1A191358A200161EC0 /* RNOpenSSLDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE12191358A200161EC0 /* RNOpenSSLDecryptor.m */; };
-		AD07AE1B191358A200161EC0 /* RNOpenSSLEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = AD07AE14191358A200161EC0 /* RNOpenSSLEncryptor.m */; };
 		AD0DF5E218F1F9CC00E0DE91 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD0DF5E118F1F9CC00E0DE91 /* MapKit.framework */; };
 		AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */; };
 		AD4B7BC31913CB2900EFED68 /* Message.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BC21913CB2900EFED68 /* Message.m */; };
@@ -76,7 +69,7 @@
 		AD7960EF1921902D0022EA58 /* exitbutton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD7960ED1921902D0022EA58 /* exitbutton@2x.png */; };
 		AD7960F21921A34D0022EA58 /* white_text_bubble.png in Resources */ = {isa = PBXBuildFile; fileRef = AD7960F01921A34D0022EA58 /* white_text_bubble.png */; };
 		AD7960F31921A34D0022EA58 /* white_text_bubble@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD7960F11921A34D0022EA58 /* white_text_bubble@2x.png */; };
-		AD8D656218F1282800200485 /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD8D656118F1282800200485 /* FirstViewController.m */; };
+		AD8D656218F1282800200485 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD8D656118F1282800200485 /* ChatViewController.m */; };
 		AD9C8519191F3AD200E23B7D /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = AD9C8517191F3AD200E23B7D /* header.png */; };
 		AD9C851A191F3AD200E23B7D /* header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD9C8518191F3AD200E23B7D /* header@2x.png */; };
 		AD9C851E191F5C5300E23B7D /* FuturaStd-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AD9C851C191F5C5300E23B7D /* FuturaStd-Medium.otf */; };
@@ -112,22 +105,6 @@
 /* Begin PBXFileReference section */
 		AD00E8AF193484170032B9CD /* blue_text_bubble@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "blue_text_bubble@2x.png"; sourceTree = "<group>"; };
 		AD00E8B0193484170032B9CD /* blue_text_bubble.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blue_text_bubble.png; sourceTree = "<group>"; };
-		AD07AE05191358A200161EC0 /* RNCryptor+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RNCryptor+Private.h"; sourceTree = "<group>"; };
-		AD07AE06191358A200161EC0 /* RNCryptor-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RNCryptor-Prefix.pch"; sourceTree = "<group>"; };
-		AD07AE07191358A200161EC0 /* RNCryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNCryptor.h; sourceTree = "<group>"; };
-		AD07AE08191358A200161EC0 /* RNCryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNCryptor.m; sourceTree = "<group>"; };
-		AD07AE09191358A200161EC0 /* RNCryptorEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNCryptorEngine.h; sourceTree = "<group>"; };
-		AD07AE0A191358A200161EC0 /* RNCryptorEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNCryptorEngine.m; sourceTree = "<group>"; };
-		AD07AE0B191358A200161EC0 /* RNDecryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNDecryptor.h; sourceTree = "<group>"; };
-		AD07AE0C191358A200161EC0 /* RNDecryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNDecryptor.m; sourceTree = "<group>"; };
-		AD07AE0D191358A200161EC0 /* RNEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNEncryptor.h; sourceTree = "<group>"; };
-		AD07AE0E191358A200161EC0 /* RNEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNEncryptor.m; sourceTree = "<group>"; };
-		AD07AE0F191358A200161EC0 /* RNOpenSSLCryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNOpenSSLCryptor.h; sourceTree = "<group>"; };
-		AD07AE10191358A200161EC0 /* RNOpenSSLCryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNOpenSSLCryptor.m; sourceTree = "<group>"; };
-		AD07AE11191358A200161EC0 /* RNOpenSSLDecryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNOpenSSLDecryptor.h; sourceTree = "<group>"; };
-		AD07AE12191358A200161EC0 /* RNOpenSSLDecryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNOpenSSLDecryptor.m; sourceTree = "<group>"; };
-		AD07AE13191358A200161EC0 /* RNOpenSSLEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNOpenSSLEncryptor.h; sourceTree = "<group>"; };
-		AD07AE14191358A200161EC0 /* RNOpenSSLEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNOpenSSLEncryptor.m; sourceTree = "<group>"; };
 		AD0DF5E118F1F9CC00E0DE91 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WJLPkcsContext.h; sourceTree = "<group>"; };
 		AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WJLPkcsContext.m; sourceTree = "<group>"; };
@@ -191,30 +168,30 @@
 		AD7960ED1921902D0022EA58 /* exitbutton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "exitbutton@2x.png"; sourceTree = "<group>"; };
 		AD7960F01921A34D0022EA58 /* white_text_bubble.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = white_text_bubble.png; sourceTree = "<group>"; };
 		AD7960F11921A34D0022EA58 /* white_text_bubble@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "white_text_bubble@2x.png"; sourceTree = "<group>"; };
-		AD8D656018F1282800200485 /* FirstViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirstViewController.h; sourceTree = "<group>"; };
-		AD8D656118F1282800200485 /* FirstViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirstViewController.m; sourceTree = "<group>"; };
+		AD8D656018F1282800200485 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
+		AD8D656118F1282800200485 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
 		AD9C8517191F3AD200E23B7D /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = header.png; path = ../header.png; sourceTree = "<group>"; };
 		AD9C8518191F3AD200E23B7D /* header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "header@2x.png"; path = "../header@2x.png"; sourceTree = "<group>"; };
 		AD9C851C191F5C5300E23B7D /* FuturaStd-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FuturaStd-Medium.otf"; sourceTree = "<group>"; };
 		AD9C851D191F5C5300E23B7D /* Gotham-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Gotham-Medium.otf"; sourceTree = "<group>"; };
 		AD9C8520191F602B00E23B7D /* rowimage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rowimage.png; sourceTree = "<group>"; };
-		ADA5CFFB18F0B35E004CEE2C /* MCTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MCTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADA5CFFB18F0B35E004CEE2C /* Protest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Protest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA5CFFE18F0B35E004CEE2C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		ADA5D00018F0B35E004CEE2C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		ADA5D00218F0B35E004CEE2C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		ADA5D00618F0B35E004CEE2C /* MCTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MCTest-Info.plist"; sourceTree = "<group>"; };
+		ADA5D00618F0B35E004CEE2C /* Protest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Protest-Info.plist"; sourceTree = "<group>"; };
 		ADA5D00818F0B35E004CEE2C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ADA5D00A18F0B35E004CEE2C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		ADA5D00C18F0B35E004CEE2C /* MCTest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MCTest-Prefix.pch"; sourceTree = "<group>"; };
+		ADA5D00C18F0B35E004CEE2C /* Protest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Protest-Prefix.pch"; sourceTree = "<group>"; };
 		ADA5D00D18F0B35E004CEE2C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		ADA5D01118F0B35E004CEE2C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		ADA5D01318F0B35E004CEE2C /* ProtestViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProtestViewController.h; sourceTree = "<group>"; };
 		ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProtestViewController.m; sourceTree = "<group>"; };
 		ADA5D01618F0B35E004CEE2C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		ADA5D01C18F0B35E004CEE2C /* MCTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MCTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADA5D01C18F0B35E004CEE2C /* ProtestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProtestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA5D01D18F0B35E004CEE2C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		ADA5D02518F0B35E004CEE2C /* MCTestTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MCTestTests-Info.plist"; sourceTree = "<group>"; };
+		ADA5D02518F0B35E004CEE2C /* ProtestTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ProtestTests-Info.plist"; sourceTree = "<group>"; };
 		ADA5D02718F0B35E004CEE2C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ADA5D02918F0B35E004CEE2C /* MCTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MCTestTests.m; sourceTree = "<group>"; };
 		ADA5D03318F0B3FF004CEE2C /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionManager.h; sourceTree = "<group>"; };
@@ -246,29 +223,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AD07AE04191358A200161EC0 /* RNCryptor */ = {
-			isa = PBXGroup;
-			children = (
-				AD07AE05191358A200161EC0 /* RNCryptor+Private.h */,
-				AD07AE06191358A200161EC0 /* RNCryptor-Prefix.pch */,
-				AD07AE07191358A200161EC0 /* RNCryptor.h */,
-				AD07AE08191358A200161EC0 /* RNCryptor.m */,
-				AD07AE09191358A200161EC0 /* RNCryptorEngine.h */,
-				AD07AE0A191358A200161EC0 /* RNCryptorEngine.m */,
-				AD07AE0B191358A200161EC0 /* RNDecryptor.h */,
-				AD07AE0C191358A200161EC0 /* RNDecryptor.m */,
-				AD07AE0D191358A200161EC0 /* RNEncryptor.h */,
-				AD07AE0E191358A200161EC0 /* RNEncryptor.m */,
-				AD07AE0F191358A200161EC0 /* RNOpenSSLCryptor.h */,
-				AD07AE10191358A200161EC0 /* RNOpenSSLCryptor.m */,
-				AD07AE11191358A200161EC0 /* RNOpenSSLDecryptor.h */,
-				AD07AE12191358A200161EC0 /* RNOpenSSLDecryptor.m */,
-				AD07AE13191358A200161EC0 /* RNOpenSSLEncryptor.h */,
-				AD07AE14191358A200161EC0 /* RNOpenSSLEncryptor.m */,
-			);
-			path = RNCryptor;
-			sourceTree = "<group>";
-		};
 		AD79609B1921821F0022EA58 /* chat_icons */ = {
 			isa = PBXGroup;
 			children = (
@@ -351,7 +305,6 @@
 			isa = PBXGroup;
 			children = (
 				AD9C851B191F5C5300E23B7D /* Resources */,
-				AD07AE04191358A200161EC0 /* RNCryptor */,
 				ADA5D00418F0B35E004CEE2C /* MCTest */,
 				ADA5D02318F0B35E004CEE2C /* MCTestTests */,
 				ADA5CFFD18F0B35E004CEE2C /* Frameworks */,
@@ -362,8 +315,8 @@
 		ADA5CFFC18F0B35E004CEE2C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				ADA5CFFB18F0B35E004CEE2C /* MCTest.app */,
-				ADA5D01C18F0B35E004CEE2C /* MCTestTests.xctest */,
+				ADA5CFFB18F0B35E004CEE2C /* Protest.app */,
+				ADA5D01C18F0B35E004CEE2C /* ProtestTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -396,10 +349,9 @@
 				ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */,
 				AD70ACC518FA257E00FBBEC8 /* Peer.h */,
 				AD70ACC618FA257F00FBBEC8 /* Peer.m */,
-				AD8D656018F1282800200485 /* FirstViewController.h */,
-				AD8D656118F1282800200485 /* FirstViewController.m */,
-				AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */,
-				AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */,
+				AD8D656018F1282800200485 /* ChatViewController.h */,
+				AD8D656118F1282800200485 /* ChatViewController.m */,
+				ADC7A76E194129090023FB97 /* RSA */,
 			);
 			path = MCTest;
 			sourceTree = "<group>";
@@ -407,10 +359,10 @@
 		ADA5D00518F0B35E004CEE2C /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				ADA5D00618F0B35E004CEE2C /* MCTest-Info.plist */,
+				ADA5D00618F0B35E004CEE2C /* Protest-Info.plist */,
 				ADA5D00718F0B35E004CEE2C /* InfoPlist.strings */,
 				ADA5D00A18F0B35E004CEE2C /* main.m */,
-				ADA5D00C18F0B35E004CEE2C /* MCTest-Prefix.pch */,
+				ADA5D00C18F0B35E004CEE2C /* Protest-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -427,18 +379,27 @@
 		ADA5D02418F0B35E004CEE2C /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				ADA5D02518F0B35E004CEE2C /* MCTestTests-Info.plist */,
+				ADA5D02518F0B35E004CEE2C /* ProtestTests-Info.plist */,
 				ADA5D02618F0B35E004CEE2C /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		ADC7A76E194129090023FB97 /* RSA */ = {
+			isa = PBXGroup;
+			children = (
+				AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */,
+				AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */,
+			);
+			name = RSA;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		ADA5CFFA18F0B35E004CEE2C /* MCTest */ = {
+		ADA5CFFA18F0B35E004CEE2C /* Protest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = ADA5D02D18F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "MCTest" */;
+			buildConfigurationList = ADA5D02D18F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "Protest" */;
 			buildPhases = (
 				ADA5CFF718F0B35E004CEE2C /* Sources */,
 				ADA5CFF818F0B35E004CEE2C /* Frameworks */,
@@ -448,14 +409,14 @@
 			);
 			dependencies = (
 			);
-			name = MCTest;
+			name = Protest;
 			productName = MCTest;
-			productReference = ADA5CFFB18F0B35E004CEE2C /* MCTest.app */;
+			productReference = ADA5CFFB18F0B35E004CEE2C /* Protest.app */;
 			productType = "com.apple.product-type.application";
 		};
-		ADA5D01B18F0B35E004CEE2C /* MCTestTests */ = {
+		ADA5D01B18F0B35E004CEE2C /* ProtestTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = ADA5D03018F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "MCTestTests" */;
+			buildConfigurationList = ADA5D03018F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "ProtestTests" */;
 			buildPhases = (
 				ADA5D01818F0B35E004CEE2C /* Sources */,
 				ADA5D01918F0B35E004CEE2C /* Frameworks */,
@@ -466,9 +427,9 @@
 			dependencies = (
 				ADA5D02218F0B35E004CEE2C /* PBXTargetDependency */,
 			);
-			name = MCTestTests;
+			name = ProtestTests;
 			productName = MCTestTests;
-			productReference = ADA5D01C18F0B35E004CEE2C /* MCTestTests.xctest */;
+			productReference = ADA5D01C18F0B35E004CEE2C /* ProtestTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -485,7 +446,7 @@
 					};
 				};
 			};
-			buildConfigurationList = ADA5CFF618F0B35E004CEE2C /* Build configuration list for PBXProject "MCTest" */;
+			buildConfigurationList = ADA5CFF618F0B35E004CEE2C /* Build configuration list for PBXProject "Protest" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -498,8 +459,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				ADA5CFFA18F0B35E004CEE2C /* MCTest */,
-				ADA5D01B18F0B35E004CEE2C /* MCTestTests */,
+				ADA5CFFA18F0B35E004CEE2C /* Protest */,
+				ADA5D01B18F0B35E004CEE2C /* ProtestTests */,
 			);
 		};
 /* End PBXProject section */
@@ -593,19 +554,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD07AE1A191358A200161EC0 /* RNOpenSSLDecryptor.m in Sources */,
-				AD07AE15191358A200161EC0 /* RNCryptor.m in Sources */,
-				AD07AE1B191358A200161EC0 /* RNOpenSSLEncryptor.m in Sources */,
 				AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */,
-				AD07AE16191358A200161EC0 /* RNCryptorEngine.m in Sources */,
-				AD07AE17191358A200161EC0 /* RNDecryptor.m in Sources */,
 				ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */,
 				AD4B7BC31913CB2900EFED68 /* Message.m in Sources */,
 				ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */,
 				AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */,
-				AD8D656218F1282800200485 /* FirstViewController.m in Sources */,
-				AD07AE19191358A200161EC0 /* RNOpenSSLCryptor.m in Sources */,
-				AD07AE18191358A200161EC0 /* RNEncryptor.m in Sources */,
+				AD8D656218F1282800200485 /* ChatViewController.m in Sources */,
 				ADA5D00F18F0B35E004CEE2C /* AppDelegate.m in Sources */,
 				ADA5D00B18F0B35E004CEE2C /* main.m in Sources */,
 			);
@@ -624,7 +578,7 @@
 /* Begin PBXTargetDependency section */
 		ADA5D02218F0B35E004CEE2C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = ADA5CFFA18F0B35E004CEE2C /* MCTest */;
+			target = ADA5CFFA18F0B35E004CEE2C /* Protest */;
 			targetProxy = ADA5D02118F0B35E004CEE2C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -733,9 +687,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MCTest/MCTest-Prefix.pch";
-				INFOPLIST_FILE = "MCTest/MCTest-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "MCTest/Protest-Prefix.pch";
+				INFOPLIST_FILE = "MCTest/Protest-Info.plist";
+				PRODUCT_NAME = Protest;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -746,9 +700,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MCTest/MCTest-Prefix.pch";
-				INFOPLIST_FILE = "MCTest/MCTest-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "MCTest/Protest-Prefix.pch";
+				INFOPLIST_FILE = "MCTest/Protest-Info.plist";
+				PRODUCT_NAME = Protest;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -768,8 +722,8 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "MCTestTests/MCTestTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				INFOPLIST_FILE = "MCTestTests/ProtestTests-Info.plist";
+				PRODUCT_NAME = ProtestTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -786,8 +740,8 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MCTest/MCTest-Prefix.pch";
-				INFOPLIST_FILE = "MCTestTests/MCTestTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				INFOPLIST_FILE = "MCTestTests/ProtestTests-Info.plist";
+				PRODUCT_NAME = ProtestTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -796,7 +750,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		ADA5CFF618F0B35E004CEE2C /* Build configuration list for PBXProject "MCTest" */ = {
+		ADA5CFF618F0B35E004CEE2C /* Build configuration list for PBXProject "Protest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				ADA5D02B18F0B35E004CEE2C /* Debug */,
@@ -805,7 +759,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		ADA5D02D18F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "MCTest" */ = {
+		ADA5D02D18F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "Protest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				ADA5D02E18F0B35E004CEE2C /* Debug */,
@@ -814,7 +768,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		ADA5D03018F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "MCTestTests" */ = {
+		ADA5D03018F0B35E004CEE2C /* Build configuration list for PBXNativeTarget "ProtestTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				ADA5D03118F0B35E004CEE2C /* Debug */,

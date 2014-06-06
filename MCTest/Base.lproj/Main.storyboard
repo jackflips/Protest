@@ -41,10 +41,10 @@
             </objects>
             <point key="canvasLocation" x="127" y="31"/>
         </scene>
-        <!--First View Controller - First-->
+        <!--Chat View Controller - First-->
         <scene sceneID="Zag-6C-GBN">
             <objects>
-                <viewController storyboardIdentifier="FirstViewController" title="First" useStoryboardIdentifierAsRestorationIdentifier="YES" id="DnO-nl-sYc" customClass="FirstViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FirstViewController" title="First" useStoryboardIdentifierAsRestorationIdentifier="YES" id="DnO-nl-sYc" customClass="ChatViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="5Vp-my-bZT"/>
                         <viewControllerLayoutGuide type="bottom" id="mb9-1g-sTc"/>

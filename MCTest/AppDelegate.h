@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Message.h"
-#import "FirstViewController.h"
+#import "ChatViewController.h"
 #import "ConnectionManager.h"
 
 @class ProtestViewController;
@@ -18,7 +18,7 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (nonatomic) SecKeyRef leaderKey;
 @property (strong, nonatomic) ConnectionManager *manager;
-@property (strong, nonatomic) FirstViewController *firstViewController;
+@property (strong, nonatomic) ChatViewController *firstViewController;
 @property (strong, nonatomic) ProtestViewController *viewController;
 
 -(void)addMessageToChat:(Message*)message;
