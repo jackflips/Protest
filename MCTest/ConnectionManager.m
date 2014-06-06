@@ -79,7 +79,7 @@ static const double PRUNE = 30.0;
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
-    [self setupPeerAndSessionWithDisplayName:_userID session:_advertisingSession];
+    _advertisingSession = [self setupPeerAndSessionWithDisplayName:_userID];
     [self advertiseSelf];
 }
 
@@ -202,7 +202,7 @@ static const double PRUNE = 30.0;
         }
         else if (session == _browsingSession) {
             [_quarantinedProtests setObject:_browsingSession forKey:_browsingSession.myPeerID];
-            [self setupPeerAndSessionWithDisplayName:_userID session:_browsingSession]; //maybe a bug here, _browsingSession getting reassigned?
+            _browsingSession = [self setupPeerAndSessionWithDisplayName:_userID]; //maybe a bug here, _browsingSession getting reassigned?
         }
     }
 }
