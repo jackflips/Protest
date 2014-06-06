@@ -8,10 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
+#import <CommonCrypto/CommonDigest.h>
 #import "Peer.h"
 #import "WJLPkcsContext.h"
-#import "RNEncryptor.h"
-#import "RNDecryptor.h"
 #import "Message.h"
 #import "ProtestViewController.h"
 
