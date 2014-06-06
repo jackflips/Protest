@@ -153,7 +153,7 @@ static const double PRUNE = 30.0;
     BOOL isPassword = NO;
     if (_password) isPassword = YES;
     NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
+    NSArray *invitation = [NSArray arrayWithObjects:@"First Protest", [NSNumber numberWithBool:YES], bits, nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
     [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
 }
