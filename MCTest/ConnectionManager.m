@@ -192,8 +192,9 @@ static const double PRUNE = 30.0;
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         NSLog(@"session: %@", _session);
         NSLog(@"connected peers:", _session.connectedPeers);
+        NSLog(@"%@", peerID);
         NSArray *allPeers = _session.connectedPeers;
-        [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+        [_session sendData:data toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         if (error) {
             NSLog(@"error: %@", [error localizedDescription]);
         }
