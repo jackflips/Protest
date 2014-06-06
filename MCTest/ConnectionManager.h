@@ -20,8 +20,6 @@
 @property (nonatomic, strong) MCPeerID *peerID;
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
-@property (nonatomic, strong) MCSession *advertisingSession;
-@property (nonatomic, strong) MCSession *browsingSession;
 @property (nonatomic, strong) MCSession *session;
 @property (nonatomic, strong) NSMutableDictionary *sessions;
 @property (nonatomic, assign) BOOL leader;
