@@ -22,7 +22,6 @@
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) MCSession *advertisingSession;
 @property (nonatomic, strong) MCSession *browsingSession;
-@property (nonatomic, strong) MCSession *session;
 @property (nonatomic, strong) NSMutableDictionary *sessions;
 @property (nonatomic, assign) BOOL leader;
 @property (nonatomic, strong) NSMutableArray *currentRequestingPeers;
