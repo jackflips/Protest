@@ -73,8 +73,8 @@ static const double PRUNE = 30.0;
     _nameOfProtest = name;
     _password = password;
     [_advertiser stopAdvertisingPeer];
-    [self setupPeerAndSessionWithDisplayName:_userID session:_browsingSession];
-    [self connect];
+    _browsingSession = [self setupPeerAndSessionWithDisplayName:_userID];
+    [self connect:_browsingSession];
 }
 
 - (void)searchForProtests {
@@ -83,8 +83,8 @@ static const double PRUNE = 30.0;
     [self advertiseSelf];
 }
 
-- (void)connect { //this is where you want to advertise as well.
-    [self browse];
+- (void)connect:(MCSession*)session { //this is where you want to advertise as well.
+    [self browse:session];
 }
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
@@ -94,10 +94,11 @@ static const double PRUNE = 30.0;
     invitationHandler(YES, _advertisingSession);
 }
 
-- (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName session:(MCSession*)session{
+- (MCSession*)setupPeerAndSessionWithDisplayName:(NSString *)displayName {
     _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
-    session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    MCSession *session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
     session.delegate = self;
+    return session;
 }
 
 - (void)advertiseSelf {
@@ -109,10 +110,11 @@ static const double PRUNE = 30.0;
     NSLog(@"now advertising");
 }
 
-- (void)browse {
-    _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_peerID serviceType:@"Protest"];
+- (void)browse:(MCSession*)session {
+    _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:session.myPeerID serviceType:@"Protest"];
     [_browser setDelegate:self];
     [_browser startBrowsingForPeers];
+    NSLog(@"browsing 4 peers");
 }
 
 - (NSData *)getPublicKeyBitsFromKey:(SecKeyRef)givenKey {
