@@ -44,7 +44,7 @@
     _protests = [NSMutableArray array];
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager = [[ConnectionManager alloc] init];
-    [_appDelegate.manager searchForProtests];
+    //[_appDelegate.manager searchForProtests];
 
     _appDelegate.viewController = self;
     tableSource = [NSMutableArray array];
