@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
-               BuildableName = "MCTest.app"
+               BuildableName = "Protest.app"
                BlueprintName = "Protest"
                ReferencedContainer = "container:Protest.xcodeproj">
             </BuildableReference>
@@ -33,7 +33,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "ADA5D01B18F0B35E004CEE2C"
-               BuildableName = "MCTestTests.xctest"
+               BuildableName = "ProtestTests.xctest"
                BlueprintName = "ProtestTests"
                ReferencedContainer = "container:Protest.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
-            BuildableName = "MCTest.app"
+            BuildableName = "Protest.app"
             BlueprintName = "Protest"
             ReferencedContainer = "container:Protest.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
-            BuildableName = "MCTest.app"
+            BuildableName = "Protest.app"
             BlueprintName = "Protest"
             ReferencedContainer = "container:Protest.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ADA5CFFA18F0B35E004CEE2C"
-            BuildableName = "MCTest.app"
+            BuildableName = "Protest.app"
             BlueprintName = "Protest"
             ReferencedContainer = "container:Protest.xcodeproj">
          </BuildableReference>
