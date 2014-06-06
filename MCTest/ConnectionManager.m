@@ -187,6 +187,8 @@ static const double PRUNE = 30.0;
     NSLog(@"did change state: %d", state);
     if (state == MCSessionStateConnected) {
         if (session == _advertisingSession) {
+            NSLog(@"advertising session");
+            /*
             NSLog(@"advertising sesh");
             NSLog(@"connected tho");
             NSError *error;
@@ -202,11 +204,13 @@ static const double PRUNE = 30.0;
             if (error) {
                 NSLog(@"%@", [error localizedDescription]);
             }
+            */
         }
         else if (session == _browsingSession) {
             NSLog(@"browsing sesh");
-            [_quarantinedProtests setObject:_browsingSession forKey:_browsingSession.myPeerID];
-            [self setupPeerAndSessionWithDisplayNameBrowse:[NSString stringWithFormat:@"%@%@", @"browse", _userID]];
+            //[_quarantinedProtests setObject:_browsingSession forKey:_browsingSession.myPeerID];
+            //_tempSession = _browsingSession;
+            //[self setupPeerAndSessionWithDisplayNameBrowse:[NSString stringWithFormat:@"%@%@", @"browse", _userID]];
         }
         
     }
