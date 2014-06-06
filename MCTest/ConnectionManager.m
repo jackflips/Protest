@@ -189,6 +189,17 @@ static const double PRUNE = 30.0;
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
+        NSLog(@"connected");
+        NSError *error;
+        NSArray *array = [[NSArray alloc] initWithObjects:@"Test", _cryptoManager.publicKey, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+        NSArray *allPeers = _session.connectedPeers;
+        [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+        if (error) {
+            NSLog(@"%@", [error localizedDescription]);
+        }
+        
+        /*
         NSError *error;
         NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
@@ -197,6 +208,7 @@ static const double PRUNE = 30.0;
         if (error) {
             NSLog(@"%@", [error localizedDescription]);
         }
+        */
     }
 }
 
@@ -270,6 +282,11 @@ static const double PRUNE = 30.0;
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
+    
+    if ([[data objectAtIndex:0] isEqualToString:@"Test"]) {
+        NSLog(@"testtt");
+    }
+        
     if ([[data objectAtIndex:0] isEqualToString:@"Keyflag"]) {
         Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
         [_sessions setObject:newPeer forKey:peerID];
