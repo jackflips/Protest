@@ -32,6 +32,7 @@ static const double PRUNE = 30.0;
         _peerID = nil;
         _browser = nil;
         _advertiser = nil;
+        _session = nil;
         _leadersPublicKey = nil;
         _leader = NO;
         _sessions = [[NSMutableDictionary alloc] init];
@@ -78,7 +79,8 @@ static const double PRUNE = 30.0;
     _nameOfProtest = name;
     _password = password;
     [_advertiser stopAdvertisingPeer];
-    [self setupPeerAndSessionWithDisplayNameBrowse:[NSString stringWithFormat:@"%@%@", @"browse", _userID]];
+    _advertisingSession = nil;
+    [self setupPeerAndSessionWithDisplayName:_userID];
     [self browse];
 }
 
@@ -98,6 +100,12 @@ static const double PRUNE = 30.0;
     _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
     _browsingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
     _browsingSession.delegate = self;
+}
+
+- (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
+    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
+    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    _session.delegate = self;
 }
 
 - (void)setupPeerAndSessionWithDisplayNameAdvertise:(NSString *)displayName{
@@ -163,11 +171,11 @@ static const double PRUNE = 30.0;
     NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
     NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
-    [browser invitePeer:peerID toSession:_browsingSession withContext:data timeout:120.0];
+    [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
-    NSLog(@"browser lost peer");
+    //NSLog(@"browser lost peer");
 }
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didNotStartAdvertisingPeer:(NSError *)error {
@@ -186,6 +194,7 @@ static const double PRUNE = 30.0;
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"did change state: %d", state);
     if (state == MCSessionStateConnected) {
+        NSLog(@"%@", session);
         if (session == _advertisingSession) {
             NSLog(@"advertising session");
             /*
@@ -206,8 +215,16 @@ static const double PRUNE = 30.0;
             }
             */
         }
-        else if (session == _browsingSession) {
+        else if (session == _session) {
             NSLog(@"browsing sesh");
+            NSError *error;
+            NSArray *array = @[@"test"];
+            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+            NSArray *allPeers = _advertisingSession.connectedPeers;
+            [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+            if (error) {
+                NSLog(@"%@", [error localizedDescription]);
+            }
             //[_quarantinedProtests setObject:_browsingSession forKey:_browsingSession.myPeerID];
             //_tempSession = _browsingSession;
             //[self setupPeerAndSessionWithDisplayNameBrowse:[NSString stringWithFormat:@"%@%@", @"browse", _userID]];
@@ -308,6 +325,9 @@ static const double PRUNE = 30.0;
             [_quarantinedProtests removeObjectForKey:peerID];
         }
         [self gossip];
+    }
+    else if ([[data objectAtIndex:0] isEqualToString:@"test"]) {
+        NSLog(@"tested");
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {
