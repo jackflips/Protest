@@ -101,8 +101,8 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiseSelf {
-    NSDictionary *dict = [[NSDictionary alloc] init];
-    [dict setValue:_peerID forKeyPath:@"id"];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    [dict setValue:_peerID forKey:@"id"];
     _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:dict serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
