@@ -189,6 +189,8 @@ static const double PRUNE = 30.0;
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
+        NSLog(@"connected");
+        /*
         NSError *error;
         NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
@@ -197,6 +199,7 @@ static const double PRUNE = 30.0;
         if (error) {
             NSLog(@"%@", [error localizedDescription]);
         }
+        */
     }
 }
 
