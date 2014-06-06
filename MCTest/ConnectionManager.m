@@ -15,14 +15,20 @@ static const double PRUNE = 30.0;
 
 @end
 
+@interface FoundProtest : NSObject
+
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
+
+@end
+
 @implementation ConnectionManager
 
 - (id)init{
     self = [super init];
     
     if (self) {
-        _advertisingSession = nil;
-        _browsingSession = nil;
+        _session = nil;
         _peerID = nil;
         _browser = nil;
         _advertiser = nil;
@@ -35,7 +41,6 @@ static const double PRUNE = 30.0;
         _password = nil;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
-        _quarantinedProtests = [NSMutableDictionary dictionary];
         
         _cryptoManager = [[WJLPkcsContext alloc] init];
     }
@@ -73,60 +78,49 @@ static const double PRUNE = 30.0;
     _nameOfProtest = name;
     _password = password;
     [_advertiser stopAdvertisingPeer];
-    [self setupPeerAndSessionWithDisplayNameBrowse:_userID];
-    [self connect:_browsingSession];
+    [self setupPeerAndSessionWithDisplayName:_userID];
+    [self connect];
 }
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
-    [self setupPeerAndSessionWithDisplayNameAdvertise:_userID];
+    [self setupPeerAndSessionWithDisplayName:_userID];
     [self advertiseSelf];
 }
 
-- (void)connect:(MCSession*)session { //this is where you want to advertise as well.
-    [self browse:session];
+- (void)connectToPeer:(MCPeerID*)peer password:(NSString*)password {
+    [_browser invitePeer:peer toSession:_session withContext:[password dataUsingEncoding:NSUTF8StringEncoding] timeout:30.0];
+}
+
+- (void)connect {
+    [self setupPeerAndSessionWithDisplayName:_userID];
+    [self browse];
 }
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
     [_advertiser stopAdvertisingPeer];
-    NSLog(@"told to join protest");
     void (^invitationHandler)(BOOL accept, MCSession *session) = [_foundProtests objectForKey:protestName];
-    invitationHandler(YES, _advertisingSession);
+    invitationHandler(YES, _session);
 }
 
-- (MCSession*)setupPeerAndSessionWithDisplayName:(NSString *)displayName {
+- (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
     _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
-    MCSession *session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
-    session.delegate = self;
-    return session;
-}
-
-- (void)setupPeerAndSessionWithDisplayNameBrowse:(NSString*)displayName {
-    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
-    _browsingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
-    _browsingSession.delegate = self;
-}
-
-- (void)setupPeerAndSessionWithDisplayNameAdvertise:(NSString*)displayName {
-    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
-    _advertisingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
-    _advertisingSession.delegate = self;
+    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    _session.delegate = self;
 }
 
 - (void)advertiseSelf {
-    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    [dict setValue:_peerID forKey:@"id"];
-    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:dict serviceType:@"Protest"];
+    NSDictionary *emptyDict = [[NSDictionary alloc] init];
+    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:emptyDict serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
     NSLog(@"now advertising");
 }
 
-- (void)browse:(MCSession*)session {
-    _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:session.myPeerID serviceType:@"Protest"];
+- (void)browse {
+    _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_peerID serviceType:@"Protest"];
     [_browser setDelegate:self];
     [_browser startBrowsingForPeers];
-    NSLog(@"browsing 4 peers");
 }
 
 - (NSData *)getPublicKeyBitsFromKey:(SecKeyRef)givenKey {
@@ -165,16 +159,14 @@ static const double PRUNE = 30.0;
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     NSLog(@"found peer");
-    if ([info objectForKey:@"id"]) {
-        _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        //data schema: { nameOfProtest, boolPassword, myPublicKey }
-        BOOL isPassword = NO;
-        if (_password) isPassword = YES;
-        NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
-        [browser invitePeer:peerID toSession:_browsingSession withContext:data timeout:120.0];
-    }
+    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //data schema: { nameOfProtest, boolPassword, myPublicKey }
+    BOOL isPassword = NO;
+    if (_password) isPassword = YES;
+    NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
+    [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -195,26 +187,15 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
+    NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
-        if (session == _advertisingSession) {
-            NSLog(@"connected tho");
-            NSError *error;
-            NSArray *array;
-            if (_password) {
-                array = [[NSArray alloc] initWithObjects:@"Hello", _password, _cryptoManager.publicKey, nil];
-            } else {
-                array = [[NSArray alloc] initWithObjects:@"Hello", _cryptoManager.publicKey, nil];
-            }
-            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
-            NSArray *allPeers = _advertisingSession.connectedPeers;
-            [_advertisingSession sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
-            if (error) {
-                NSLog(@"%@", [error localizedDescription]);
-            }
-        }
-        else if (session == _browsingSession) {
-            [_quarantinedProtests setObject:_browsingSession forKey:_browsingSession.myPeerID];
-            _browsingSession = [self setupPeerAndSessionWithDisplayName:_userID]; //maybe a bug here, _browsingSession getting reassigned?
+        NSError *error;
+        NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+        NSArray *allPeers = _session.connectedPeers;
+        [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+        if (error) {
+            NSLog(@"%@", [error localizedDescription]);
         }
     }
 }
@@ -229,13 +210,13 @@ static const double PRUNE = 30.0;
 
 - (void)gossip {
     for (Peer *peer in _sessions) {
-        NSArray *array = @[@"GossipRequest"];
+        NSArray *array = [[NSArray alloc] initWithObjects:@"GossipRequest", nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         data = [self encryptMessage:data andPublicKey:peer.key];
-        NSArray *peerAddress = peer.session.connectedPeers;
+        NSArray *allPeers = peer.session.connectedPeers;
         NSError *error;
         peer.requestOut = YES;
-        [peer.session sendData:data toPeers:[NSArray arrayWithObject:peerAddress] withMode:MCSessionSendDataReliable error:&error];
+        [peer.session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
         if (error) {
             NSLog(@"%@", [error localizedDescription]);
         }
@@ -289,27 +270,10 @@ static const double PRUNE = 30.0;
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
-    //@"Hello", _password, _cryptoManager.publicKey
-    //@"Hello", key
-    if ([[data objectAtIndex:0] isEqualToString:@"Hello"]) { //only the browsing session would ever get this.
-        if ([data count] > 2)  {
-            if (![[data objectAtIndex:1] isEqualToString:_password]) {
-                NSArray *arr = @[@"WrongPassword"];
-                NSData *data = [NSKeyedArchiver archivedDataWithRootObject:arr];
-                NSArray *allPeers = session.connectedPeers;
-                NSError *error;
-                [session sendData:data toPeers:@[allPeers] withMode:MCSessionSendDataReliable error:&error];
-                return;
-            } else {
-                Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2]) andSession:session];
-                [_sessions setObject:newPeer forKey:peerID];
-                [_quarantinedProtests removeObjectForKey:peerID];
-            }
-        } else {
-            Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:session];
-            [_sessions setObject:newPeer forKey:peerID];
-            [_quarantinedProtests removeObjectForKey:peerID];
-        }
+    if ([[data objectAtIndex:0] isEqualToString:@"Keyflag"]) {
+        Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
+        [_sessions setObject:newPeer forKey:peerID];
+        _session = nil;
         [self gossip];
     }
     
@@ -353,7 +317,7 @@ static const double PRUNE = 30.0;
         /*
          Checks to see if you sent a message that hasn't been propogated back to you yet. If it's not your message, then adds it to the buffer.
          data representation: [@“”Message”, hash, userid, message, (signature)]
-        */
+         */
         Message *thisMessage = [_allMessages objectForKey:[data objectAtIndex:1]];
         if (!thisMessage) {
             Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:YES];
@@ -384,9 +348,6 @@ static const double PRUNE = 30.0;
             }
         }
     }
-    else if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
-        //disconnect and say wrong password in viewController
-    }
 }
 
 - (void)forwardMessage:(NSData*)data {
@@ -410,13 +371,13 @@ static const double PRUNE = 30.0;
     return (__bridge NSString *)(CFDateFormatterCreateStringWithDate(kCFAllocatorDefault, dateFormatter, cfDate));
 }
 
-- (NSString *)MD5:(NSString *)input {
-    const char *cStr = [input UTF8String];
-    unsigned char digest[16];
-    CC_MD5( cStr, (CC_LONG)strlen(cStr), digest ); // This is the md5 call
+- (NSString*)MD5:(NSString*)stringToHash {
+    const char *ptr = [stringToHash UTF8String];
+    unsigned char md5Buffer[CC_MD5_DIGEST_LENGTH];
+    CC_MD5(ptr, strlen(ptr), md5Buffer);
     NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
     for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
-        [output appendFormat:@"%02x", digest[i]];
+        [output appendFormat:@"%02x",md5Buffer[i]];
     return output;
 }
 
