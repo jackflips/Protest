@@ -190,16 +190,15 @@ static const double PRUNE = 30.0;
     NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected");
-        /*
         NSError *error;
-        NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
+        //NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
+        NSArray *array = @[@"Test"];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         NSArray *allPeers = _session.connectedPeers;
         [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
         if (error) {
             NSLog(@"%@", [error localizedDescription]);
         }
-        */
     }
 }
 
