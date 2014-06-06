@@ -29,6 +29,7 @@ static const double PRUNE = 30.0;
     
     if (self) {
         _session = nil;
+        _browsingSession = nil;
         _peerID = nil;
         _browser = nil;
         _advertiser = nil;
@@ -78,23 +79,18 @@ static const double PRUNE = 30.0;
     _nameOfProtest = name;
     _password = password;
     [_advertiser stopAdvertisingPeer];
-    [self setupPeerAndSessionWithDisplayName:_userID];
-    [self connect];
+    [self setupPeerAndSessionWithDisplayNameBrowse:[NSString stringWithFormat:@"%@%@", @"browse", _userID]];
+    [self browse];
 }
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
-    [self setupPeerAndSessionWithDisplayName:_userID];
+    [self setupPeerAndSessionWithDisplayNameAdvertise:[NSString stringWithFormat:@"%@%@", @"advertise", _userID]];
     [self advertiseSelf];
 }
 
 - (void)connectToPeer:(MCPeerID*)peer password:(NSString*)password {
     [_browser invitePeer:peer toSession:_session withContext:[password dataUsingEncoding:NSUTF8StringEncoding] timeout:30.0];
-}
-
-- (void)connect {
-    [self setupPeerAndSessionWithDisplayName:_userID];
-    [self browse];
 }
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
@@ -107,6 +103,18 @@ static const double PRUNE = 30.0;
     _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
     _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
     _session.delegate = self;
+}
+
+- (void)setupPeerAndSessionWithDisplayNameBrowse:(NSString *)displayName{
+    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
+    _browsingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    _browsingSession.delegate = self;
+}
+
+- (void)setupPeerAndSessionWithDisplayNameAdvertise:(NSString *)displayName{
+    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
+    _advertisingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    _advertisingSession.delegate = self;
 }
 
 - (void)advertiseSelf {
