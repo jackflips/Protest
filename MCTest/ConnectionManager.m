@@ -148,7 +148,8 @@ static const double PRUNE = 30.0;
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     NSLog(@"found peer");
-    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    /*_appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     //data schema: { nameOfProtest, boolPassword, myPublicKey }
     BOOL isPassword = NO;
     if (_password) isPassword = YES;
@@ -156,6 +157,9 @@ static const double PRUNE = 30.0;
     NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
     [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
+    */
+    [browser invitePeer:peerID toSession:_session withContext:nil timeout:30.0];
+
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -186,13 +190,20 @@ static const double PRUNE = 30.0;
         //NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
         NSArray *array = @[@"Test"];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
+        NSLog(@"session: %@", _session);
+        NSLog(@"connected peers:", _session.connectedPeers);
         NSArray *allPeers = _session.connectedPeers;
         [_session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
         if (error) {
-            NSLog(@"%@", [error localizedDescription]);
+            NSLog(@"error: %@", [error localizedDescription]);
         }
     }
 }
+
+- (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void (^)(BOOL accept))certificateHandler {
+    certificateHandler(YES);
+}
+
 
 - (NSData*)encryptMessage:(NSData*)message andPublicKey:(SecKeyRef)publicKey {
     return [_cryptoManager encrypt:message WithPublicKey:publicKey];
