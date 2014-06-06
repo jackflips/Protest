@@ -73,15 +73,13 @@ static const double PRUNE = 30.0;
     _nameOfProtest = name;
     _password = password;
     [_advertiser stopAdvertisingPeer];
-    _browsingSession = [self setupPeerAndSessionWithDisplayName:_userID];
-    _browsingSession.delegate = self;
+    [self setupPeerAndSessionWithDisplayNameBrowse:_userID];
     [self connect:_browsingSession];
 }
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
-    _advertisingSession = [self setupPeerAndSessionWithDisplayName:_userID];
-    _advertisingSession.delegate = self;
+    [self setupPeerAndSessionWithDisplayNameAdvertise:_userID];
     [self advertiseSelf];
 }
 
@@ -101,6 +99,18 @@ static const double PRUNE = 30.0;
     MCSession *session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
     session.delegate = self;
     return session;
+}
+
+- (void)setupPeerAndSessionWithDisplayNameBrowse:(NSString*)displayName {
+    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
+    _browsingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    _browsingSession.delegate = self;
+}
+
+- (void)setupPeerAndSessionWithDisplayNameAdvertise:(NSString*)displayName {
+    _peerID = [[MCPeerID alloc] initWithDisplayName:displayName];
+    _advertisingSession = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    _advertisingSession.delegate = self;
 }
 
 - (void)advertiseSelf {
