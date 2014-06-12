@@ -272,8 +272,10 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
+    NSLog(@"recieved message");
     //NSData *decryptedData = [_cryptoManager decrypt:messageData];
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:messageData];
+    NSLog(@"%@", data);
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Keyflag"]) {
