@@ -343,7 +343,7 @@ static const double PRUNE = 30.0;
         else if (thisMessage) {
             return;
         }
-        [self forwardMessage:decryptedData];
+        //[self forwardMessage:decryptedData];
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
