@@ -149,7 +149,7 @@ static const double PRUNE = 30.0;
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     NSLog(@"found peer");
     
-    /*_appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     //data schema: { nameOfProtest, boolPassword, myPublicKey }
     BOOL isPassword = NO;
     if (_password) isPassword = YES;
@@ -157,8 +157,7 @@ static const double PRUNE = 30.0;
     NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
     [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
-    */
-    [browser invitePeer:peerID toSession:_session withContext:nil timeout:30.0];
+    //[browser invitePeer:peerID toSession:_session withContext:nil timeout:30.0];
 
 }
 
