@@ -11,13 +11,12 @@
 
 @property (nonatomic) SecKeyRef key;
 @property (nonatomic, strong) NSMutableArray *peers;
-@property (nonatomic, strong) MCSession *session;
+@property (nonatomic, copy) MCSession *session;
 @property (nonatomic) CFAbsoluteTime age;
 @property (nonatomic) BOOL requestOut;
 @property (nonatomic) BOOL isParent;
 
-- (id)initWithKey:(SecKeyRef)key andSession:(MCSession*)session;
-- (id)initWithKey:(SecKeyRef)key;
+- (id)initWithSession:(MCSession*)session;
 - (void)resetAge;
 - (CFAbsoluteTime)getAgeSinceReset;
 

@@ -16,25 +16,11 @@
     return CFAbsoluteTimeGetCurrent() - _age;
 }
 
-- (id)initWithKey:(SecKeyRef)key andSession:(id)session {
+- (id)initWithSession:(MCSession*)session {
     self = [super init];
-    _key = key;
     _session = session;
-    _peers = [[NSMutableArray alloc] init];
+    _peers = [NSMutableArray array];
     _age = CFAbsoluteTimeGetCurrent();
-    _requestOut = NO;
-    _isParent = NO;
-    return self;
-}
-
-- (id)initWithKey:(SecKeyRef)key {
-    self = [super init];
-    _key = key;
-    _session = nil;
-    _peers = [[NSMutableArray alloc] init];
-    _age = CFAbsoluteTimeGetCurrent();
-    _requestOut = NO;
-    _isParent = NO;
     return self;
 }
 

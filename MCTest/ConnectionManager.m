@@ -75,11 +75,13 @@ static const double PRUNE = 30.0;
 }
 
 - (void)startProtest:(NSString*)name password:(NSString*)password {
-    //_nameOfProtest = name;
-    //_password = password;
+    _nameOfProtest = name;
+    _password = password;
     [_advertiser stopAdvertisingPeer];
-    [self setupPeerAndSessionWithDisplayName:@"iPhone"];
+    [_browser stopBrowsingForPeers];
+    [self setupPeerAndSessionWithDisplayName:_userID];
     [self browse];
+    [self advertiseSelf];
 }
 
 - (void)browse {
@@ -90,7 +92,7 @@ static const double PRUNE = 30.0;
 
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
-    [self setupPeerAndSessionWithDisplayName:@"protestor"];
+    [self setupPeerAndSessionWithDisplayName:_userID];
     [self advertiseSelf];
 }
 
@@ -147,17 +149,24 @@ static const double PRUNE = 30.0;
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
-    NSLog(@"found peer");
     
-    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    //data schema: { nameOfProtest, boolPassword, myPublicKey }
-    BOOL isPassword = NO;
-    if (_password) isPassword = YES;
-    NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-    NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
-    [browser invitePeer:peerID toSession:_session withContext:data timeout:120.0];
-    //[browser invitePeer:peerID toSession:_session withContext:nil timeout:30.0];
+    if (![_peerID.displayName isEqualToString:peerID.displayName]) {
+        NSLog(@"found peer");
+        NSLog(@"My peer id: %@, connecting peer id: %@", _peerID, peerID);
+        _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        //data schema: { nameOfProtest, boolPassword, myPublicKey }
+        BOOL isPassword = NO;
+        if (_password) isPassword = YES;
+        NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
+        //create new session here
+        Peer *newPeer = [[Peer alloc] initWithSession:_session];
+        [_sessions setObject:newPeer forKey:peerID.displayName];
+        [browser invitePeer:peerID toSession:newPeer.session withContext:data timeout:120.0];
+        _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+        //[browser invitePeer:peerID toSession:_session withContext:nil timeout:30.0];
+    }
 
 }
 
