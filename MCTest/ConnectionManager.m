@@ -284,8 +284,8 @@ static const double PRUNE = 30.0;
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Keyflag"]) {
-        Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
-        [_sessions setObject:newPeer forKey:peerID];
+    //    Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
+    //    [_sessions setObject:newPeer forKey:peerID];
         _session = nil;
         [self gossip];
     }
@@ -305,7 +305,7 @@ static const double PRUNE = 30.0;
         if ([data count] > 2) { //multihop repsponse
             for (Peer *peer in _sessions) {
                 if ([(NSData*)peer.key isEqualToData:(NSData*)[data objectAtIndex:1]]) {
-                    [peer.peers addObject:[[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2])]];
+   //                 [peer.peers addObject:[[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2])]];
                 }
             }
         } else if ([data count] <= 2) { //first order response
