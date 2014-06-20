@@ -128,21 +128,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Password" message:@"Enter your password:" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];
-    alertView.alertViewStyle = UIAlertViewStyleSecureTextInput;
-    alertView.tag = indexPath.row;
-    [alertView show];
-    /*
-    NSDictionary* selectedProtest = [_protests objectAtIndex:indexPath.row];
-    if ([selectedProtest objectForKey:@"password"]) {
+    Protest *selectedProtest = [_protests objectAtIndex:indexPath.row];
+    if (selectedProtest.passwordNeeded) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Password" message:@"Enter your password:" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];
         alertView.alertViewStyle = UIAlertViewStyleSecureTextInput;
-        UITextField *passwordTextField = [alertView textFieldAtIndex:0];
+        alertView.tag = indexPath.row;
         [alertView show];
-
+    } else {
+        [self joinProtest:selectedProtest.name password:nil];
     }
-    [_appDelegate.manager connectToPeer:[selectedProtest objectForKey:@"peerID"] password:[selectedProtest objectForKey:@"password"]];
-    */
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {

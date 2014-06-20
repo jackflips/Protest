@@ -19,7 +19,11 @@ static const double PRUNE = 30.0;
 
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
+@property (nonatomic, copy) MCPeerID *peer;
 
+@end
+
+@implementation FoundProtest
 @end
 
 @implementation ConnectionManager
@@ -97,15 +101,21 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiseSelf {
-    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:nil serviceType:@"Protest"];
+    NSDictionary *discoveryInfo = @{@"key": [self getPublicKeyBitsFromKey:_cryptoManager.publicKey]};
+    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:discoveryInfo serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
 }
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
     [_advertiser stopAdvertisingPeer];
-    void (^invitationHandler)(BOOL accept, MCSession *session) = [_foundProtests objectForKey:protestName];
-    invitationHandler(YES, _session);
+    FoundProtest *prot = [_foundProtests objectForKey:protestName];
+    Peer *newPeer = [[Peer alloc] initWithSession:_session];
+    newPeer.isClient = YES;
+    [_sessions setObject:newPeer forKey:prot.peer.displayName];
+    _password = password;
+    prot.joinProtest(YES, newPeer.session);
+    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
 }
 
 - (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
@@ -150,22 +160,21 @@ static const double PRUNE = 30.0;
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     
-    if (![_peerID.displayName isEqualToString:peerID.displayName]) {
+    if (![_peerID.displayName isEqualToString:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) { //if we're not already connected to the peer
         NSLog(@"found peer");
         NSLog(@"My peer id: %@, connecting peer id: %@", _peerID, peerID);
         _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         //data schema: { nameOfProtest, boolPassword, myPublicKey }
         BOOL isPassword = NO;
         if (_password) isPassword = YES;
-        NSData *bits = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], bits, nil];
+        NSData *publicKey = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKey, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
         //create new session here
         Peer *newPeer = [[Peer alloc] initWithSession:_session];
         [_sessions setObject:newPeer forKey:peerID.displayName];
         [browser invitePeer:peerID toSession:newPeer.session withContext:data timeout:120.0];
         _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
-        //[browser invitePeer:peerID toSession:_session withContext:nil timeout:30.0];
     }
 
 }
@@ -182,8 +191,12 @@ static const double PRUNE = 30.0;
     NSLog(@"received invite from peer!");
     if (context) {
         NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
-        [_foundProtests setObject:invitationHandler forKey:[contextArray objectAtIndex:0]];
-        [_appDelegate.viewController addProtestToList:[contextArray objectAtIndex:0] password:[[contextArray objectAtIndex:1] boolValue] health:1];
+        FoundProtest *foundProtest = [[FoundProtest alloc] init];
+        foundProtest.name = [contextArray objectAtIndex:0];
+        foundProtest.peer = peerID;
+        foundProtest.joinProtest = invitationHandler;
+        [_foundProtests setObject:foundProtest forKey:foundProtest.name];
+        [_appDelegate.viewController addProtestToList:foundProtest.name password:[[contextArray objectAtIndex:1] boolValue] health:1];
     }
 }
 
@@ -191,17 +204,18 @@ static const double PRUNE = 30.0;
     NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected");
+        Peer *peer = [_sessions objectForKey:peerID.displayName];
         NSError *error;
-        //NSArray *array = [[NSArray alloc] initWithObjects:@"Keyflag", _cryptoManager.publicKey, nil];
-        NSArray *array = @[@"Test"];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
-        NSLog(@"session: %@", _session);
-        NSLog(@"connected peers:", _session.connectedPeers);
-        NSLog(@"%@", peerID);
-        NSArray *allPeers = _session.connectedPeers;
-        [_session sendData:data toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
-        if (error) {
-            NSLog(@"error: %@", [error localizedDescription]);
+        if (peer == nil) {
+            NSLog(@"Something went terribly wrong");
+            return;
+        }
+        if (peer.isClient) {
+            NSMutableArray *message = [NSMutableArray arrayWithObject:@"Handshake"];
+            if (_password) [message addObject:_password];
+            NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
+            NSData *encryptedMessage = [_cryptoManager encrypt:messageData WithPublicKey:peer.key];
+            [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     }
 }
@@ -276,6 +290,13 @@ static const double PRUNE = 30.0;
     return NO;
 }
 
+- (void)sendMessage:(NSArray*)message toPeer:(Peer*)peer {
+    NSError *error;
+    NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
+    NSData *encryptedMessage = [_cryptoManager encrypt:messageData WithPublicKey:peer.key];
+    [peer.session sendData:encryptedMessage toPeers:[_sessions allKeysForObject:peer] withMode:MCSessionSendDataReliable error:&error];
+}
+
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     NSLog(@"recieved message");
     //NSData *decryptedData = [_cryptoManager decrypt:messageData];
@@ -283,11 +304,19 @@ static const double PRUNE = 30.0;
     NSLog(@"%@", data);
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Keyflag"]) {
-    //    Peer *newPeer = [[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:1]) andSession:_session];
-    //    [_sessions setObject:newPeer forKey:peerID];
-        _session = nil;
-        [self gossip];
+    if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
+        if (_password) {
+            if ([_password isEqualToString:[data objectAtIndex:1]]) {
+                thisPeer.authenticated = YES;
+                [self sendMessage:@[@"ack"] toPeer:thisPeer];
+                [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
+            } else {
+                [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
+            }
+        } else {
+            [self sendMessage:@[@"ack"] toPeer:thisPeer];
+            [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
+        }
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {

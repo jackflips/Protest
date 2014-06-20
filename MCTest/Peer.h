@@ -15,6 +15,8 @@
 @property (nonatomic) CFAbsoluteTime age;
 @property (nonatomic) BOOL requestOut;
 @property (nonatomic) BOOL isParent;
+@property (nonatomic) BOOL authenticated;
+@property (nonatomic) BOOL isClient;
 
 - (id)initWithSession:(MCSession*)session;
 - (void)resetAge;
