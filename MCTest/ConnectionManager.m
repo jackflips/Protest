@@ -303,7 +303,8 @@ static const double PRUNE = 30.0;
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
-        [[_sessions objectForKey:peerID] key] = [data objectAtIndex:1];
+        Peer *peerObj = [_sessions objectForKey:peerID];
+        peerObj.key = (__bridge SecKeyRef)([data objectAtIndex:1]);
         if (_password) {
             if ([_password isEqualToString:[data objectAtIndex:2]]) {
                 thisPeer.authenticated = YES;
