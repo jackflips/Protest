@@ -85,7 +85,7 @@ static const double PRUNE = 30.0;
     [_browser stopBrowsingForPeers];
     [self setupPeerAndSessionWithDisplayName:_userID];
     [self browse];
-    [self advertiseSelf];
+    //[self advertiseSelf];
 }
 
 - (void)browse {
@@ -101,8 +101,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiseSelf {
-    NSDictionary *discoveryInfo = @{@"key": [self getPublicKeyBitsFromKey:_cryptoManager.publicKey]};
-    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:discoveryInfo serviceType:@"Protest"];
+    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:nil serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
 }
@@ -200,7 +199,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
-    NSLog(@"did change state: %ld", state);
+    NSLog(@"did change state: %d", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected");
         Peer *peer = [_sessions objectForKey:peerID.displayName];
@@ -210,7 +209,7 @@ static const double PRUNE = 30.0;
             return;
         }
         if (peer.isClient) {
-            NSMutableArray *message = [NSMutableArray arrayWithObject:@"Handshake"];
+            NSMutableArray *message = [NSMutableArray arrayWithObjects:@"Handshake", [self getPublicKeyBitsFromKey:_cryptoManager.publicKey], nil];
             if (_password) [message addObject:_password];
             NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
             NSData *encryptedMessage = [_cryptoManager encrypt:messageData WithPublicKey:peer.key];
@@ -298,24 +297,33 @@ static const double PRUNE = 30.0;
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     NSLog(@"recieved message");
-    //NSData *decryptedData = [_cryptoManager decrypt:messageData];
-    NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:messageData];
+    NSData *decryptedData = [_cryptoManager decrypt:messageData];
+    NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     NSLog(@"%@", data);
     Peer *thisPeer = [_sessions objectForKey:peerID];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
+        [[_sessions objectForKey:peerID] key] = [data objectAtIndex:1];
         if (_password) {
-            if ([_password isEqualToString:[data objectAtIndex:1]]) {
+            if ([_password isEqualToString:[data objectAtIndex:2]]) {
                 thisPeer.authenticated = YES;
-                [self sendMessage:@[@"ack"] toPeer:thisPeer];
+                [self sendMessage:@[@"Ack"] toPeer:thisPeer];
                 [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
             } else {
                 [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
             }
         } else {
-            [self sendMessage:@[@"ack"] toPeer:thisPeer];
+            [self sendMessage:@[@"Ack"] toPeer:thisPeer];
             [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
         }
+    }
+    
+    if ([[data objectAtIndex:0] isEqualToString:@"Ack"]) {
+        NSLog(@"Succesfully connected to peer!");
+    }
+    
+    if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
+        NSLog(@"accidentally entered wrong pw for peer");
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {
