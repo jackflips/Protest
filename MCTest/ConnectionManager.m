@@ -85,7 +85,7 @@ static const double PRUNE = 30.0;
     [_browser stopBrowsingForPeers];
     [self setupPeerAndSessionWithDisplayName:_userID];
     [self browse];
-    [self advertiseSelf];
+    //[self advertiseSelf];
 }
 
 - (void)browse {
@@ -101,8 +101,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiseSelf {
-    NSDictionary *discoveryInfo = @{@"key": [self getPublicKeyBitsFromKey:_cryptoManager.publicKey]};
-    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:discoveryInfo serviceType:@"Protest"];
+    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:nil serviceType:@"Protest"];
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
 }
@@ -159,7 +158,6 @@ static const double PRUNE = 30.0;
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
-    
     if (![_peerID.displayName isEqualToString:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) { //if we're not already connected to the peer
         NSLog(@"found peer");
         NSLog(@"My peer id: %@, connecting peer id: %@", _peerID, peerID);
@@ -191,6 +189,7 @@ static const double PRUNE = 30.0;
     NSLog(@"received invite from peer!");
     if (context) {
         NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
+        NSLog(@"%@", contextArray);
         FoundProtest *foundProtest = [[FoundProtest alloc] init];
         foundProtest.name = [contextArray objectAtIndex:0];
         foundProtest.peer = peerID;
