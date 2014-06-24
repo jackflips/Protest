@@ -159,7 +159,6 @@ static const double PRUNE = 30.0;
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
-    
     if (![_peerID.displayName isEqualToString:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) { //if we're not already connected to the peer
         NSLog(@"found peer");
         NSLog(@"My peer id: %@, connecting peer id: %@", _peerID, peerID);
