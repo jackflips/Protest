@@ -18,9 +18,8 @@
 @property (strong, nonatomic) NSMutableDictionary *avatarForUser;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 
-- (void)chatLoaded;
+- (void)chatLoaded:(NSString*)protestName;
 - (void)addMessage:(Message*)message;
-- (void)protestNameCallback:(NSString*)name;
 
 
 @end

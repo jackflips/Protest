@@ -43,6 +43,9 @@
     _chatTable.hidden = YES;
     _txtMessage.hidden = YES;
     
+    _protestName.textColor = [UIColor whiteColor];
+    _protestName.font = [UIFont fontWithName:@"Gotham" size:18];
+    
     _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [_spinner setColor:[UIColor grayColor]];
     [_spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
@@ -51,18 +54,11 @@
     
 }
 
-- (void)protestNameCallback:(NSString*)name {
-    _protestName.font = [UIFont fontWithName:@"Gotham" size:18];
-    _protestName.textColor = [UIColor whiteColor];
-    _protestName.text = name;
-}
-
-- (void)chatLoaded {
-    NSLog(@"chat loaded");
+- (void)chatLoaded:(NSString*)protestName {
     _protestName.hidden = NO;
     _chatTable.hidden = NO;
     _txtMessage.hidden = NO;
-    _protestName.text = @"uhhh!";
+    _protestName.text = protestName;
     [_spinner removeFromSuperview];
 }
 

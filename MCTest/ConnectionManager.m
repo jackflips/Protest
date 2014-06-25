@@ -314,20 +314,26 @@ static const double PRUNE = 30.0;
                 thisPeer.authenticated = YES;
                 [self sendMessage:@[@"Ack"] toPeer:thisPeer];
                 [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
-                [_appDelegate.chatViewController chatLoaded];
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    [_appDelegate.chatViewController chatLoaded:_nameOfProtest];
+                }];
             } else {
                 [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
             }
         } else {
             [self sendMessage:@[@"Ack"] toPeer:thisPeer];
             [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
-            [_appDelegate.chatViewController chatLoaded];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [_appDelegate.chatViewController chatLoaded:_nameOfProtest];
+            }];
         }
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"Ack"]) {
         NSLog(@"Succesfully connected to peer!");
-        [_appDelegate.chatViewController chatLoaded];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [_appDelegate.chatViewController chatLoaded:_nameOfProtest];
+        }];
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
