@@ -62,6 +62,7 @@
     _protestName.hidden = NO;
     _chatTable.hidden = NO;
     _txtMessage.hidden = NO;
+    _protestName.text = @"uhhh!";
     [_spinner removeFromSuperview];
 }
 
