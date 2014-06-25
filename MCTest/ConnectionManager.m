@@ -47,7 +47,6 @@ static const double PRUNE = 30.0;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
         _cryptoManager = [[WJLPkcsContext alloc] init];
-        [self hashTest];
     }
     return self;
 }
@@ -74,10 +73,11 @@ static const double PRUNE = 30.0;
     NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
     
     NSData *key = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-    [_cryptoManager addPeerPublicKey:@"key" keyBits:key];
-    SecKeyRef key1 = [_cryptoManager getPublicKeyReference:@"key"];
+    SecKeyRef key1 = [_cryptoManager addPublicKey:key withTag:@"key"];
     NSData *encypted = [_cryptoManager encrypt:testData1 WithPublicKey:key1];
-    NSLog(@"%@", [_cryptoManager decrypt:encypted]);
+    NSData *decrypted = [_cryptoManager decrypt:encypted];
+    NSString* newStr = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
+    NSLog(@"%@", newStr);
     
 }
 
@@ -197,7 +197,7 @@ static const double PRUNE = 30.0;
         foundProtest.name = [contextArray objectAtIndex:0];
         foundProtest.peer = peerID;
         foundProtest.joinProtest = invitationHandler;
-        foundProtest.key = (__bridge SecKeyRef)([contextArray objectAtIndex:2]);
+        foundProtest.key = [_cryptoManager addPublicKey:[contextArray objectAtIndex:2] withTag:peerID.displayName];
         [_foundProtests setObject:foundProtest forKey:foundProtest.name];
         [_appDelegate.viewController addProtestToList:foundProtest.name password:[[contextArray objectAtIndex:1] boolValue] health:1];
     }

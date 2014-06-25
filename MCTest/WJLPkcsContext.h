@@ -30,7 +30,7 @@
 
 
 - (SecKeyRef)getPublicKeyReference:(NSString*)peerName;
-- (void)addPeerPublicKey:(NSString *)peerName keyBits:(NSData *)publicKeyData;
+- (SecKeyRef)addPublicKey:(NSData *)d_key withTag:(NSString *)tag;
 
 - (NSData *)encrypt:(NSData *)plainText WithPublicKey:(SecKeyRef)publicKey;
 

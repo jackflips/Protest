@@ -209,91 +209,51 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
 	sanityCheck = SecItemDelete((__bridge CFDictionaryRef) peerPublicKeyAttr);
 }
 
-- (void)addPeerPublicKey:(NSString *)peerName keyBits:(NSData *)publicKeyData {
-    publicKeyData = [self stripPublicKeyHeader:publicKeyData];
-    OSStatus sanityCheck = noErr;
-    CFTypeRef persistPeer = NULL;
-    [self removePeerPublicKey:peerName];
-    
-    NSData * peerTag = [[NSData alloc] initWithBytes:(const void *)[peerName UTF8String] length:[peerName length]];
-    NSMutableDictionary * peerPublicKeyAttr = [[NSMutableDictionary alloc] init];
-    [peerPublicKeyAttr setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [peerPublicKeyAttr setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
-    [peerPublicKeyAttr setObject:peerTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [peerPublicKeyAttr setObject:publicKeyData forKey:(__bridge id)kSecValueData];
-    [peerPublicKeyAttr setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnData];
-    sanityCheck = SecItemAdd((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef *)&persistPeer);
-    
-    //        TRC_DBG(@"PersistPeer privatekey data after import into keychain %@", persistPeer);
-    persistPeer = NULL;
-    [peerPublicKeyAttr removeObjectForKey:(__bridge id)kSecValueData];
-    sanityCheck = SecItemCopyMatching((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef*)&persistPeer);
-    
-    //        TRC_DBG(@"SecItem copy matching returned this public key data %@", persistPeer);
-    // The nice thing about persistent references is that you can write their value out to disk and
-    // then use them later. I don't do that here but it certainly can make sense for other situations
-    // where you don't want to have to keep building up dictionaries of attributes to get a reference.
-    //
-    // Also take a look at SecKeyWrapper's methods (CFTypeRef)getPersistentKeyRefWithKeyRef:(SecKeyRef)key
-    // & (SecKeyRef)getKeyRefWithPersistentKeyRef:(CFTypeRef)persistentRef.
-    if (persistPeer) CFRelease(persistPeer);
-}
-
--(SecKeyRef)getPublicKeyReference:(NSString*)peerName{
-    OSStatus sanityCheck = noErr;
-    
-    SecKeyRef pubKeyRefData = NULL;
-    NSData * peerTag = [[NSData alloc] initWithBytes:(const void *)[peerName UTF8String] length:[peerName length]];
-    NSMutableDictionary * peerPublicKeyAttr = [[NSMutableDictionary alloc] init];
-    
-    [peerPublicKeyAttr setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [peerPublicKeyAttr setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
-    [peerPublicKeyAttr setObject:peerTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [peerPublicKeyAttr setObject:[NSNumber numberWithBool:YES] forKey:       (__bridge id)kSecReturnRef];
-    sanityCheck = SecItemCopyMatching((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef*)&pubKeyRefData);
-    
-    if(pubKeyRefData){
-        return pubKeyRefData;
-    }else{
-        return nil;
-    }
-}
-
-- (NSData *)stripPublicKeyHeader:(NSData *)d_key
+- (SecKeyRef)addPublicKey:(NSData *)d_key withTag:(NSString *)tag
 {
-    // Skip ASN.1 public key header
-    if (d_key == nil) return(nil);
+    [self removePeerPublicKey:tag];
+    if (d_key == nil) return(FALSE);
     
-    unsigned int len = [d_key length];
-    if (!len) return(nil);
+    NSData *d_tag = [tag dataUsingEncoding:NSUTF8StringEncoding];
     
-    unsigned char *c_key = (unsigned char *)[d_key bytes];
-    unsigned int  idx    = 0;
+    // Delete any old lingering key with the same tag
+    NSMutableDictionary *publicKey = [[NSMutableDictionary alloc] init];
+    [publicKey setObject:(__bridge id) kSecClassKey forKey:(__bridge id)kSecClass];
+    [publicKey setObject:(__bridge id) kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
+    [publicKey setObject:d_tag forKey:(__bridge id)kSecAttrApplicationTag];
+    SecItemDelete((__bridge CFDictionaryRef)publicKey);
     
-    if (c_key[idx++] != 0x30) return(nil);
+    CFTypeRef persistKey = nil;
     
-    if (c_key[idx] > 0x80) idx += c_key[idx] - 0x80 + 1;
-    else idx++;
+    // Add persistent version of the key to system keychain
+    [publicKey setObject:d_key forKey:(__bridge id)kSecValueData];
+    [publicKey setObject:(__bridge id) kSecAttrKeyClassPublic forKey:(__bridge id)
+     kSecAttrKeyClass];
+    [publicKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)
+     kSecReturnPersistentRef];
     
-    // PKCS #1 rsaEncryption szOID_RSA_RSA
-    static unsigned char seqiod[] =
-    { 0x30,   0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
-        0x01, 0x05, 0x00 };
-    if (memcmp(&c_key[idx], seqiod, 15)) return(nil);
+    OSStatus secStatus = SecItemAdd((__bridge CFDictionaryRef)publicKey, &persistKey);
+    if (persistKey != nil) CFRelease(persistKey);
     
-    idx += 15;
+    if ((secStatus != noErr) && (secStatus != errSecDuplicateItem)) {
+        return(FALSE);
+    }
     
-    if (c_key[idx++] != 0x03) return(nil);
+    // Now fetch the SecKeyRef version of the key
+    SecKeyRef keyRef = nil;
     
-    if (c_key[idx] > 0x80) idx += c_key[idx] - 0x80 + 1;
-    else idx++;
+    [publicKey removeObjectForKey:(__bridge id)kSecValueData];
+    [publicKey removeObjectForKey:(__bridge id)kSecReturnPersistentRef];
+    [publicKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnRef
+     ];
+    [publicKey setObject:(__bridge id) kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
+    secStatus = SecItemCopyMatching((__bridge CFDictionaryRef)publicKey,
+                                    (CFTypeRef *)&keyRef);
     
-    if (c_key[idx++] != '\0') return(nil);
+    if (keyRef == nil) return(FALSE);
     
-    // Now make a new NSData from this buffer
-    return([NSData dataWithBytes:&c_key[idx] length:len - idx]);
+    return keyRef;
 }
-
 
 - (void)dealloc
 {
