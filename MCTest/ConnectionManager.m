@@ -346,7 +346,7 @@ static const double PRUNE = 30.0;
         } else {
             [self sendFirstOrderPeerTree:thisPeer]; //only sends young peers
             thisPeer.isParent = YES;
-            [self gossip];
+            [self gossip]; 
         }
     }
     
