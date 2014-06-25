@@ -18,7 +18,7 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (nonatomic) SecKeyRef leaderKey;
 @property (strong, nonatomic) ConnectionManager *manager;
-@property (strong, nonatomic) ChatViewController *firstViewController;
+@property (strong, nonatomic) ChatViewController *chatViewController;
 @property (strong, nonatomic) ProtestViewController *viewController;
 
 -(void)addMessageToChat:(Message*)message;

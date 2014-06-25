@@ -16,8 +16,9 @@
 @property (strong, nonatomic) NSMutableArray *chatSource;
 @property (strong, nonatomic) NSMutableArray *availAvatars;
 @property (strong, nonatomic) NSMutableDictionary *avatarForUser;
+@property (strong, nonatomic) UIActivityIndicatorView *spinner;
 
-
+- (void)chatLoaded;
 - (void)addMessage:(Message*)message;
 - (void)protestNameCallback:(NSString*)name;
 

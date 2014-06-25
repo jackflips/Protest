@@ -18,7 +18,7 @@
 }
 
 -(void)addMessageToChat:(Message*)message {
-    [_firstViewController addMessage:message];
+    [_chatViewController addMessage:message];
 }
 							
 - (void)applicationWillResignActive:(UIApplication *)application

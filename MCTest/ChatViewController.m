@@ -47,17 +47,25 @@
     _chatTable.hidden = YES;
     _txtMessage.hidden = YES;
     
-    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [spinner setColor:[UIColor grayColor]];
-    [spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
-    [self.view addSubview:spinner]; // spinner is not visible until started
-    [spinner startAnimating];
+    _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [_spinner setColor:[UIColor grayColor]];
+    [_spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
+    [self.view addSubview:_spinner]; // spinner is not visible until started
+    [_spinner startAnimating];
 }
 
 - (void)protestNameCallback:(NSString*)name {
     _protestName.font = [UIFont fontWithName:@"Gotham" size:18];
     _protestName.textColor = [UIColor whiteColor];
     _protestName.text = name;
+}
+
+- (void)chatLoaded {
+    _protestName.hidden = NO;
+    _chatTable.hidden = NO;
+    _txtMessage.hidden = NO;
+    [_spinner stopAnimating];
+    _spinner.hidden = YES;
 }
 
 - (void)addMessage:(Message*)message {
