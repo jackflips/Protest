@@ -240,13 +240,12 @@ static const double PRUNE = 30.0;
 
 - (void)gossip {
     for (Peer *peer in _sessions) {
-        NSArray *array = [[NSArray alloc] initWithObjects:@"GossipRequest", nil];
+        NSArray *array = @[@"GossipRequest"];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
         data = [self encryptMessage:data andPublicKey:peer.key];
-        NSArray *allPeers = peer.session.connectedPeers;
         NSError *error;
         peer.requestOut = YES;
-        [peer.session sendData:data toPeers:[NSArray arrayWithObject:allPeers] withMode:MCSessionSendDataReliable error:&error];
+        [peer.session sendData:data toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
         if (error) {
             NSLog(@"%@", [error localizedDescription]);
         }
@@ -262,7 +261,7 @@ static const double PRUNE = 30.0;
 }
 
 - (BOOL)needsToRefreshPeerList {
-    for (Peer *peer in _sessions) {
+    for (Peer *peer in [_sessions allValues]) {
         if ([peer getAgeSinceReset] > PRUNE) {
             return YES;
         }
@@ -272,13 +271,12 @@ static const double PRUNE = 30.0;
 
 - (void)sendFirstOrderPeerTree:(Peer*)peer {
     NSError *error;
-    NSArray *peerId = peer.session.connectedPeers; //remember, just one peer per session.
-    for (Peer* Peer in _sessions) {
-        if ([Peer getAgeSinceReset] < PRUNE) {
-            NSArray *gossipResponse = [[NSArray alloc] initWithObjects:@"GossipResponse", _cryptoManager.publicKey, Peer.key, nil];
-            NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:gossipResponse];
+    for (Peer *newPeer in [_sessions allValues]) {
+        if ([peer getAgeSinceReset] < PRUNE && newPeer != peer) {
+            NSArray *gossip = [[NSArray alloc] initWithObjects:@"Gossip", [self getPublicKeyBitsFromKey:_cryptoManager.publicKey], newPeer.key, nil];
+            NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:gossip];
             responseData = [_cryptoManager encrypt:responseData WithPublicKey:peer.key];
-            [peer.session sendData:responseData toPeers:peerId withMode:MCSessionSendDataReliable error:&error];
+            [peer.session sendData:responseData toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     }
 }
@@ -330,7 +328,7 @@ static const double PRUNE = 30.0;
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
-        NSLog(@"accidentally entered wrong pw for peer");
+        NSLog(@"entered wrong pw for peer");
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {
@@ -343,7 +341,7 @@ static const double PRUNE = 30.0;
         }
     }
     
-    else if ([[data objectAtIndex:0] isEqualToString:@"GossipResponse"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"Gossip"]) {
         //check length of nsarray to see if it is multihop response or 1
         if ([data count] > 2) { //multihop repsponse
             for (Peer *peer in _sessions) {
@@ -359,8 +357,8 @@ static const double PRUNE = 30.0;
                 for (Peer *peer in _sessions) {
                     if (peer.isParent) {
                         NSError *error;
-                        NSArray *gossipResponse = [[NSArray alloc] initWithObjects:@"GossipResponse", _cryptoManager.publicKey, [data objectAtIndex:1], nil];
-                        NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:gossipResponse];
+                        NSArray *Gossip = [[NSArray alloc] initWithObjects:@"Gossip", _cryptoManager.publicKey, [data objectAtIndex:1], nil];
+                        NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:Gossip];
                         responseData = [_cryptoManager encrypt:responseData WithPublicKey:peer.key];
                         [peer.session sendData:responseData toPeers:[[_sessions allKeysForObject:peer] objectAtIndex:0] withMode:MCSessionSendDataReliable error:&error];
                     }
