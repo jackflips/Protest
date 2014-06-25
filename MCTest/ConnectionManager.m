@@ -328,6 +328,7 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"Ack"]) {
         NSLog(@"Succesfully connected to peer!");
         [_appDelegate.chatViewController chatLoaded];
+        _appDelegate.chatViewController.protestName.text = @"hey1";
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {

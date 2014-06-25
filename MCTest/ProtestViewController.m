@@ -148,24 +148,27 @@
 
 - (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password {
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    ChatViewController *firstViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
-    _appDelegate.chatViewController = firstViewController;
+    ChatViewController *chatViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
+    _appDelegate.chatViewController = chatViewController;
     [_appDelegate.manager joinProtest:nameOfProtest password:password];
-    [_appDelegate.window.rootViewController presentViewController:firstViewController animated:YES completion:^{
-        [firstViewController protestNameCallback:nameOfProtest];
+    [self presentViewController:chatViewController animated:YES completion:^{
+        nil;
     }];
+    chatViewController.title = @"Hey!";
 }
 
 - (void)startProtest {
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager.leader = YES;
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    ChatViewController *firstViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"FirstViewController"];
-    _appDelegate.chatViewController = firstViewController;
+    ChatViewController *chatViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
+    _appDelegate.chatViewController = chatViewController;
     [_appDelegate.manager startProtest:@"First Protest" password:@"hey"];
-    [_appDelegate.window.rootViewController presentViewController:firstViewController animated:YES completion:^{
-        [firstViewController protestNameCallback:@"First Protest"];
+    [self presentViewController:chatViewController animated:YES completion:^{
+        nil;
     }];
+    _appDelegate.chatViewController = chatViewController;
+    [chatViewController chatLoaded];
 }
 
 - (void)didReceiveMemoryWarning

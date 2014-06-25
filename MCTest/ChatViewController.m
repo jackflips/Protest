@@ -29,12 +29,8 @@
     [super viewDidLoad];
     
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didReceiveDataWithNotification:)
-                                                 name:@"MCDidReceiveDataNotification"
-                                               object:nil];
+    _appDelegate.chatViewController = self;
+
     
     _chatSource = [NSMutableArray array];
     _availAvatars = [NSMutableArray array];
@@ -52,6 +48,7 @@
     [_spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
     [self.view addSubview:_spinner]; // spinner is not visible until started
     [_spinner startAnimating];
+    
 }
 
 - (void)protestNameCallback:(NSString*)name {
@@ -61,11 +58,11 @@
 }
 
 - (void)chatLoaded {
+    NSLog(@"chat loaded");
     _protestName.hidden = NO;
     _chatTable.hidden = NO;
     _txtMessage.hidden = NO;
-    [_spinner stopAnimating];
-    _spinner.hidden = YES;
+    [_spinner removeFromSuperview];
 }
 
 - (void)addMessage:(Message*)message {
