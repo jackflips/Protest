@@ -46,8 +46,8 @@ static const double PRUNE = 30.0;
         _password = nil;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
-        [self hashTest];
         _cryptoManager = [[WJLPkcsContext alloc] init];
+        [self hashTest];
     }
     return self;
 }
@@ -74,7 +74,8 @@ static const double PRUNE = 30.0;
     NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
     
     NSData *key = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-    SecKeyRef key1 = (__bridge SecKeyRef)(key);
+    [_cryptoManager addPeerPublicKey:@"key" keyBits:key];
+    SecKeyRef key1 = [_cryptoManager getPublicKeyReference:@"key"];
     NSData *encypted = [_cryptoManager encrypt:testData1 WithPublicKey:key1];
     NSLog(@"%@", [_cryptoManager decrypt:encypted]);
     

@@ -28,6 +28,10 @@
 @property (readonly, assign) SecKeyRef publicKey;
 @property (readonly, assign) SecKeyRef privateKey;
 
+
+- (SecKeyRef)getPublicKeyReference:(NSString*)peerName;
+- (void)addPeerPublicKey:(NSString *)peerName keyBits:(NSData *)publicKeyData;
+
 - (NSData *)encrypt:(NSData *)plainText WithPublicKey:(SecKeyRef)publicKey;
 
 - (NSData *)decrypt:(NSData *)cipherText;
