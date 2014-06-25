@@ -41,7 +41,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    _protests = [NSMutableArray array];
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager = [[ConnectionManager alloc] init];
     [_appDelegate.manager searchForProtests];
@@ -128,7 +127,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    Protest *selectedProtest = [_protests objectAtIndex:indexPath.row];
+    Protest *selectedProtest = [tableSource objectAtIndex:indexPath.row];
     if (selectedProtest.passwordNeeded) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Password" message:@"Enter your password:" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];
         alertView.alertViewStyle = UIAlertViewStyleSecureTextInput;

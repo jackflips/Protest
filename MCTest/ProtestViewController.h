@@ -14,7 +14,6 @@
     NSMutableArray *tableSource;
 }
 
-@property (nonatomic, strong) NSMutableArray *protests;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) UIButton *startProtestButton;
 
