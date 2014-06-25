@@ -20,6 +20,7 @@ static const double PRUNE = 30.0;
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
 @property (nonatomic, copy) MCPeerID *peer;
+@property (nonatomic) SecKeyRef key;
 
 @end
 
@@ -45,7 +46,7 @@ static const double PRUNE = 30.0;
         _password = nil;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
-        
+        [self hashTest];
         _cryptoManager = [[WJLPkcsContext alloc] init];
     }
     return self;
@@ -72,9 +73,10 @@ static const double PRUNE = 30.0;
     NSData *testData1 = [falseTest dataUsingEncoding:NSUTF8StringEncoding];
     NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSData *sig = [_cryptoManager sign:testData withKey:_cryptoManager.privateKey];
-    OSStatus status = [_cryptoManager verify:testData1 withSignature:sig andKey:_cryptoManager.publicKey];
-    NSLog(@"%d", (int)status);
+    NSData *key = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+    SecKeyRef key1 = (__bridge SecKeyRef)(key);
+    NSData *encypted = [_cryptoManager encrypt:testData1 WithPublicKey:key1];
+    NSLog(@"%@", [_cryptoManager decrypt:encypted]);
     
 }
 
@@ -110,6 +112,7 @@ static const double PRUNE = 30.0;
     [_advertiser stopAdvertisingPeer];
     FoundProtest *prot = [_foundProtests objectForKey:protestName];
     Peer *newPeer = [[Peer alloc] initWithSession:_session];
+    newPeer.key = prot.key;
     newPeer.isClient = YES;
     [_sessions setObject:newPeer forKey:prot.peer.displayName];
     _password = password;
@@ -193,6 +196,7 @@ static const double PRUNE = 30.0;
         foundProtest.name = [contextArray objectAtIndex:0];
         foundProtest.peer = peerID;
         foundProtest.joinProtest = invitationHandler;
+        foundProtest.key = (__bridge SecKeyRef)([contextArray objectAtIndex:2]);
         [_foundProtests setObject:foundProtest forKey:foundProtest.name];
         [_appDelegate.viewController addProtestToList:foundProtest.name password:[[contextArray objectAtIndex:1] boolValue] health:1];
     }
