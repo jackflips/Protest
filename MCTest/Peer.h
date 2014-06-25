@@ -12,6 +12,7 @@
 @property (nonatomic) SecKeyRef key;
 @property (nonatomic, strong) NSMutableArray *peers;
 @property (nonatomic, copy) MCSession *session;
+@property (nonatomic, copy) MCPeerID *peerID;
 @property (nonatomic) CFAbsoluteTime age;
 @property (nonatomic) BOOL requestOut;
 @property (nonatomic) BOOL isParent;

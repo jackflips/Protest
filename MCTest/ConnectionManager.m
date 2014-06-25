@@ -115,6 +115,7 @@ static const double PRUNE = 30.0;
     Peer *newPeer = [[Peer alloc] initWithSession:_session];
     newPeer.key = prot.key;
     newPeer.isClient = YES;
+    newPeer.peerID = prot.peer;
     [_sessions setObject:newPeer forKey:prot.peer.displayName];
     _password = password;
     prot.joinProtest(YES, newPeer.session);
@@ -174,6 +175,7 @@ static const double PRUNE = 30.0;
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
         //create new session here
         Peer *newPeer = [[Peer alloc] initWithSession:_session];
+        newPeer.peerID = peerID;
         [_sessions setObject:newPeer forKey:peerID.displayName];
         [browser invitePeer:peerID toSession:newPeer.session withContext:data timeout:120.0];
         _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
@@ -260,8 +262,8 @@ static const double PRUNE = 30.0;
 }
 
 - (BOOL)needsToRefreshPeerList {
-    for (Peer *session in _sessions) {
-        if ([session getAgeSinceReset] > PRUNE) {
+    for (Peer *peer in _sessions) {
+        if ([peer getAgeSinceReset] > PRUNE) {
             return YES;
         }
     }
@@ -297,7 +299,7 @@ static const double PRUNE = 30.0;
     NSError *error;
     NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
     NSData *encryptedMessage = [_cryptoManager encrypt:messageData WithPublicKey:peer.key];
-    [peer.session sendData:encryptedMessage toPeers:[_sessions allKeysForObject:peer] withMode:MCSessionSendDataReliable error:&error];
+    [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
@@ -305,11 +307,10 @@ static const double PRUNE = 30.0;
     NSData *decryptedData = [_cryptoManager decrypt:messageData];
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     NSLog(@"%@", data);
-    Peer *thisPeer = [_sessions objectForKey:peerID];
+    Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
-        Peer *peerObj = [_sessions objectForKey:peerID];
-        peerObj.key = [_cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
+        thisPeer.key = [_cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
         if (_password) {
             if ([_password isEqualToString:[data objectAtIndex:2]]) {
                 thisPeer.authenticated = YES;
