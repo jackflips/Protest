@@ -24,7 +24,6 @@
 @property (nonatomic, strong) NSMutableDictionary *sessions;
 @property (nonatomic, assign) BOOL leader;
 @property (nonatomic, strong) NSMutableArray *currentRequestingPeers;
-@property (nonatomic, strong) WJLPkcsContext *cryptoManager;
 @property (nonatomic, strong) NSMutableDictionary *allMessages;
 @property (nonatomic, strong) NSString *userID;
 @property (nonatomic, strong) NSData *leadersPublicKey;

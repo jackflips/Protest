@@ -18,5 +18,6 @@
 @property (nonatomic, strong) UIButton *startProtestButton;
 
 - (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health;
+- (void)reset;
 
 @end

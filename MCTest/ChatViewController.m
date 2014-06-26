@@ -96,7 +96,11 @@
 }
 
 - (IBAction)exitButtonPressed:(id)sender {
-    NSLog(@"exit button pressed");
+    [_appDelegate.viewController reset];
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+    ProtestViewController *protestViewController = (ProtestViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ProtestViewController"];
+    _appDelegate.viewController = protestViewController;
+    [self presentViewController:protestViewController animated:NO completion:nil];
 }
 
 

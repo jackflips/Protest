@@ -61,6 +61,12 @@
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
 }
 
+- (void)reset {
+    [tableSource removeAllObjects];
+    _appDelegate.manager = [[ConnectionManager alloc] init];
+    [_appDelegate.manager searchForProtests];
+}
+
 -(void)buttonPressed:(id)sender {
     NSLog(@"do nothing");
 }
@@ -168,7 +174,6 @@
         nil;
     }];
     _appDelegate.chatViewController = chatViewController;
-    [chatViewController chatLoaded];
 }
 
 - (void)didReceiveMemoryWarning

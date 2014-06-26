@@ -14,6 +14,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    _cryptoManager = [[WJLPkcsContext alloc] init];
     return YES;
 }
 

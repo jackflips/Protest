@@ -46,7 +46,6 @@ static const double PRUNE = 30.0;
         _password = nil;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
-        _cryptoManager = [[WJLPkcsContext alloc] init];
     }
     return self;
 }
@@ -72,10 +71,10 @@ static const double PRUNE = 30.0;
     NSData *testData1 = [falseTest dataUsingEncoding:NSUTF8StringEncoding];
     NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSData *key = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
-    SecKeyRef key1 = [_cryptoManager addPublicKey:key withTag:@"key"];
-    NSData *encypted = [_cryptoManager encrypt:testData1 WithPublicKey:key1];
-    NSData *decrypted = [_cryptoManager decrypt:encypted];
+    NSData *key = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
+    SecKeyRef key1 = [_appDelegate.cryptoManager addPublicKey:key withTag:@"key"];
+    NSData *encypted = [_appDelegate.cryptoManager encrypt:testData1 WithPublicKey:key1];
+    NSData *decrypted = [_appDelegate.cryptoManager decrypt:encypted];
     NSString* newStr = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
     NSLog(@"%@", newStr);
     
@@ -113,6 +112,7 @@ static const double PRUNE = 30.0;
     [_advertiser stopAdvertisingPeer];
     FoundProtest *prot = [_foundProtests objectForKey:protestName];
     Peer *newPeer = [[Peer alloc] initWithSession:_session];
+    _nameOfProtest = prot.name;
     newPeer.key = prot.key;
     newPeer.isClient = YES;
     newPeer.peerID = prot.peer;
@@ -170,7 +170,7 @@ static const double PRUNE = 30.0;
         //data schema: { nameOfProtest, boolPassword, myPublicKey }
         BOOL isPassword = NO;
         if (_password) isPassword = YES;
-        NSData *publicKey = [self getPublicKeyBitsFromKey:_cryptoManager.publicKey];
+        NSData *publicKey = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
         NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKey, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
         //create new session here
@@ -180,7 +180,6 @@ static const double PRUNE = 30.0;
         [browser invitePeer:peerID toSession:newPeer.session withContext:data timeout:120.0];
         _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
     }
-
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -199,7 +198,7 @@ static const double PRUNE = 30.0;
         foundProtest.name = [contextArray objectAtIndex:0];
         foundProtest.peer = peerID;
         foundProtest.joinProtest = invitationHandler;
-        foundProtest.key = [_cryptoManager addPublicKey:[contextArray objectAtIndex:2] withTag:peerID.displayName];
+        foundProtest.key = [_appDelegate.cryptoManager addPublicKey:[contextArray objectAtIndex:2] withTag:peerID.displayName];
         [_foundProtests setObject:foundProtest forKey:foundProtest.name];
         [_appDelegate.viewController addProtestToList:foundProtest.name password:[[contextArray objectAtIndex:1] boolValue] health:1];
     }
@@ -216,10 +215,10 @@ static const double PRUNE = 30.0;
             return;
         }
         if (peer.isClient) {
-            NSMutableArray *message = [NSMutableArray arrayWithObjects:@"Handshake", [self getPublicKeyBitsFromKey:_cryptoManager.publicKey], nil];
+            NSMutableArray *message = [NSMutableArray arrayWithObjects:@"Handshake", [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey], nil];
             if (_password) [message addObject:_password];
             NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
-            NSData *encryptedMessage = [_cryptoManager encrypt:messageData WithPublicKey:peer.key];
+            NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     }
@@ -231,11 +230,11 @@ static const double PRUNE = 30.0;
 
 
 - (NSData*)encryptMessage:(NSData*)message andPublicKey:(SecKeyRef)publicKey {
-    return [_cryptoManager encrypt:message WithPublicKey:publicKey];
+    return [_appDelegate.cryptoManager encrypt:message WithPublicKey:publicKey];
 }
 
 - (NSData*)decryptMessage:(NSData*)message {
-    return [_cryptoManager decrypt:message];
+    return [_appDelegate.cryptoManager decrypt:message];
 }
 
 - (void)gossip {
@@ -273,9 +272,9 @@ static const double PRUNE = 30.0;
     NSError *error;
     for (Peer *newPeer in [_sessions allValues]) {
         if ([peer getAgeSinceReset] < PRUNE && newPeer != peer) {
-            NSArray *gossip = [[NSArray alloc] initWithObjects:@"Gossip", [self getPublicKeyBitsFromKey:_cryptoManager.publicKey], newPeer.key, nil];
+            NSArray *gossip = [[NSArray alloc] initWithObjects:@"Gossip", [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey], newPeer.key, nil];
             NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:gossip];
-            responseData = [_cryptoManager encrypt:responseData WithPublicKey:peer.key];
+            responseData = [_appDelegate.cryptoManager encrypt:responseData WithPublicKey:peer.key];
             [peer.session sendData:responseData toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     }
@@ -296,19 +295,19 @@ static const double PRUNE = 30.0;
 - (void)sendMessage:(NSArray*)message toPeer:(Peer*)peer {
     NSError *error;
     NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
-    NSData *encryptedMessage = [_cryptoManager encrypt:messageData WithPublicKey:peer.key];
+    NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     NSLog(@"recieved message");
-    NSData *decryptedData = [_cryptoManager decrypt:messageData];
+    NSData *decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     NSLog(@"%@", data);
     Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
-        thisPeer.key = [_cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
+        thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
         if (_password) {
             if ([_password isEqualToString:[data objectAtIndex:2]]) {
                 thisPeer.authenticated = YES;
@@ -366,9 +365,9 @@ static const double PRUNE = 30.0;
                 for (Peer *peer in _sessions) {
                     if (peer.isParent) {
                         NSError *error;
-                        NSArray *Gossip = [[NSArray alloc] initWithObjects:@"Gossip", _cryptoManager.publicKey, [data objectAtIndex:1], nil];
+                        NSArray *Gossip = [[NSArray alloc] initWithObjects:@"Gossip", _appDelegate.cryptoManager.publicKey, [data objectAtIndex:1], nil];
                         NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:Gossip];
-                        responseData = [_cryptoManager encrypt:responseData WithPublicKey:peer.key];
+                        responseData = [_appDelegate.cryptoManager encrypt:responseData WithPublicKey:peer.key];
                         [peer.session sendData:responseData toPeers:[[_sessions allKeysForObject:peer] objectAtIndex:0] withMode:MCSessionSendDataReliable error:&error];
                     }
                 }
@@ -385,7 +384,7 @@ static const double PRUNE = 30.0;
         if (!thisMessage) {
             Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:YES];
             if ([data count] >= 5) {
-                OSStatus status = [_cryptoManager verify:[data objectAtIndex:3] withSignature:[data objectAtIndex:4] andKey:_cryptoManager.publicKey];
+                OSStatus status = [_appDelegate.cryptoManager verify:[data objectAtIndex:3] withSignature:[data objectAtIndex:4] andKey:_appDelegate.cryptoManager.publicKey];
                 if (status == 0) { //if verified...
                     newMessage.fromLeader = YES;
                 }
@@ -416,7 +415,7 @@ static const double PRUNE = 30.0;
 - (void)forwardMessage:(NSData*)data {
     for (MCPeerID* key in _sessions) {
         Peer *peer = [_sessions objectForKey:key];
-        data = [_cryptoManager encrypt:data WithPublicKey:peer.key];
+        data = [_appDelegate.cryptoManager encrypt:data WithPublicKey:peer.key];
         NSError *error;
         [peer.session sendData:data toPeers:[NSArray arrayWithObject:key] withMode:MCSessionSendDataReliable error:&error];
     }
@@ -451,7 +450,7 @@ static const double PRUNE = 30.0;
     NSArray *messageToSend;
     if (_leader) {
         NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *sig = [_cryptoManager sign:messageData withKey:_cryptoManager.privateKey];
+        NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
         [NSArray arrayWithObjects:@"Message", hash, _userID, message, sig, nil];
     } else {
         [NSArray arrayWithObjects:@"Message", hash, _userID, message, nil];
@@ -466,12 +465,12 @@ static const double PRUNE = 30.0;
     Peer *firstHop = [candidates objectAtIndex:arc4random() % [candidates count]];
     Peer *secondHop = [firstHop.peers objectAtIndex:arc4random() % firstHop.peers.count];
     MCPeerID *secondHopPeerID = [secondHop.session.connectedPeers objectAtIndex:0];
-    NSData *secondHopData = [_cryptoManager encrypt:data WithPublicKey:secondHop.key];
+    NSData *secondHopData = [_appDelegate.cryptoManager encrypt:data WithPublicKey:secondHop.key];
     //intermediate hop data is like [@"Forward", Public key to forward to, data]
     //we really should do 3 hops...
     NSArray *firstHopDataArray = [NSArray arrayWithObjects:@"Forward", secondHopPeerID, secondHopData, nil];
     NSData *firstHopData = [NSKeyedArchiver archivedDataWithRootObject:firstHopDataArray];
-    firstHopData = [_cryptoManager encrypt:firstHopData WithPublicKey:firstHop.key];
+    firstHopData = [_appDelegate.cryptoManager encrypt:firstHopData WithPublicKey:firstHop.key];
     NSError *error;
     [firstHop.session sendData:firstHopData toPeers:firstHop.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
 }

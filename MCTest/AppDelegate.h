@@ -20,6 +20,7 @@
 @property (strong, nonatomic) ConnectionManager *manager;
 @property (strong, nonatomic) ChatViewController *chatViewController;
 @property (strong, nonatomic) ProtestViewController *viewController;
+@property (strong, nonatomic) WJLPkcsContext *cryptoManager;
 
 -(void)addMessageToChat:(Message*)message;
 
