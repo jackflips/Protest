@@ -160,7 +160,6 @@
     [self presentViewController:chatViewController animated:YES completion:^{
         nil;
     }];
-    chatViewController.title = @"Hey!";
 }
 
 - (void)startProtest {

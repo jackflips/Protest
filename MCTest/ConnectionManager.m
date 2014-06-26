@@ -50,6 +50,20 @@ static const double PRUNE = 30.0;
     return self;
 }
 
+- (void)reset {
+    _session = nil;
+    _peerID = nil;
+    _browser = nil;
+    _advertiser = nil;
+    _leadersPublicKey = nil;
+    _leader = NO;
+    [_sessions removeAllObjects];
+    [_allMessages removeAllObjects];
+    _password = nil;
+    _nameOfProtest = nil;
+    [_foundProtests removeAllObjects];
+}
+
 - (void)testMessageSending {
     [NSTimer scheduledTimerWithTimeInterval:2.0
                                      target:self
