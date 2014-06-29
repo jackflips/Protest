@@ -54,12 +54,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Your message..." minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sTf-Fk-ACb">
-                                <rect key="frame" x="20" y="518" width="280" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="header_sans_title.png" translatesAutoresizingMaskIntoConstraints="NO" id="dft-W2-0QS">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -91,6 +85,31 @@
                                     <outlet property="delegate" destination="DnO-nl-sYc" id="ZtC-NP-UJh"/>
                                 </connections>
                             </tableView>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kwo-Td-a77">
+                                <rect key="frame" x="0.0" y="517" width="320" height="51"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Your message..." minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sTf-Fk-ACb">
+                                        <rect key="frame" x="9" y="11" width="248" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sPx-4i-lWH">
+                                        <rect key="frame" x="265" y="11" width="46" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <state key="normal" title="Send">
+                                            <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="sendButtonPressed:" destination="DnO-nl-sYc" eventType="touchUpInside" id="KfL-bA-eTE"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="0.92941182851791382" green="0.92549026012420654" blue="0.90196084976196289" alpha="1" colorSpace="deviceRGB"/>
                     </view>
@@ -98,6 +117,7 @@
                     <connections>
                         <outlet property="chatTable" destination="fSr-Og-7Jz" id="IVI-7W-iNR"/>
                         <outlet property="protestName" destination="bj4-g2-q6v" id="5Lg-uq-rid"/>
+                        <outlet property="sendButton" destination="sPx-4i-lWH" id="JAj-92-ZUK"/>
                         <outlet property="txtMessage" destination="sTf-Fk-ACb" id="lsX-jJ-NFa"/>
                     </connections>
                 </viewController>

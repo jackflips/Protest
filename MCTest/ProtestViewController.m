@@ -63,8 +63,11 @@
 
 - (void)reset {
     [tableSource removeAllObjects];
-    _appDelegate.manager = [[ConnectionManager alloc] init];
-    [_appDelegate.manager searchForProtests];
+    NSLog(@"yo");
+    [_appDelegate.manager disconnectFromPeers];
+    NSLog(@"sup");
+    _appDelegate.manager = nil;
+    //[_appDelegate.manager searchForProtests];
 }
 
 -(void)buttonPressed:(id)sender {

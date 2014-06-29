@@ -17,6 +17,7 @@
 @property (strong, nonatomic) NSMutableArray *availAvatars;
 @property (strong, nonatomic) NSMutableDictionary *avatarForUser;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
+@property (weak, nonatomic) IBOutlet UIButton *sendButton;
 
 - (void)chatLoaded:(NSString*)protestName;
 - (void)addMessage:(Message*)message;

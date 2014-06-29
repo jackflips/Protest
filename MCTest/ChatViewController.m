@@ -52,51 +52,25 @@
     [self.view addSubview:_spinner]; // spinner is not visible until started
     [_spinner startAnimating];
     
-    [self registerForKeyboardNotifications];
+    //[self registerForKeyboardNotifications];
     
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [self deregisterFromKeyboardNotifications];
-}
-
-- (void)registerForKeyboardNotifications {
-    
+/*
+- (void)registerForKeyboardNotifications
+{
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWasShown:)
-                                                 name:UIKeyboardDidShowNotification
-                                               object:nil];
+                                                 name:UIKeyboardDidShowNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillBeHidden:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
+                                                 name:UIKeyboardWillHideNotification object:nil];
     
 }
+ */
 
-- (void)keyboardWasShown:(NSNotification *)notification {
-    NSDictionary* info = [notification userInfo];
-    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
-    _txtMessage.frame = CGRectMake(_txtMessage.frame.origin.x, _txtMessage.frame.origin.y - 160.0, _txtMessage.frame.size.width, _txtMessage.frame.size.height);
-    [_chatTable setContentOffset:CGPointMake(0,-50) animated:YES];
-}
 
-- (void)keyboardWillBeHidden:(NSNotification *)notification {
-    [_chatTable setContentOffset:CGPointZero animated:YES];
-    _txtMessage.frame = CGRectMake(_txtMessage.frame.origin.x, _txtMessage.frame.origin.y + 160.0, _txtMessage.frame.size.width, _txtMessage.frame.size.height);
-}
-
-- (void)deregisterFromKeyboardNotifications {
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIKeyboardDidHideNotification
-                                                  object:nil];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIKeyboardWillHideNotification
-                                                  object:nil];
-    
-}
 
 
 
@@ -144,6 +118,11 @@
 - (IBAction)exitButtonPressed:(id)sender {
     [_appDelegate.viewController reset];
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+- (IBAction)sendButtonPressed:(id)sender {
+    NSLog(@"send button pressed");
 }
 
 

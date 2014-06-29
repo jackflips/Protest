@@ -30,15 +30,13 @@
 @property (nonatomic, strong) NSString *password;
 @property (nonatomic, strong) NSString *nameOfProtest;
 @property (nonatomic, strong) NSMutableDictionary *foundProtests;
-@property (nonatomic, strong) NSMutableDictionary *quarantinedProtests;
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password;
 - (void)startProtest:(NSString*)name password:(NSString*)password;
 - (void)pruneTree;
 - (void)sendMessage:(NSString*)message;
 - (void)searchForProtests;
-- (void)reset;
-//- (void)connectToPeer:(MCPeerID*)peer password:(NSString*)password;
+- (void)disconnectFromPeers;
 - (void)testMessageSending;
 
 @end
