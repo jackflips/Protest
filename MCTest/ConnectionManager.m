@@ -392,7 +392,7 @@ static const double PRUNE = 30.0;
          */
         Message *thisMessage = [_allMessages objectForKey:[data objectAtIndex:1]];
         if (!thisMessage) {
-            Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:YES];
+            Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
             if ([data count] >= 5) {
                 OSStatus status = [_appDelegate.cryptoManager verify:[data objectAtIndex:3] withSignature:[data objectAtIndex:4] andKey:_appDelegate.cryptoManager.publicKey];
                 if (status == 0) { //if verified...
@@ -400,7 +400,7 @@ static const double PRUNE = 30.0;
                 }
             }
             [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
-            [_appDelegate addMessageToChat:thisMessage];
+            [_appDelegate.chatViewController.chatSource addObject:newMessage];
         }
         else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
             [thisMessage.timer invalidate];
