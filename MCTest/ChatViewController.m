@@ -161,7 +161,7 @@
 - (void)addMessage:(Message*)message {
     NSLog(@"recieved message! %@", message);
     if ([_avatarForUser objectForKey:message.uId] == nil) {
-        uint32_t rnd = arc4random_uniform([_availAvatars count]);
+        uint32_t rnd = arc4random_uniform((uint32_t)[_availAvatars count]);
         NSNumber *avatarNum = [_availAvatars objectAtIndex:rnd];
         [_availAvatars removeObject:avatarNum];
         [_avatarForUser setValue:avatarNum forKey:message.uId];
@@ -321,8 +321,11 @@
     
     
     Message *message = [_chatSource objectAtIndex:indexPath.row];
-    
-    [self othersChatBubble:message.message cell:cell avatarID:[[_avatarForUser objectForKey:message.uId] intValue]];
+    if ([message.uId isEqualToString:_appDelegate.manager.userID]) {
+        [self selfChatBubble:message.message cell:cell];
+    } else {
+        [self othersChatBubble:message.message cell:cell avatarID:[[_avatarForUser objectForKey:message.uId] intValue]];
+    }
 
     return cell;
     
