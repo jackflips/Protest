@@ -38,14 +38,10 @@
         [_availAvatars addObject:[NSNumber numberWithInt:i]];
     }
     _avatarForUser = [[NSMutableDictionary alloc] init];
-    
     _protestName.hidden = YES;
     _chatTable.hidden = YES;
-    _txtMessage.hidden = YES;
-    
     _protestName.textColor = [UIColor whiteColor];
     _protestName.font = [UIFont fontWithName:@"Gotham" size:18];
-    
     _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [_spinner setColor:[UIColor grayColor]];
     [_spinner setCenter:CGPointMake(160, 240)]; // I do this because I'm in landscape mode
@@ -55,7 +51,65 @@
     [self registerForKeyboardNotifications];
     
     [self addMessage:[[Message alloc] initWithMessage:@"heyooo sherriff!" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"sherriff I am sorry but fuck your kind!" uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"It honestly doesn't matter because I don't care about you guys anyway. So get out." uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"get out!!!!" uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"I will not!!!" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Fine then get in at least." uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"I also won't do that!" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Then what will you do?!" uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"your mother ha" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"the cops are coming!" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"listen to me plz" uID:@"0" fromLeader:NO]];
     
+    _toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f,
+                                                                     self.view.bounds.size.height - 40.0f,
+                                                                     self.view.bounds.size.width,
+                                                                     40.0f)];
+    _toolBar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+    [self.view addSubview:_toolBar];
+    
+    _textField = [[UITextField alloc] initWithFrame:CGRectMake(10.0f,
+                                                                           6.0f,
+                                                                           _toolBar.bounds.size.width - 20.0f - 68.0f,
+                                                                           30.0f)];
+    _textField.borderStyle = UITextBorderStyleRoundedRect;
+    _textField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    [_toolBar addSubview:_textField];
+    
+    _sendButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    _sendButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
+    [_sendButton setTitle:@"Send" forState:UIControlStateNormal];
+    _sendButton.frame = CGRectMake(_toolBar.bounds.size.width - 68.0f,
+                                  6.0f,
+                                  58.0f,
+                                  29.0f);
+    [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [_sendButton setEnabled:NO];
+    [_sendButton addTarget:self action:@selector(sendButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [_toolBar addSubview:_sendButton];
+    
+    
+    self.view.keyboardTriggerOffset = _toolBar.bounds.size.height;
+    
+    __weak ChatViewController *self_ = self; //to avoid retain cycle
+    [self.view addKeyboardPanningWithFrameBasedActionHandler:^(CGRect keyboardFrameInView, BOOL opening, BOOL closing) {
+        CGRect toolBarFrame = self_.toolBar.frame;
+        toolBarFrame.origin.y = keyboardFrameInView.origin.y - toolBarFrame.size.height;
+        self_.toolBar.frame = toolBarFrame;
+    } constraintBasedActionHandler:nil];
+    
+    [_textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+}
+
+-(void)textFieldDidChange :(UITextField *)theTextField{
+    if ([theTextField.text length] > 0) {
+        [_sendButton setTitleColor:[UIColor colorWithRed:0 green:0.478431 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
+        [_sendButton setEnabled:YES];
+    } else {
+        [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+        [_sendButton setEnabled:NO];
+    }
 }
 
 - (void)registerForKeyboardNotifications
@@ -74,19 +128,17 @@
 - (void)keyboardWasShown:(NSNotification*)aNotification
 {
     NSDictionary* info = [aNotification userInfo];
+    NSDictionary *userInfo = [aNotification userInfo];
     CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    NSTimeInterval animationDuration;
+    [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] getValue:&animationDuration];
     
     UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
     _chatTable.contentInset = contentInsets;
     _chatTable.scrollIndicatorInsets = contentInsets;
-    [UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationDuration:0.5];
-	[UIView setAnimationBeginsFromCurrentState:YES];
-	_chatTable.frame = CGRectMake(_chatTable.frame.origin.x, (_chatTable.frame.origin.y - kbSize.height), _chatTable.frame.size.width, _chatTable.frame.size.height);
-    _sendButton.frame = CGRectMake(_sendButton.frame.origin.x, (_sendButton.frame.origin.y - kbSize.height), _sendButton.frame.size.width, _sendButton.frame.size.height);
-	[UIView commitAnimations];
-
+    NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
+    NSLog(@"%@", ipath);
+    [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)aNotification
@@ -100,7 +152,6 @@
 - (void)chatLoaded:(NSString*)protestName {
     _protestName.hidden = NO;
     _chatTable.hidden = NO;
-    _txtMessage.hidden = NO;
     _protestName.text = protestName;
     [_spinner removeFromSuperview];
 }
@@ -134,10 +185,6 @@
 
 #pragma mark - IBAction method implementation
 
-- (IBAction)sendMessage:(id)sender {
-    [self sendMyMessage];
-}
-
 - (IBAction)exitButtonPressed:(id)sender {
     [_appDelegate.viewController reset];
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -146,6 +193,20 @@
 
 - (IBAction)sendButtonPressed:(id)sender {
     NSLog(@"send button pressed");
+    Message *myMessage = [[Message alloc] initWithMessage:_textField.text uID:_appDelegate.manager.userID fromLeader:NO];
+    myMessage.timer = [NSTimer scheduledTimerWithTimeInterval:10.0
+                                                       target:self
+                                                     selector:@selector(messageNotReturned)
+                                                     userInfo:nil
+                                                      repeats:NO];
+    [_textField setText:@""];
+    [_chatSource addObject:myMessage];
+    [_chatTable reloadData];
+    [_appDelegate.manager sendMessage:myMessage];
+}
+
+- (void)messageNotReturned {
+    NSLog(@"Message not returned yet");
 }
 
 

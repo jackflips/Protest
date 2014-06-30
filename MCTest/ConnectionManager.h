@@ -33,8 +33,8 @@
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password;
 - (void)startProtest:(NSString*)name password:(NSString*)password;
+- (void)sendMessage:(Message*)message;
 - (void)pruneTree;
-- (void)sendMessage:(NSString*)message;
 - (void)searchForProtests;
 - (void)disconnectFromPeers;
 - (void)testMessageSending;

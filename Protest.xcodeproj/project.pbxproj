@@ -90,6 +90,11 @@
 		ADA5D02818F0B35E004CEE2C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D02618F0B35E004CEE2C /* InfoPlist.strings */; };
 		ADA5D02A18F0B35E004CEE2C /* MCTestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D02918F0B35E004CEE2C /* MCTestTests.m */; };
 		ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */; };
+		ADA625C01961605800D31B7C /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625BF1961605800D31B7C /* DAKeyboardControl.m */; };
+		ADA625CA1961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C31961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m */; };
+		ADA625CB1961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C51961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m */; };
+		ADA625CC1961F8E500D31B7C /* TPKeyboardAvoidingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */; };
+		ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -196,6 +201,16 @@
 		ADA5D02918F0B35E004CEE2C /* MCTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MCTestTests.m; sourceTree = "<group>"; };
 		ADA5D03318F0B3FF004CEE2C /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionManager.h; sourceTree = "<group>"; };
 		ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionManager.m; sourceTree = "<group>"; };
+		ADA625BE1961605800D31B7C /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAKeyboardControl.h; sourceTree = "<group>"; };
+		ADA625BF1961605800D31B7C /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAKeyboardControl.m; sourceTree = "<group>"; };
+		ADA625C21961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingCollectionView.h; sourceTree = "<group>"; };
+		ADA625C31961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingCollectionView.m; sourceTree = "<group>"; };
+		ADA625C41961F8E500D31B7C /* TPKeyboardAvoidingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingScrollView.h; sourceTree = "<group>"; };
+		ADA625C51961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingScrollView.m; sourceTree = "<group>"; };
+		ADA625C61961F8E500D31B7C /* TPKeyboardAvoidingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingTableView.h; sourceTree = "<group>"; };
+		ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingTableView.m; sourceTree = "<group>"; };
+		ADA625C81961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+TPKeyboardAvoidingAdditions.h"; sourceTree = "<group>"; };
+		ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+TPKeyboardAvoidingAdditions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -306,6 +321,8 @@
 			children = (
 				AD9C851B191F5C5300E23B7D /* Resources */,
 				ADA5D00418F0B35E004CEE2C /* Protest */,
+				ADA625BD1961605800D31B7C /* DAKeyboardControl */,
+				ADA625C11961F8E500D31B7C /* TPKeyboardAvoiding */,
 				ADA5D02318F0B35E004CEE2C /* ProtestTests */,
 				ADA5CFFD18F0B35E004CEE2C /* Frameworks */,
 				ADA5CFFC18F0B35E004CEE2C /* Products */,
@@ -385,6 +402,32 @@
 				ADA5D02618F0B35E004CEE2C /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		ADA625BD1961605800D31B7C /* DAKeyboardControl */ = {
+			isa = PBXGroup;
+			children = (
+				ADA625BE1961605800D31B7C /* DAKeyboardControl.h */,
+				ADA625BF1961605800D31B7C /* DAKeyboardControl.m */,
+			);
+			name = DAKeyboardControl;
+			path = MCTest/DAKeyboardControl;
+			sourceTree = "<group>";
+		};
+		ADA625C11961F8E500D31B7C /* TPKeyboardAvoiding */ = {
+			isa = PBXGroup;
+			children = (
+				ADA625C21961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.h */,
+				ADA625C31961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m */,
+				ADA625C41961F8E500D31B7C /* TPKeyboardAvoidingScrollView.h */,
+				ADA625C51961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m */,
+				ADA625C61961F8E500D31B7C /* TPKeyboardAvoidingTableView.h */,
+				ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */,
+				ADA625C81961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.h */,
+				ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */,
+			);
+			name = TPKeyboardAvoiding;
+			path = MCTest/TPKeyboardAvoiding;
 			sourceTree = "<group>";
 		};
 		ADC7A76E194129090023FB97 /* RSA */ = {
@@ -559,12 +602,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADA625CA1961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */,
+				ADA625C01961605800D31B7C /* DAKeyboardControl.m in Sources */,
+				ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
 				ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */,
 				AD4B7BC31913CB2900EFED68 /* Message.m in Sources */,
+				ADA625CB1961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m in Sources */,
 				ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */,
 				AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */,
 				AD8D656218F1282800200485 /* ChatViewController.m in Sources */,
+				ADA625CC1961F8E500D31B7C /* TPKeyboardAvoidingTableView.m in Sources */,
 				ADA5D00F18F0B35E004CEE2C /* AppDelegate.m in Sources */,
 				ADA5D00B18F0B35E004CEE2C /* main.m in Sources */,
 			);

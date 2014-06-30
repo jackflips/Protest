@@ -304,6 +304,9 @@ static const double PRUNE = 30.0;
     NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
     NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
@@ -450,17 +453,18 @@ static const double PRUNE = 30.0;
     return output;
 }
 
-- (void)sendMessage:(NSString*)message {
+- (void)sendMessage:(Message*)message {
     NSString *time = [self getTimeString];
-    NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message];
+    NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
+    NSLog(@"%@", toHash);
     NSString *hash = [self MD5:toHash];
     NSArray *messageToSend;
     if (_leader) {
-        NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
         NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
-        [NSArray arrayWithObjects:@"Message", hash, _userID, message, sig, nil];
+        messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, sig, nil];
     } else {
-        [NSArray arrayWithObjects:@"Message", hash, _userID, message, nil];
+        messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
     }
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
     NSMutableArray *candidates = [NSMutableArray array];
@@ -469,17 +473,23 @@ static const double PRUNE = 30.0;
             [candidates addObject:[_sessions objectForKey:key]];
         }
     }
-    Peer *firstHop = [candidates objectAtIndex:arc4random() % [candidates count]];
-    Peer *secondHop = [firstHop.peers objectAtIndex:arc4random() % firstHop.peers.count];
-    MCPeerID *secondHopPeerID = [secondHop.session.connectedPeers objectAtIndex:0];
-    NSData *secondHopData = [_appDelegate.cryptoManager encrypt:data WithPublicKey:secondHop.key];
-    //intermediate hop data is like [@"Forward", Public key to forward to, data]
-    //we really should do 3 hops...
-    NSArray *firstHopDataArray = [NSArray arrayWithObjects:@"Forward", secondHopPeerID, secondHopData, nil];
-    NSData *firstHopData = [NSKeyedArchiver archivedDataWithRootObject:firstHopDataArray];
-    firstHopData = [_appDelegate.cryptoManager encrypt:firstHopData WithPublicKey:firstHop.key];
-    NSError *error;
-    [firstHop.session sendData:firstHopData toPeers:firstHop.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+    if ([candidates count] == 0) {
+        NSArray *allPeers = [_sessions allValues];
+        Peer *target = [allPeers objectAtIndex:arc4random() % allPeers.count];
+        [self sendMessage:messageToSend toPeer:target];
+    } else {
+        Peer *firstHop = [candidates objectAtIndex:arc4random() % [candidates count]];
+        Peer *secondHop = [firstHop.peers objectAtIndex:arc4random() % firstHop.peers.count];
+        MCPeerID *secondHopPeerID = [secondHop.session.connectedPeers objectAtIndex:0];
+        NSData *secondHopData = [_appDelegate.cryptoManager encrypt:data WithPublicKey:secondHop.key];
+        //intermediate hop data is like [@"Forward", Public key to forward to, data]
+        //we really should do 3 hops...
+        NSArray *firstHopDataArray = [NSArray arrayWithObjects:@"Forward", secondHopPeerID, secondHopData, nil];
+        NSData *firstHopData = [NSKeyedArchiver archivedDataWithRootObject:firstHopDataArray];
+        firstHopData = [_appDelegate.cryptoManager encrypt:firstHopData WithPublicKey:firstHop.key];
+        NSError *error;
+        [firstHop.session sendData:firstHopData toPeers:firstHop.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+    }
 }
 
 -(void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress{
