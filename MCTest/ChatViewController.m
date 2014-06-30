@@ -52,11 +52,12 @@
     [self.view addSubview:_spinner]; // spinner is not visible until started
     [_spinner startAnimating];
     
-    //[self registerForKeyboardNotifications];
+    [self registerForKeyboardNotifications];
+    
+    [self addMessage:[[Message alloc] initWithMessage:@"heyooo sherriff!" uID:@"0" fromLeader:NO]];
     
 }
 
-/*
 - (void)registerForKeyboardNotifications
 {
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -68,10 +69,25 @@
                                                  name:UIKeyboardWillHideNotification object:nil];
     
 }
- */
 
 
+- (void)keyboardWasShown:(NSNotification*)aNotification
+{
+    NSDictionary* info = [aNotification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
+    _chatTable.contentInset = contentInsets;
+    _chatTable.scrollIndicatorInsets = contentInsets;
 
+}
+
+- (void)keyboardWillBeHidden:(NSNotification*)aNotification
+{
+    UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+    _chatTable.contentInset = contentInsets;
+    _chatTable .scrollIndicatorInsets = contentInsets;
+}
 
 
 - (void)chatLoaded:(NSString*)protestName {
