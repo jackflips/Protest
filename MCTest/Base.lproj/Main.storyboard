@@ -118,6 +118,7 @@
                         <outlet property="chatTable" destination="fSr-Og-7Jz" id="IVI-7W-iNR"/>
                         <outlet property="protestName" destination="bj4-g2-q6v" id="5Lg-uq-rid"/>
                         <outlet property="sendButton" destination="sPx-4i-lWH" id="JAj-92-ZUK"/>
+                        <outlet property="sendContainer" destination="kwo-Td-a77" id="Ld0-l4-fbe"/>
                         <outlet property="txtMessage" destination="sTf-Fk-ACb" id="lsX-jJ-NFa"/>
                     </connections>
                 </viewController>

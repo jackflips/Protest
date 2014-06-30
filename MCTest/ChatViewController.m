@@ -79,6 +79,13 @@
     UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
     _chatTable.contentInset = contentInsets;
     _chatTable.scrollIndicatorInsets = contentInsets;
+    [UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDelegate:self];
+	[UIView setAnimationDuration:0.5];
+	[UIView setAnimationBeginsFromCurrentState:YES];
+	_chatTable.frame = CGRectMake(_chatTable.frame.origin.x, (_chatTable.frame.origin.y - kbSize.height), _chatTable.frame.size.width, _chatTable.frame.size.height);
+    _sendButton.frame = CGRectMake(_sendButton.frame.origin.x, (_sendButton.frame.origin.y - kbSize.height), _sendButton.frame.size.width, _sendButton.frame.size.height);
+	[UIView commitAnimations];
 
 }
 
