@@ -100,6 +100,9 @@
     } constraintBasedActionHandler:nil];
     
     [_textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+    
+    NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
+    [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
 -(void)textFieldDidChange :(UITextField *)theTextField{
@@ -137,7 +140,6 @@
     _chatTable.contentInset = contentInsets;
     _chatTable.scrollIndicatorInsets = contentInsets;
     NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
-    NSLog(@"%@", ipath);
     [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
@@ -203,6 +205,7 @@
     [_chatSource addObject:myMessage];
     [_chatTable reloadData];
     [_appDelegate.manager sendMessage:myMessage];
+    [self.view endEditing:YES];
 }
 
 - (void)messageNotReturned {
