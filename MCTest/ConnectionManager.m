@@ -400,8 +400,7 @@ static const double PRUNE = 30.0;
                 }
             }
             [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
-            [_appDelegate.chatViewController.chatSource addObject:newMessage];
-            [_appDelegate.chatViewController.chatTable reloadData];
+            [_appDelegate.chatViewController addMessage:newMessage];
         }
         else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
             [thisMessage.timer invalidate];
