@@ -110,7 +110,12 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiseSelf {
-    _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:nil serviceType:@"Protest"];
+    [_foundProtests removeAllObjects];
+    if (_advertiser) {
+        [_advertiser stopAdvertisingPeer];
+    } else {
+        _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:_peerID discoveryInfo:nil serviceType:@"Protest"];
+    }
     [_advertiser setDelegate:self];
     [_advertiser startAdvertisingPeer];
 }

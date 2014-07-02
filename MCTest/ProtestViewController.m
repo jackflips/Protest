@@ -21,6 +21,7 @@
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic) BOOL passwordNeeded;
 @property (nonatomic) int health;
+@property (nonatomic) BOOL refreshed;
 
 @end
 
@@ -31,6 +32,7 @@
     _name = name;
     _passwordNeeded = passwordNeeded;
     _health = health;
+    _refreshed = YES;
     return self;
 }
 
@@ -59,6 +61,12 @@
                       forState:UIControlStateNormal];
     [self.view addSubview:_startProtestButton];
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
+    
+    [NSTimer scheduledTimerWithTimeInterval:4.0
+                                     target:self
+                                   selector:@selector(refreshProtestList)
+                                   userInfo:nil
+                                    repeats:YES];
 }
 
 - (void)reset {
@@ -66,6 +74,15 @@
     [_appDelegate.manager disconnectFromPeers];
     _appDelegate.manager = [[ConnectionManager alloc] init];
     [_appDelegate.manager searchForProtests];
+}
+
+- (void)refreshProtestList {
+    [_appDelegate.manager searchForProtests];
+    for (Protest *prot in tableSource) {
+        if (!prot.refreshed) {
+            [tableSource removeObject:prot];
+        }
+    }
 }
 
 -(void)buttonPressed:(id)sender {
@@ -80,7 +97,8 @@
     Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
     for (Protest *prot in tableSource) {
         if ([prot.name isEqualToString:nameOfProtest]) {
-            [tableSource removeObject:prot];
+            prot.refreshed = YES;
+            return;
         }
     }
     [tableSource addObject:protest];
