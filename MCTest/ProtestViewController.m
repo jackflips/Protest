@@ -77,15 +77,12 @@
 }
 
 - (void)refreshProtestList {
-    NSMutableArray *objectsToBeDeleted = [NSMutableArray array];
-    for (Protest *prot in tableSource) {
-        if (!prot.refreshed) {
-            [objectsToBeDeleted addObject:prot];
+    
+    for (long i = tableSource.count - 1; i >= 0; i--) {
+        Protest *protest = [tableSource objectAtIndex:i];
+        if (!protest.refreshed) {
+            [tableSource removeObjectAtIndex:i];
         }
-        prot.refreshed = NO;
-    }
-    for (Protest *prot in tableSource) {
-        [tableSource removeObject:prot];
     }
     [_appDelegate.manager searchForProtests];
 }
