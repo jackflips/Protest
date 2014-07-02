@@ -303,9 +303,10 @@ static const double PRUNE = 30.0;
 }
 
 - (void)sendMessage:(NSArray*)message toPeer:(Peer*)peer {
+    SecKeyRef key = peer.key;
     NSError *error;
     NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
-    NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
+    NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:key];
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
     if (error) {
         NSLog(@"%@", error);
@@ -405,7 +406,7 @@ static const double PRUNE = 30.0;
             [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
             [_appDelegate.chatViewController addMessage:newMessage];
             for (Peer *peer in _sessions) {
-                [self sendMessage:data toPeer:peer];
+                [self sendMessage:data toPeer:[_sessions objectForKey:peer]];
             }
         }
         else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
