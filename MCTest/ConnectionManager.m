@@ -75,16 +75,14 @@ static const double PRUNE = 30.0;
 
 - (void)hashTest {
     NSString *test = @"test data";
-    NSString *falseTest = @"test data";
+    NSString *falseTest = @"test dat12";
     NSData *testData1 = [falseTest dataUsingEncoding:NSUTF8StringEncoding];
     NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
     
     NSData *key = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
-    SecKeyRef key1 = [_appDelegate.cryptoManager addPublicKey:key withTag:@"key"];
-    NSData *encypted = [_appDelegate.cryptoManager encrypt:testData1 WithPublicKey:key1];
-    NSData *decrypted = [_appDelegate.cryptoManager decrypt:encypted];
-    NSString* newStr = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
-    NSLog(@"%@", newStr);
+    NSData *signedData = [_appDelegate.cryptoManager sign:testData withKey:_appDelegate.cryptoManager.privateKey];
+    OSStatus *status = [_appDelegate.cryptoManager verify:testData withSignature:signedData andKey:_appDelegate.cryptoManager.publicKey];
+    NSLog(@"%i", status);
     
 }
 
@@ -397,7 +395,7 @@ static const double PRUNE = 30.0;
         if (!thisMessage) {
             Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
             if ([data count] >= 5) {
-                OSStatus status = [_appDelegate.cryptoManager verify:[data objectAtIndex:3] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
+                OSStatus status = [_appDelegate.cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
                 if (status == 0) { //if verified...
                     newMessage.fromLeader = YES;
                 }
