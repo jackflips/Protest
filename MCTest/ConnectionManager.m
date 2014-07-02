@@ -177,21 +177,13 @@ static const double PRUNE = 30.0;
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
     if (![_peerID.displayName isEqualToString:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) { //if we're not already connected to the peer
-        NSLog(@"found peer");
-        NSLog(@"My peer id: %@, connecting peer id: %@", _peerID, peerID);
         _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        //data schema: { nameOfProtest, boolPassword, myPublicKey }
-        BOOL isPassword = NO;
-        if (_password) isPassword = YES;
-        NSData *publicKeyData = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
-        NSData *leadersKeyData = [self getPublicKeyBitsFromKey:_leadersPublicKey];
-        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKeyData, leadersKeyData, nil];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
-        //create new session here
         Peer *newPeer = [[Peer alloc] initWithSession:_session];
         newPeer.peerID = peerID;
-        [_sessions setObject:newPeer forKey:peerID.displayName];
-        [browser invitePeer:peerID toSession:newPeer.session withContext:data timeout:120.0];
+        [_foundProtests setObject:newPeer forKey:peerID.displayName];
+        NSArray *publicKeyArray = @[[self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+        NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
+        [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
         _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
     }
 }
@@ -205,33 +197,23 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
-    NSLog(@"received invite from peer!");
-    if (context) {
-        NSArray *contextArray = [NSKeyedUnarchiver unarchiveObjectWithData:context];
-        FoundProtest *foundProtest = [[FoundProtest alloc] init];
-        foundProtest.name = [contextArray objectAtIndex:0];
-        foundProtest.peer = peerID;
-        foundProtest.joinProtest = invitationHandler;
-        foundProtest.key = [_appDelegate.cryptoManager addPublicKey:[contextArray objectAtIndex:2] withTag:peerID.displayName];
-        foundProtest.leadersKey = [_appDelegate.cryptoManager addPublicKey:[contextArray objectAtIndex:3] withTag:@"leader"];
-        [_foundProtests setObject:foundProtest forKey:foundProtest.name];
-        [_appDelegate.viewController addProtestToList:foundProtest.name password:[[contextArray objectAtIndex:1] boolValue] health:1];
-    }
+    Peer *newPeer = [[Peer alloc] initWithSession:_session];
+    newPeer.isClient = YES;
+    newPeer.peerID = peerID;
+    newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
+    [_foundProtests setObject:newPeer forKey:peerID.displayName];
+    invitationHandler(YES, newPeer.session);
+    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
     NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected");
-        Peer *peer = [_sessions objectForKey:peerID.displayName];
-        NSError *error;
-        if (peer == nil) {
-            NSLog(@"Something went terribly wrong");
-            return;
-        }
+        Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer.isClient) {
-            NSMutableArray *message = [NSMutableArray arrayWithObjects:@"Handshake", [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey], nil];
-            if (_password) [message addObject:_password];
+            NSError *error;
+            NSArray *message = @[@"Handshake", [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
             NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
             NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
@@ -324,26 +306,25 @@ static const double PRUNE = 30.0;
     NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
     NSLog(@"%@", data);
     Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
+    if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
         thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
-        if (_password) {
-            if ([_password isEqualToString:[data objectAtIndex:2]]) {
-                thisPeer.authenticated = YES;
-                [self sendMessage:@[@"Ack"] toPeer:thisPeer];
-                [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    [_appDelegate.chatViewController chatLoaded:_nameOfProtest];
-                }];
-            } else {
-                [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
-            }
+        BOOL isPassword = NO;
+        if (_password) isPassword = YES;
+        NSData *leadersKeyData = [self getPublicKeyBitsFromKey:_leadersPublicKey];
+        NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData];
+        [self sendMessage:handshake2 toPeer:thisPeer];
+    }
+    
+    if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
+        if (_nameOfProtest
+            && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
+            && [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:peerID.displayName] == _leadersPublicKey) {
+            
+            //add connection
         } else {
-            [self sendMessage:@[@"Ack"] toPeer:thisPeer];
-            [self sendMessage:@[@"GossipRequest"] toPeer:thisPeer];
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [_appDelegate.chatViewController chatLoaded:_nameOfProtest];
-            }];
+            [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
         }
     }
     

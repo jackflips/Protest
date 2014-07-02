@@ -77,14 +77,15 @@
 }
 
 - (void)refreshProtestList {
-    
     for (long i = tableSource.count - 1; i >= 0; i--) {
         Protest *protest = [tableSource objectAtIndex:i];
         if (!protest.refreshed) {
             [tableSource removeObjectAtIndex:i];
         }
+        protest.refreshed = NO;
     }
     [_appDelegate.manager searchForProtests];
+    [_tableView reloadData];
 }
 
 -(void)buttonPressed:(id)sender {
