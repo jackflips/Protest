@@ -178,8 +178,9 @@ static const double PRUNE = 30.0;
         //data schema: { nameOfProtest, boolPassword, myPublicKey }
         BOOL isPassword = NO;
         if (_password) isPassword = YES;
-        NSData *publicKey = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
-        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKey, _leadersPublicKey, nil];
+        NSData *publicKeyData = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
+        NSData *leadersKeyData = [self getPublicKeyBitsFromKey:_leadersPublicKey];
+        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKeyData, leadersKeyData, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
         //create new session here
         Peer *newPeer = [[Peer alloc] initWithSession:_session];
