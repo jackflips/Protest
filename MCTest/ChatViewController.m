@@ -161,7 +161,7 @@
 - (void)addMessage:(Message*)message {
     NSLog(@"recieved message! %@", message);
     if ([_avatarForUser objectForKey:message.uId] == nil) {
-        uint32_t rnd = arc4random_uniform((uint32_t)[_availAvatars count]);
+        uint32_t rnd = arc4random_uniform((uint32_t)_availAvatars.count - 1) + 1; //between 2 and availAvatars.count
         NSNumber *avatarNum = [_availAvatars objectAtIndex:rnd];
         [_availAvatars removeObject:avatarNum];
         [_avatarForUser setValue:avatarNum forKey:message.uId];
@@ -238,7 +238,7 @@
     return frame.size.height + 30;
 }
 
-- (UITableViewCell*)othersChatBubble:(NSString*)text cell:(UITableViewCell*)cell avatarID:(int)id {
+- (UITableViewCell*)othersChatBubble:(NSString*)text cell:(UITableViewCell*)cell avatarID:(int)id fromLeader:(BOOL)fromLeader {
     UIImage *bubbleImage = [[UIImage imageNamed:@"white_text_bubble.png"]
                            resizableImageWithCapInsets:UIEdgeInsetsMake(20, 6, 6, 0)];
     cell.backgroundColor = [UIColor clearColor];
@@ -267,9 +267,12 @@
     bubbleImageView.frame = CGRectMake(55, 8, size.width + 20, size.height + 18); //set these variables as you want
     [bubbleImageView addSubview:textLabel];
     
-    NSString *iconString = [NSString stringWithFormat:@"%@%i%@", @"icon", id, @".png"];
-    NSLog(@"%@", iconString);
-    
+    NSString *iconString;
+    if (fromLeader) {
+        iconString = @"icon1.png";
+    } else {
+        iconString = [NSString stringWithFormat:@"%@%i%@", @"icon", id, @".png"];
+    }
     UIImage *avatarImage = [UIImage imageNamed:iconString];
     UIImageView *avatarImageView = [[UIImageView alloc] initWithImage:avatarImage];
     avatarImageView.frame = CGRectMake(12, 8, avatarImage.size.width, avatarImage.size.height);
@@ -326,7 +329,7 @@
     if ([message.uId isEqualToString:_appDelegate.manager.userID]) {
         cell = [self selfChatBubble:message.message cell:cell];
     } else {
-        cell = [self othersChatBubble:message.message cell:cell avatarID:[[_avatarForUser objectForKey:message.uId] intValue]];
+        cell = [self othersChatBubble:message.message cell:cell avatarID:[[_avatarForUser objectForKey:message.uId] intValue] fromLeader:message.fromLeader];
     }
 
     return cell;
