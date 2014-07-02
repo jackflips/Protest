@@ -465,6 +465,7 @@ static const double PRUNE = 30.0;
     NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
     NSLog(@"%@", toHash);
     NSString *hash = [self MD5:toHash];
+    [_allMessages setObject:message forKey:hash];
     NSArray *messageToSend;
     if (_leader) {
         NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
