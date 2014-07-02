@@ -77,12 +77,13 @@
 }
 
 - (void)refreshProtestList {
-    [_appDelegate.manager searchForProtests];
     for (Protest *prot in tableSource) {
         if (!prot.refreshed) {
             [tableSource removeObject:prot];
         }
+        prot.refreshed = NO;
     }
+    [_appDelegate.manager searchForProtests];
 }
 
 -(void)buttonPressed:(id)sender {
