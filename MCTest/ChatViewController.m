@@ -168,6 +168,8 @@
     }
     [_chatSource addObject:message];
     [_chatTable reloadData];
+    NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
+    [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)didReceiveMemoryWarning
