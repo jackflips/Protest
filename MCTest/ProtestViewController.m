@@ -62,11 +62,6 @@
     [self.view addSubview:_startProtestButton];
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
     
-    [NSTimer scheduledTimerWithTimeInterval:4.0
-                                     target:self
-                                   selector:@selector(refreshProtestList)
-                                   userInfo:nil
-                                    repeats:YES];
 }
 
 - (void)reset {

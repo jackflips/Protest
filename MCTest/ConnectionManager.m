@@ -324,6 +324,7 @@ static const double PRUNE = 30.0;
             
             //add connection
         } else {
+            NSLog(@"handshaking");
             [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
         }
     }
