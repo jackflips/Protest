@@ -26,10 +26,11 @@
 @property (nonatomic, strong) NSMutableArray *currentRequestingPeers;
 @property (nonatomic, strong) NSMutableDictionary *allMessages;
 @property (nonatomic, strong) NSString *userID;
-@property (nonatomic, strong) NSData *leadersPublicKey;
 @property (nonatomic, strong) NSString *password;
 @property (nonatomic, strong) NSString *nameOfProtest;
 @property (nonatomic, strong) NSMutableDictionary *foundProtests;
+
+@property (nonatomic) SecKeyRef leadersPublicKey;
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password;
 - (void)startProtest:(NSString*)name password:(NSString*)password;

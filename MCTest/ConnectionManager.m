@@ -21,6 +21,7 @@ static const double PRUNE = 30.0;
 @property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
 @property (nonatomic, copy) MCPeerID *peer;
 @property (nonatomic) SecKeyRef key;
+@property (nonatomic) SecKeyRef leadersKey;
 
 @end
 
@@ -125,6 +126,7 @@ static const double PRUNE = 30.0;
     newPeer.peerID = prot.peer;
     [_sessions setObject:newPeer forKey:prot.peer.displayName];
     _password = password;
+    _leadersPublicKey = prot.leadersKey;
     prot.joinProtest(YES, newPeer.session);
     _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
 }
@@ -178,7 +180,7 @@ static const double PRUNE = 30.0;
         BOOL isPassword = NO;
         if (_password) isPassword = YES;
         NSData *publicKey = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
-        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKey, nil];
+        NSArray *invitation = [NSArray arrayWithObjects:_nameOfProtest, [NSNumber numberWithBool:isPassword], publicKey, _leadersPublicKey, nil];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:invitation];
         //create new session here
         Peer *newPeer = [[Peer alloc] initWithSession:_session];
@@ -206,13 +208,14 @@ static const double PRUNE = 30.0;
         foundProtest.peer = peerID;
         foundProtest.joinProtest = invitationHandler;
         foundProtest.key = [_appDelegate.cryptoManager addPublicKey:[contextArray objectAtIndex:2] withTag:peerID.displayName];
+        foundProtest.leadersKey = [_appDelegate.cryptoManager addPublicKey:[contextArray objectAtIndex:3] withTag:@"leader"];
         [_foundProtests setObject:foundProtest forKey:foundProtest.name];
         [_appDelegate.viewController addProtestToList:foundProtest.name password:[[contextArray objectAtIndex:1] boolValue] health:1];
     }
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
-    NSLog(@"did change state: %d", state);
+    NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
         NSLog(@"connected");
         Peer *peer = [_sessions objectForKey:peerID.displayName];
@@ -394,7 +397,7 @@ static const double PRUNE = 30.0;
         if (!thisMessage) {
             Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
             if ([data count] >= 5) {
-                OSStatus status = [_appDelegate.cryptoManager verify:[data objectAtIndex:3] withSignature:[data objectAtIndex:4] andKey:_appDelegate.cryptoManager.publicKey];
+                OSStatus status = [_appDelegate.cryptoManager verify:[data objectAtIndex:3] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
                 if (status == 0) { //if verified...
                     newMessage.fromLeader = YES;
                 }
