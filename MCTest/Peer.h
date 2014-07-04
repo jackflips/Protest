@@ -18,6 +18,7 @@
 @property (nonatomic) BOOL isParent;
 @property (nonatomic) BOOL authenticated;
 @property (nonatomic) BOOL isClient;
+@property (nonatomic, strong) NSString *protestName;
 
 - (id)initWithSession:(MCSession*)session;
 - (void)resetAge;

@@ -121,18 +121,11 @@ static const double PRUNE = 30.0;
 }
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
-    [_advertiser stopAdvertisingPeer];
-    FoundProtest *prot = [_foundProtests objectForKey:protestName];
-    Peer *newPeer = [[Peer alloc] initWithSession:_session];
-    _nameOfProtest = prot.name;
-    newPeer.key = prot.key;
-    newPeer.isClient = YES;
-    newPeer.peerID = prot.peer;
-    [_sessions setObject:newPeer forKey:prot.peer.displayName];
-    _password = password;
-    _leadersPublicKey = prot.leadersKey;
-    prot.joinProtest(YES, newPeer.session);
-    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    for (NSString *displayName in _foundProtests) {
+        if ([[[_foundProtests objectForKey:displayName] protestName] isEqualToString:protestName]) {
+            [self sendMessage:@[@"WantsToConnect", password] toPeer:[_foundProtests objectForKey:displayName]];
+        }
+    }
 }
 
 - (void)setupPeerAndSessionWithDisplayName:(NSString *)displayName{
@@ -329,15 +322,38 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Ack"]) {
-        NSLog(@"Succesfully connected to peer!");
+    if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
+        if (_password) {
+            if ([[data objectAtIndex:1] isEqualToString:_password]) {
+                [self sendMessage:@[@"Connected"] toPeer:thisPeer];
+                [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+                [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+            } else {
+                [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
+            }
+        } else {
+            [self sendMessage:@[@"Connected"] toPeer:thisPeer];
+            [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+            [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+        }
+    }
+    
+    if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [_appDelegate.chatViewController chatLoaded:_nameOfProtest];
+            [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
         }];
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
-        NSLog(@"entered wrong pw for peer");
+        [_appDelegate.viewController reset];
+        [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Incorrect Password"
+                                                          message:@"Your password was incorrect."
+                                                         delegate:nil
+                                                cancelButtonTitle:@"OK"
+                                                otherButtonTitles:nil];
+        
+        [message show];
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {

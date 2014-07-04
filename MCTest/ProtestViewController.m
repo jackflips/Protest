@@ -173,10 +173,8 @@
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     ChatViewController *chatViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
     _appDelegate.chatViewController = chatViewController;
+    [self presentViewController:chatViewController animated:YES completion:nil];
     [_appDelegate.manager joinProtest:nameOfProtest password:password];
-    [self presentViewController:chatViewController animated:YES completion:^{
-        nil;
-    }];
 }
 
 - (void)startProtest {
