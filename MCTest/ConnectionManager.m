@@ -346,6 +346,8 @@ static const double PRUNE = 30.0;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
         }];
+        [_sessions setObject:[_foundProtests objectForKey:thisPeer.protestName] forKey:thisPeer.protestName];
+        [_foundProtests removeObjectForKey:thisPeer.protestName];
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
