@@ -62,51 +62,20 @@
                       forState:UIControlStateNormal];
     [self.view addSubview:_startProtestButton];
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
-    
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:4.0
-                                             target:self
-                                           selector:@selector(reset)
-                                           userInfo:nil
-                                            repeats:YES];
-}
-
-- (void)reset {
-    [tableSource removeAllObjects];
-    [_appDelegate.manager disconnectFromPeers];
-    _appDelegate.manager = [[ConnectionManager alloc] init];
-    [_appDelegate.manager searchForProtests];
-}
-
-- (void)refreshProtestList {
-    for (long i = tableSource.count - 1; i >= 0; i--) {
-        Protest *protest = [tableSource objectAtIndex:i];
-        if (!protest.refreshed) {
-            [tableSource removeObjectAtIndex:i];
-        }
-        protest.refreshed = NO;
-    }
-    [_appDelegate.manager searchForProtests];
-    [_tableView reloadData];
-}
-
--(void)buttonPressed:(id)sender {
-    NSLog(@"do nothing");
-}
-
-- (void)buttonAction:(id)sender {
-    NSLog(@"uh");
 }
 
 - (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health {
     Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
-    for (Protest *prot in tableSource) {
-        if ([prot.name isEqualToString:nameOfProtest]) {
-            prot.refreshed = YES;
-            return;
-        }
-    }
     [tableSource addObject:protest];
     [_tableView reloadData];
+}
+
+- (void)removeProtestFromList:(NSString*)nameOfProtest {
+    for (int i=0; i<tableSource.count; i++) {
+        if ([[[tableSource objectAtIndex:i] name] isEqualToString:nameOfProtest]) {
+            [tableSource removeObjectAtIndex:i];
+        }
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

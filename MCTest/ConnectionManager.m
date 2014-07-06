@@ -212,6 +212,14 @@ static const double PRUNE = 30.0;
             NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
+    } else if (state == MCSessionStateNotConnected) {
+        Peer *peer = [_foundProtests objectForKey:peerID.displayName];
+        if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
+        else peer = [_sessions objectForKey:peerID.displayName];
+        if (peer) {
+            [_sessions removeObjectForKey:peerID.displayName];
+            [_appDelegate.viewController removeProtestFromList:peer.protestName];
+        }
     }
 }
 
