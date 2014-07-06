@@ -111,7 +111,11 @@ static const double PRUNE = 30.0;
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
     for (NSString *displayName in _foundProtests) {
         if ([[[_foundProtests objectForKey:displayName] protestName] isEqualToString:protestName]) {
-            [self sendMessage:@[@"WantsToConnect", password] toPeer:[_foundProtests objectForKey:displayName]];
+            if (password) {
+                [self sendMessage:@[@"WantsToConnect", password] toPeer:[_foundProtests objectForKey:displayName]];
+            } else {
+                [self sendMessage:@[@"WantsToConnect"] toPeer:[_foundProtests objectForKey:displayName]];
+            }
         }
     }
 }
