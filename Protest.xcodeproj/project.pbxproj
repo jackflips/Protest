@@ -95,6 +95,7 @@
 		ADA625CB1961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C51961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m */; };
 		ADA625CC1961F8E500D31B7C /* TPKeyboardAvoidingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */; };
 		ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */; };
+		ADB8701C1966B91E001FC2A0 /* ProtestConfigurationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -211,6 +212,8 @@
 		ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingTableView.m; sourceTree = "<group>"; };
 		ADA625C81961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+TPKeyboardAvoidingAdditions.h"; sourceTree = "<group>"; };
 		ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+TPKeyboardAvoidingAdditions.m"; sourceTree = "<group>"; };
+		ADB8701A1966B91E001FC2A0 /* ProtestConfigurationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtestConfigurationViewController.h; sourceTree = "<group>"; };
+		ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtestConfigurationViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -368,6 +371,8 @@
 				AD70ACC618FA257F00FBBEC8 /* Peer.m */,
 				AD8D656018F1282800200485 /* ChatViewController.h */,
 				AD8D656118F1282800200485 /* ChatViewController.m */,
+				ADB8701A1966B91E001FC2A0 /* ProtestConfigurationViewController.h */,
+				ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */,
 				ADC7A76E194129090023FB97 /* RSA */,
 			);
 			name = Protest;
@@ -605,6 +610,7 @@
 				ADA625CA1961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */,
 				ADA625C01961605800D31B7C /* DAKeyboardControl.m in Sources */,
+				ADB8701C1966B91E001FC2A0 /* ProtestConfigurationViewController.m in Sources */,
 				ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
 				ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */,
 				AD4B7BC31913CB2900EFED68 /* Message.m in Sources */,

@@ -87,6 +87,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)startProtest:(NSString*)name password:(NSString*)password {
+    NSLog(@"manager gonna browse");
     _nameOfProtest = name;
     _password = password;
     _leadersPublicKey = _appDelegate.cryptoManager.publicKey;
@@ -318,6 +319,7 @@ static const double PRUNE = 30.0;
             //add connection
         } else {
             NSLog(@"handshaking");
+            thisPeer.protestName = [data objectAtIndex:1];
             [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
         }
     }

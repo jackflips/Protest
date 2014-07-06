@@ -8,6 +8,7 @@
 
 #import "ProtestViewController.h"
 #import "ConnectionManager.h"
+#import "ProtestConfigurationViewController.h"
 #import "AppDelegate.h"
 
 @interface ProtestViewController ()
@@ -178,6 +179,11 @@
 }
 
 - (void)startProtest {
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+    ProtestConfigurationViewController *configurationViewController = (ProtestConfigurationViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ProtestConfigurationViewController"];
+    [self presentViewController:configurationViewController animated:YES completion:nil];
+
+    /*
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager.leader = YES;
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
@@ -188,6 +194,7 @@
         nil;
     }];
     _appDelegate.chatViewController = chatViewController;
+    */
 }
 
 - (void)didReceiveMemoryWarning
