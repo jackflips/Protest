@@ -328,7 +328,9 @@ static const double PRUNE = 30.0;
         } else {
             NSLog(@"handshaking");
             thisPeer.protestName = [data objectAtIndex:1];
-            [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
+            }];
         }
     }
     
