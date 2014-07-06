@@ -314,12 +314,13 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
         if (_nameOfProtest
             && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
-            && [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:peerID.displayName] == _leadersPublicKey) {
+            && [[data objectAtIndex:3] isEqualToData:[self getPublicKeyBitsFromKey:_leadersPublicKey]]) {
             
             //add connection
         } else {
             NSLog(@"handshaking");
             thisPeer.protestName = [data objectAtIndex:1];
+            thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
             }];
@@ -346,8 +347,9 @@ static const double PRUNE = 30.0;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
         }];
-        [_sessions setObject:[_foundProtests objectForKey:thisPeer.protestName] forKey:thisPeer.protestName];
-        [_foundProtests removeObjectForKey:thisPeer.protestName];
+        [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+        [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+        _leadersPublicKey = thisPeer.leadersKey;
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
