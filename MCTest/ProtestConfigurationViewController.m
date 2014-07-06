@@ -25,7 +25,9 @@
 - (IBAction)startProtest:(id)sender {
     NSLog(@"starting?");
     _appDelegate.manager.leader = YES;
-    [_appDelegate.manager startProtest:_protestNameField.text password:_passwordField.text];
+    NSString *password = nil;
+    if (_passwordField.text.length > 0) password = _passwordField.text;
+    [_appDelegate.manager startProtest:_protestNameField.text password:password];
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     ChatViewController *chatViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
     _appDelegate.chatViewController = chatViewController;
