@@ -65,6 +65,7 @@
 }
 
 - (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health {
+    NSLog(@"password needed?: %d", password);
     Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
     [tableSource addObject:protest];
     [_tableView reloadData];
@@ -78,7 +79,6 @@
 }
 
 - (void)removeProtestFromList:(NSString*)nameOfProtest {
-    NSLog(@"name of prot: %@", nameOfProtest);
     for (int i=0; i<tableSource.count; i++) {
         if ([[[tableSource objectAtIndex:i] name] isEqualToString:nameOfProtest]) {
             [tableSource removeObjectAtIndex:i];
@@ -96,10 +96,7 @@
     return 55;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    
-    //boilerplate tableview setup
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *simpleTableIdentifier = @"ProtestCell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
     
@@ -165,19 +162,6 @@
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     ProtestConfigurationViewController *configurationViewController = (ProtestConfigurationViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ProtestConfigurationViewController"];
     [self presentViewController:configurationViewController animated:YES completion:nil];
-
-    /*
-    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    _appDelegate.manager.leader = YES;
-    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    ChatViewController *chatViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
-    _appDelegate.chatViewController = chatViewController;
-    [_appDelegate.manager startProtest:@"First Protest" password:@"hey"];
-    [self presentViewController:chatViewController animated:YES completion:^{
-        nil;
-    }];
-    _appDelegate.chatViewController = chatViewController;
-    */
 }
 
 - (void)didReceiveMemoryWarning
