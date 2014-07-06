@@ -15,19 +15,6 @@ static const double PRUNE = 30.0;
 
 @end
 
-@interface FoundProtest : NSObject
-
-@property (nonatomic, retain) NSString *name;
-@property (nonatomic, copy) void (^joinProtest)(BOOL accept, MCSession *session);
-@property (nonatomic, copy) MCPeerID *peer;
-@property (nonatomic) SecKeyRef key;
-@property (nonatomic) SecKeyRef leadersKey;
-
-@end
-
-@implementation FoundProtest
-@end
-
 @implementation ConnectionManager
 
 - (id)init{
