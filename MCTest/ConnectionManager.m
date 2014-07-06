@@ -113,6 +113,7 @@ static const double PRUNE = 30.0;
         if ([[[_foundProtests objectForKey:displayName] protestName] isEqualToString:protestName]) {
             if (password) {
                 [self sendMessage:@[@"WantsToConnect", password] toPeer:[_foundProtests objectForKey:displayName]];
+                _password = password;
             } else {
                 [self sendMessage:@[@"WantsToConnect"] toPeer:[_foundProtests objectForKey:displayName]];
             }
@@ -311,14 +312,18 @@ static const double PRUNE = 30.0;
         [self sendMessage:handshake2 toPeer:thisPeer];
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
+    if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) { //add connection, 3 cases:
+        //1 if we're already connected to a prot and another peer is also in that prot so it's another connection
+        //2 if we're not connected to a protest but we already have this protest in our list. (If we connect under this condition then we should connect to all of those peers, need to make sure the leaders public key can't mutate in between the adding to list and the final connection.
+        //3 we're not connected and we just add it.
+        
         if (_nameOfProtest
             && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
-            && [[data objectAtIndex:3] isEqualToData:[self getPublicKeyBitsFromKey:_leadersPublicKey]]) {
-            
-            //add connection
-        } else {
-            NSLog(@"handshaking");
+            && [[data objectAtIndex:3] isEqualToData:[self getPublicKeyBitsFromKey:_leadersPublicKey]])
+        {
+            [self sendMessage:@[@"WantsToConnect", _password] toPeer:[_foundProtests objectForKey:thisPeer.peerID.displayName]];
+        }
+        else {
             thisPeer.protestName = [data objectAtIndex:1];
             thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -350,6 +355,7 @@ static const double PRUNE = 30.0;
         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
         [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
         _leadersPublicKey = thisPeer.leadersKey;
+        _nameOfProtest = thisPeer.protestName;
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
@@ -362,6 +368,7 @@ static const double PRUNE = 30.0;
                                                 otherButtonTitles:nil];
         
         [message show];
+        _password = nil;
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {

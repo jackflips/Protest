@@ -23,6 +23,7 @@
 @property (nonatomic) BOOL passwordNeeded;
 @property (nonatomic) int health;
 @property (nonatomic) BOOL refreshed;
+@property (nonatomic) int numberOfPeers; //this means only immediate peers
 
 @end
 
@@ -65,10 +66,43 @@
 }
 
 - (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health {
-    NSLog(@"password needed?: %d", password);
-    Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
-    [tableSource addObject:protest];
+    int indexOfProtest = [self tablesourceContainsProtest:nameOfProtest];
+    if (indexOfProtest != -1) { //if the protest is already in the list
+        Protest *prot = [tableSource objectAtIndex:indexOfProtest];
+        prot.numberOfPeers += 1;
+    } else {
+        Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
+        [tableSource addObject:protest];
+        
+    }
+    [self updateProtestHealth];
     [_tableView reloadData];
+}
+
+- (void)updateProtestHealth {
+    [tableSource sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        Protest *d1 = obj1, *d2 = obj2;
+        if (d1.numberOfPeers > d2.numberOfPeers) return NSOrderedDescending;
+        else if (d1.numberOfPeers == d2.numberOfPeers) return NSOrderedSame;
+        else return NSOrderedAscending;
+    }];
+    int topProtest = [[tableSource objectAtIndex:0] numberOfPeers];
+    for (Protest *prot in tableSource) {
+        if (prot.numberOfPeers >= topProtest/2) {
+            prot.health = 1;
+        } else {
+            prot.health = 0;
+        }
+    }
+}
+
+- (int)tablesourceContainsProtest:(NSString*)protestName {
+    for (Protest *protest in tableSource) {
+        if ([protest.name isEqualToString:protestName]) {
+            return (int)[tableSource indexOfObject:protest];
+        }
+    }
+    return -1;
 }
 
 - (void)reset {
@@ -81,9 +115,14 @@
 - (void)removeProtestFromList:(NSString*)nameOfProtest {
     for (int i=0; i<tableSource.count; i++) {
         if ([[[tableSource objectAtIndex:i] name] isEqualToString:nameOfProtest]) {
-            [tableSource removeObjectAtIndex:i];
+            Protest *protest = [tableSource objectAtIndex:i];
+            protest.numberOfPeers -= 1;
+            if (protest.numberOfPeers <= 0) {
+                [tableSource removeObjectAtIndex:i];
+            }
         }
     }
+    [self updateProtestHealth];
     [_tableView reloadData];
 }
 
