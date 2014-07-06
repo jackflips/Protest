@@ -70,12 +70,21 @@
     [_tableView reloadData];
 }
 
+- (void)reset {
+    [tableSource removeAllObjects];
+    [_appDelegate.manager disconnectFromPeers];
+    _appDelegate.manager = [[ConnectionManager alloc] init];
+    [_appDelegate.manager searchForProtests];
+}
+
 - (void)removeProtestFromList:(NSString*)nameOfProtest {
+    NSLog(@"name of prot: %@", nameOfProtest);
     for (int i=0; i<tableSource.count; i++) {
         if ([[[tableSource objectAtIndex:i] name] isEqualToString:nameOfProtest]) {
             [tableSource removeObjectAtIndex:i];
         }
     }
+    [_tableView reloadData];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
