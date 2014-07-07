@@ -163,32 +163,15 @@ static const double PRUNE = 30.0;
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
-    /*
-    if (![_peerID.displayName isEqualToString:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) { //if we're not already connected to the peer
-        _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        Peer *newPeer = [[Peer alloc] initWithSession:_session];
-        newPeer.peerID = peerID;
-        [_foundProtests setObject:newPeer forKey:peerID.displayName];
-        NSArray *publicKeyArray = @[[self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
-        NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
-        [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
-        //[self setupPeerAndSessionWithDisplayName:_userID];
-    }
-     */
-    if (_session == nil) {
-        _session = [[MCSession alloc] initWithPeer:_peerID
-                                     securityIdentity:nil
-                                 encryptionPreference:MCEncryptionNone];
-        _session.delegate = self;
-        [browser invitePeer:peerID toSession:_session withContext:nil timeout:120.0];
-    } else {
-        _anotherSession = [[MCSession alloc] initWithPeer:_peerID
-                                     securityIdentity:nil
-                                 encryptionPreference:MCEncryptionNone];
-        _anotherSession.delegate = self;
-        [browser invitePeer:peerID toSession:_anotherSession withContext:nil timeout:120.0];
-    }
-    
+    Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
+                                                                 securityIdentity:nil
+                                                             encryptionPreference:MCEncryptionNone]];
+    newPeer.session.delegate = self;
+    newPeer.peerID = peerID;
+    [_foundProtests setObject:newPeer forKey:peerID.displayName];
+    NSArray *publicKeyArray = @[[self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+    NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
+    [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -200,32 +183,20 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
-    /*
-    Peer *newPeer = [[Peer alloc] initWithSession:_session];
-    newPeer.isClient = YES;
+    Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
+                                                                 securityIdentity:nil
+                                                             encryptionPreference:MCEncryptionNone]];
+    newPeer.session.delegate = self;
     newPeer.peerID = peerID;
     newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
     [_foundProtests setObject:newPeer forKey:peerID.displayName];
     invitationHandler(YES, newPeer.session);
-    //[self setupPeerAndSessionWithDisplayName:_userID];
-     */
-    _session = [[MCSession alloc] initWithPeer:_peerID
-                              securityIdentity:nil
-                          encryptionPreference:MCEncryptionNone];
-    _session.delegate = self;
-    invitationHandler(YES, _session);
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state {
     NSLog(@"peer did change state: %ld", state);
-    if (_anotherSession) {
-        NSLog(@"peer 1: %@, peer 2: %@", _session, _anotherSession);
-        NSString* myStr = @"This is the Testing String";
-        NSData* cData = [myStr dataUsingEncoding:NSUTF8StringEncoding];
-        NSError *error;
-        [_session sendData:cData toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
-        [_anotherSession sendData:cData toPeers:_anotherSession.connectedPeers withMode:MCSessionSendDataReliable error:&error];
-    }
+    NSLog(@"%@", [[_foundProtests objectForKey:peerID.displayName] session]);
+    NSLog(@"%@", session);
     /*
     NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
