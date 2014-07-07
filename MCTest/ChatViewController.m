@@ -159,7 +159,6 @@
 }
 
 - (void)addMessage:(Message*)message {
-    NSLog(@"recieved message! %@", message);
     if ([_avatarForUser objectForKey:message.uId] == nil) {
         uint32_t rnd = arc4random_uniform((uint32_t)_availAvatars.count - 1) + 1; //between 2 and availAvatars.count
         NSNumber *avatarNum = [_availAvatars objectAtIndex:rnd];

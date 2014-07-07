@@ -170,7 +170,7 @@ static const double PRUNE = 30.0;
         NSArray *publicKeyArray = @[[self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
         NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
         [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
-        _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+        [self setupPeerAndSessionWithDisplayName:_userID];
     }
 }
 
@@ -189,7 +189,7 @@ static const double PRUNE = 30.0;
     newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
     [_foundProtests setObject:newPeer forKey:peerID.displayName];
     invitationHandler(YES, newPeer.session);
-    _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
+    [self setupPeerAndSessionWithDisplayName:_userID];
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state{
