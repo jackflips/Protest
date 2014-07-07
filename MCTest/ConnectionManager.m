@@ -100,6 +100,7 @@ static const double PRUNE = 30.0;
 - (void)searchForProtests {
     NSLog(@"advertising self 4 protests");
     //[self setupPeerAndSessionWithDisplayName:_userID];
+    _peerID = [[MCPeerID alloc] initWithDisplayName:_userID];
     [self advertiseSelf];
 }
 
