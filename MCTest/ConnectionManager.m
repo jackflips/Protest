@@ -180,7 +180,7 @@ static const double PRUNE = 30.0;
                                      securityIdentity:nil
                                  encryptionPreference:MCEncryptionNone];
         _session.delegate = self;
-        [browser invitePeer:peerID toSession:_anotherSession withContext:nil timeout:120.0];
+        [browser invitePeer:peerID toSession:_session withContext:nil timeout:120.0];
     } else {
         _anotherSession = [[MCSession alloc] initWithPeer:_peerID
                                      securityIdentity:nil
@@ -220,6 +220,11 @@ static const double PRUNE = 30.0;
     NSLog(@"peer did change state: %ld", state);
     if (_anotherSession) {
         NSLog(@"peer 1: %@, peer 2: %@", _session, _anotherSession);
+        NSString* myStr = @"This is the Testing String";
+        NSData* cData = [myStr dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *error;
+        [_session sendData:cData toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+        [_anotherSession sendData:cData toPeers:_anotherSession.connectedPeers withMode:MCSessionSendDataReliable error:&error];
     }
     /*
     NSLog(@"did change state: %ld", state);
