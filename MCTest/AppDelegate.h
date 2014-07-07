@@ -18,6 +18,7 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (nonatomic) SecKeyRef leaderKey;
 @property (strong, nonatomic) ConnectionManager *manager;
+@property (strong, nonatomic) ConnectionManager *manager2;
 @property (strong, nonatomic) ChatViewController *chatViewController;
 @property (strong, nonatomic) ProtestViewController *viewController;
 @property (strong, nonatomic) WJLPkcsContext *cryptoManager;

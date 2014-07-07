@@ -21,11 +21,12 @@
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) MCSession *session;
+@property (nonatomic, strong) MCSession *anotherSession;
 @property (nonatomic, strong) NSMutableDictionary *sessions;
 @property (nonatomic, assign) BOOL leader;
 @property (nonatomic, strong) NSMutableArray *currentRequestingPeers;
 @property (nonatomic, strong) NSMutableDictionary *allMessages;
-@property (nonatomic, strong) NSString *userID;
+@property (nonatomic, strong) NSMutableString *userID;
 @property (nonatomic, strong) NSString *password;
 @property (nonatomic, strong) NSString *nameOfProtest;
 @property (nonatomic, strong) NSMutableDictionary *foundProtests;
@@ -34,6 +35,7 @@
 
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password;
 - (void)startProtest:(NSString*)name password:(NSString*)password;
+- (void)startProtestone:(NSString*)name password:(NSString*)password;
 - (void)sendMessage:(Message*)message;
 - (void)pruneTree;
 - (void)searchForProtests;

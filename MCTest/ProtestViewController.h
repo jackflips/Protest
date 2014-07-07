@@ -20,5 +20,6 @@
 - (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health;
 - (void)removeProtestFromList:(NSString*)nameOfProtest;
 - (void)reset;
+- (void)finalTest;
 
 @end
