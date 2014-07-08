@@ -35,6 +35,7 @@ static const double PRUNE = 30.0;
         _foundProtests = [NSMutableDictionary dictionary];
         
         //create random username
+        _userID = [[NSMutableString alloc] init];
         NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         for (int i=0; i<12; i++) {
             [_userID appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform((u_int32_t)[letters length]) % [letters length]]];
