@@ -34,14 +34,10 @@ static const double PRUNE = 30.0;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
         
-        //create username from hash of uuid
-        unsigned char digest[10];
-        NSData *stringBytes = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] dataUsingEncoding: NSUTF8StringEncoding];
-        _userID = [[NSMutableString alloc] init];
-        if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
-            for (int i=0; i<10; i++) {
-                [_userID appendFormat: @"%02x", digest[i]];
-            }
+        //create random username
+        NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        for (int i=0; i<12; i++) {
+            [_userID appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform((u_int32_t)[letters length]) % [letters length]]];
         }
     }
     return self;
@@ -98,8 +94,6 @@ static const double PRUNE = 30.0;
 }
 
 - (void)searchForProtests {
-    NSLog(@"advertising self 4 protests");
-    //[self setupPeerAndSessionWithDisplayName:_userID];
     _peerID = [[MCPeerID alloc] initWithDisplayName:_userID];
     [self advertiseSelf];
 }
@@ -188,6 +182,7 @@ static const double PRUNE = 30.0;
                                                              encryptionPreference:MCEncryptionNone]];
     newPeer.session.delegate = self;
     newPeer.peerID = peerID;
+    newPeer.isClient = YES;
     newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
     [_foundProtests setObject:newPeer forKey:peerID.displayName];
     invitationHandler(YES, newPeer.session);
@@ -195,14 +190,8 @@ static const double PRUNE = 30.0;
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state {
     NSLog(@"peer did change state: %ld", state);
-    NSLog(@"%@", [[_foundProtests objectForKey:peerID.displayName] session]);
-    NSLog(@"%@", session);
-    /*
-    NSLog(@"did change state: %ld", state);
     if (state == MCSessionStateConnected) {
-        NSLog(@"%@", session);
         NSLog(@"connected");
-        _session = [[MCSession alloc] initWithPeer:_peerID securityIdentity:nil encryptionPreference:MCEncryptionRequired];
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer.isClient) {
             NSError *error;
@@ -212,7 +201,6 @@ static const double PRUNE = 30.0;
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     } else if (state == MCSessionStateNotConnected) {
-        NSLog(@"working");
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
         else peer = [_sessions objectForKey:peerID.displayName];
@@ -221,13 +209,7 @@ static const double PRUNE = 30.0;
             [_appDelegate.viewController removeProtestFromList:peer.protestName];
         }
     }
-     */
 }
-
-- (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void (^)(BOOL accept))certificateHandler {
-    certificateHandler(YES);
-}
-
 
 - (NSData*)encryptMessage:(NSData*)message andPublicKey:(SecKeyRef)publicKey {
     return [_appDelegate.cryptoManager encrypt:message WithPublicKey:publicKey];
