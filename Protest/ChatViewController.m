@@ -50,17 +50,12 @@
     
     [self registerForKeyboardNotifications];
     
-    [self addMessage:[[Message alloc] initWithMessage:@"heyooo sherriff!" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"sherriff I am sorry but fuck your kind!" uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"It honestly doesn't matter because I don't care about you guys anyway. So get out." uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"get out!!!!" uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"I will not!!!" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Fine then get in at least." uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"I also won't do that!" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Then what will you do?!" uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"your mother ha" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"the cops are coming!" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"listen to me plz" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Apparently there are a lot of cops at 12th and 3rd" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"a roadblock" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"We should turn." uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Let's go right on 15th" uID:@"2" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Yes! Right on 15th. Let's pack up the pace and stay loud!" uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"pick*" uID:@"1" fromLeader:NO]];
     
     _toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f,
                                                                      self.view.bounds.size.height - 40.0f,
