@@ -114,8 +114,8 @@
 		AD0DF5E118F1F9CC00E0DE91 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WJLPkcsContext.h; sourceTree = "<group>"; };
 		AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WJLPkcsContext.m; sourceTree = "<group>"; };
-		AD4B7BC11913CB2900EFED68 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Message.h; path = ../Message.h; sourceTree = "<group>"; };
-		AD4B7BC21913CB2900EFED68 /* Message.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Message.m; path = ../Message.m; sourceTree = "<group>"; };
+		AD4B7BC11913CB2900EFED68 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
+		AD4B7BC21913CB2900EFED68 /* Message.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Message.m; sourceTree = "<group>"; };
 		AD70ACC518FA257E00FBBEC8 /* Peer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Peer.h; sourceTree = "<group>"; };
 		AD70ACC618FA257F00FBBEC8 /* Peer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Peer.m; sourceTree = "<group>"; };
 		AD79606A192155B90022EA58 /* greendot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = greendot.png; sourceTree = "<group>"; };
@@ -176,8 +176,8 @@
 		AD7960F11921A34D0022EA58 /* white_text_bubble@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "white_text_bubble@2x.png"; sourceTree = "<group>"; };
 		AD8D656018F1282800200485 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
 		AD8D656118F1282800200485 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
-		AD9C8517191F3AD200E23B7D /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = header.png; path = ../header.png; sourceTree = "<group>"; };
-		AD9C8518191F3AD200E23B7D /* header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "header@2x.png"; path = "../header@2x.png"; sourceTree = "<group>"; };
+		AD9C8517191F3AD200E23B7D /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
+		AD9C8518191F3AD200E23B7D /* header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "header@2x.png"; sourceTree = "<group>"; };
 		AD9C851C191F5C5300E23B7D /* FuturaStd-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FuturaStd-Medium.otf"; sourceTree = "<group>"; };
 		AD9C851D191F5C5300E23B7D /* Gotham-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Gotham-Medium.otf"; sourceTree = "<group>"; };
 		AD9C8520191F602B00E23B7D /* rowimage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rowimage.png; sourceTree = "<group>"; };
