@@ -375,8 +375,7 @@
 				ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */,
 				ADC7A76E194129090023FB97 /* RSA */,
 			);
-			name = Protest;
-			path = MCTest;
+			path = Protest;
 			sourceTree = "<group>";
 		};
 		ADA5D00518F0B35E004CEE2C /* Supporting Files */ = {
@@ -396,8 +395,7 @@
 				ADA5D02918F0B35E004CEE2C /* MCTestTests.m */,
 				ADA5D02418F0B35E004CEE2C /* Supporting Files */,
 			);
-			name = ProtestTests;
-			path = MCTestTests;
+			path = ProtestTests;
 			sourceTree = "<group>";
 		};
 		ADA5D02418F0B35E004CEE2C /* Supporting Files */ = {
@@ -416,7 +414,7 @@
 				ADA625BF1961605800D31B7C /* DAKeyboardControl.m */,
 			);
 			name = DAKeyboardControl;
-			path = MCTest/DAKeyboardControl;
+			path = Protest/DAKeyboardControl;
 			sourceTree = "<group>";
 		};
 		ADA625C11961F8E500D31B7C /* TPKeyboardAvoiding */ = {
@@ -432,7 +430,7 @@
 				ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */,
 			);
 			name = TPKeyboardAvoiding;
-			path = MCTest/TPKeyboardAvoiding;
+			path = Protest/TPKeyboardAvoiding;
 			sourceTree = "<group>";
 		};
 		ADC7A76E194129090023FB97 /* RSA */ = {
@@ -748,8 +746,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MCTest/Protest-Prefix.pch";
-				INFOPLIST_FILE = "MCTest/Protest-Info.plist";
+				GCC_PREFIX_HEADER = "Protest/Protest-Prefix.pch";
+				INFOPLIST_FILE = "Protest/Protest-Info.plist";
 				PRODUCT_NAME = Protest;
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -764,8 +762,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MCTest/Protest-Prefix.pch";
-				INFOPLIST_FILE = "MCTest/Protest-Info.plist";
+				GCC_PREFIX_HEADER = "Protest/Protest-Prefix.pch";
+				INFOPLIST_FILE = "Protest/Protest-Info.plist";
 				PRODUCT_NAME = Protest;
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
