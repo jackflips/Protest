@@ -225,7 +225,7 @@ static const double PRUNE = 30.0;
     }
 }
 
-- (void)sendPeerlist:(Peer*)peerToSendTo {
+- (NSArray*)getPeerlist {
     NSMutableArray *peerlist = [NSMutableArray array];
     for (Peer *peer in [_sessions allValues]) {
         [peerlist addObject:@[peer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]]];
@@ -234,7 +234,7 @@ static const double PRUNE = 30.0;
         }
         [peerlist addObject:@[@"stop"]];
     }
-    [self sendMessage:peerlist toPeer:peerToSendTo];
+    return peerlist;
 }
 
 - (void)addPeerlist:(NSArray*)peerlist currentPeer:(Peer*)thisPeer {
@@ -304,7 +304,7 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
         if (_password) {
             if ([[data objectAtIndex:1] isEqualToString:_password]) {
-                [self sendPeerlist:thisPeer];
+                [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
                 [self sendConnectEvent:thisPeer];
@@ -312,7 +312,7 @@ static const double PRUNE = 30.0;
                 [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
             }
         } else {
-            [self sendMessage:@[@"Connected", [_sessions allValues]] toPeer:thisPeer];
+            [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
             [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
             [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
             [self sendConnectEvent:thisPeer];
