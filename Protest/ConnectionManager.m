@@ -319,7 +319,9 @@ static const double PRUNE = 30.0;
         if (counter < 3) {
             [self traversePeers:^(Peer* peer){
                 if ([peer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]] &&
-                    ![_userID isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
+                    ![_userID isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]] &&
+                    ![_userID isEqualToString:[[data objectAtIndex:2] objectAtIndex:0]])
+                {
                     for (Peer *peersPeer in peer.peers) {
                         if ([peersPeer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
                             return;
