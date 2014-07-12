@@ -209,7 +209,10 @@ static const double PRUNE = 30.0;
 }
 
 - (void)sendDisconnectEvent:(Peer*)peer {
-    [self sendEventToAllPeers:@[@"PeerDisconnected", @[_userID, peer.peerID.displayName], [NSNumber numberWithInt:0]] except:peer];
+    if (![peer.displayName isEqualToString:_userID]) {
+        [self sendEventToAllPeers:@[@"PeerDisconnected", @[_userID, peer.peerID.displayName], [NSNumber numberWithInt:0]] except:peer];
+    }
+    
 }
 
 - (void)sendEventToAllPeers:(NSArray*)event except:(Peer*)exclusion {
@@ -257,7 +260,8 @@ static const double PRUNE = 30.0;
         }
         else {
             thisPeer.protestName = [data objectAtIndex:1];
-            thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];;
+            thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];
+            thisPeer.displayName = thisPeer.peerID.displayName;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
             }];
