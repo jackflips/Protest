@@ -24,5 +24,13 @@
     return self;
 }
 
+- (id)initWithName:(NSString*)displayName andPublicKey:(SecKeyRef)key {
+    self = [super init];
+    _peers = [NSMutableArray array];
+    _age = CFAbsoluteTimeGetCurrent();
+    _displayName = displayName;
+    _key = key;
+    return self;
+}
 
 @end

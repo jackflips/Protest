@@ -183,17 +183,36 @@ static const double PRUNE = 30.0;
     }
 }
 
-- (void)sendConnectEvent:(Peer*)peer {
-    for (Peer *myPeer in [_sessions allValues]) {
-        [self sendMessage:@[@"PeerConnected",
-                            @[_userID, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]],
-                            @[peer.peerID.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]], [NSNumber numberWithInt:0]] toPeer:myPeer];
+- (void)traversePeersHelper:(Peer*)peer func:(void (^)(Peer*))fn counter:(int)counter {
+    if (counter < 3) {
+        fn(peer);
+        for (Peer *peersPeer in peer.peers) {
+            [self traversePeersHelper:peersPeer func:fn counter:counter+1];
+        }
     }
 }
 
+- (void)traversePeers:(void (^)(Peer*))fn { //applys fn to all peers up to 3 levels deep
+    for (Peer *peer in [_sessions allValues]) {
+        [self traversePeersHelper:peer func:fn counter:0];
+    }
+}
+
+- (void)sendConnectEvent:(Peer*)peer {
+    [self sendEventToAllPeers:@[@"PeerConnected",
+                               @[_userID, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]],
+                                @[peer.peerID.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]], [NSNumber numberWithInt:0]] except:peer];
+}
+
 - (void)sendDisconnectEvent:(Peer*)peer {
-    for (Peer *myPeer in [_sessions allValues]) {
-        [self sendMessage:@[@"PeerDisconnected", peer.peerID.displayName, [NSNumber numberWithInt:0]] toPeer:myPeer];
+    [self sendEventToAllPeers:@[@"PeerDisconnected", @[_userID, peer.peerID.displayName], [NSNumber numberWithInt:0]] except:peer];
+}
+
+- (void)sendEventToAllPeers:(NSArray*)event except:(Peer*)exclusion {
+    for (Peer *peer in [_sessions allValues]) {
+        if (peer != exclusion) {
+            [self sendMessage:event toPeer:peer];
+        }
     }
 }
 
@@ -225,11 +244,7 @@ static const double PRUNE = 30.0;
         [self sendMessage:handshake2 toPeer:thisPeer];
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) { //add connection, 3 cases:
-        //1 if we're already connected to a prot and another peer is also in that prot so it's another connection
-        //2 if we're not connected to a protest but we already have this protest in our list. (If we connect under this condition then we should connect to all of those peers, need to make sure the leaders public key can't mutate in between the adding to list and the final connection.
-        //3 we're not connected and we just add it.
-        
+    if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
         if (_nameOfProtest
             && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
             && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
@@ -251,6 +266,7 @@ static const double PRUNE = 30.0;
                 [self sendMessage:@[@"Connected"] toPeer:thisPeer];
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+                [self sendConnectEvent:thisPeer];
             } else {
                 [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
             }
@@ -258,6 +274,8 @@ static const double PRUNE = 30.0;
             [self sendMessage:@[@"Connected"] toPeer:thisPeer];
             [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
             [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+            [self sendConnectEvent:thisPeer];
+            
         }
     }
     
@@ -286,12 +304,51 @@ static const double PRUNE = 30.0;
     
     if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
         //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
-        
-        
+        int counter = (int)[[data objectAtIndex:3] integerValue];
+        if (counter < 3) {
+            [self traversePeers:^(Peer* peer){
+                if ([peer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]] &&
+                    ![_userID isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
+                    for (Peer *peersPeer in peer.peers) {
+                        if ([peersPeer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
+                            return;
+                        }
+                    }
+                    NSString *newPeerDisplayName = [[data objectAtIndex:1] objectAtIndex:0];
+                    Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:[[data objectAtIndex:1] objectAtIndex:1] withTag:newPeerDisplayName]];
+                    [peer.peers addObject:newPeer];
+                }
+            }];
+            if (counter < 2) {
+                NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
+                [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:3];
+                [self sendEventToAllPeers:dataCopy except:thisPeer];
+            }
+        }
     }
     
-    
-    
+    if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
+        //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
+        int counter = (int)[[data objectAtIndex:3] integerValue];
+        if (counter < 3) {
+            [self traversePeers:^(Peer* peer){
+                if ([peer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]&&
+                    ![_userID isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
+                    NSString *peersDisplayName = [[data objectAtIndex:1] objectAtIndex:1];
+                    for (Peer *peersPeer in peer.peers) {
+                        if ([peersPeer.displayName isEqualToString:peersDisplayName]) {
+                            [peer.peers removeObject:peersPeer];
+                        }
+                    }
+                }
+            }];
+            if (counter < 2) {
+                NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
+                [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:2];
+                [self sendEventToAllPeers:dataCopy except:thisPeer];
+            }
+        }
+    }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"Message"]) {
         /*

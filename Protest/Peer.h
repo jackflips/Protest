@@ -13,6 +13,7 @@
 @property (nonatomic, strong) NSMutableArray *peers;
 @property (nonatomic, strong) MCSession *session;
 @property (nonatomic, strong) MCPeerID *peerID;
+@property (nonatomic, strong) NSString *displayName;
 @property (nonatomic) CFAbsoluteTime age;
 @property (nonatomic) BOOL requestOut;
 @property (nonatomic) BOOL isParent;
@@ -22,6 +23,7 @@
 @property (nonatomic, strong) NSString *protestName;
 
 - (id)initWithSession:(MCSession*)session;
+- (id)initWithName:(NSString*)displayName andPublicKey:(SecKeyRef)key;
 - (void)resetAge;
 - (CFAbsoluteTime)getAgeSinceReset;
 
