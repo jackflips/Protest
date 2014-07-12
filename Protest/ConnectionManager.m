@@ -436,11 +436,11 @@ static const double PRUNE = 30.0;
 
 - (void)printSessions {
     for (Peer *peer in [_sessions allValues]) {
-        NSLog(@"%@", peer);
+        NSLog(@"%@", peer.displayName);
         for (Peer *peersPeer in peer.peers) {
-            NSLog(@"    %@", peersPeer);
+            NSLog(@"    %@", peersPeer.displayName);
             for (Peer *peersPeersPeer in peersPeer.peers) {
-                NSLog(@"        %@", peersPeersPeer);
+                NSLog(@"        %@", peersPeersPeer.displayName);
             }
         }
     }
