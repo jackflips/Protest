@@ -72,8 +72,8 @@
         prot.numberOfPeers += 1;
     } else {
         Protest *protest = [[Protest alloc] initWithName:nameOfProtest passwordNeeded:password andHealth:health];
+        protest.numberOfPeers += 1;
         [tableSource addObject:protest];
-        
     }
     [self updateProtestHealth];
     [_tableView reloadData];
