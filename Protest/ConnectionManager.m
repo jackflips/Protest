@@ -128,15 +128,17 @@ static const double PRUNE = 30.0;
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
-    Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
-                                                                 securityIdentity:nil
-                                                             encryptionPreference:MCEncryptionNone]];
-    newPeer.session.delegate = self;
-    newPeer.peerID = peerID;
-    [_foundProtests setObject:newPeer forKey:peerID.displayName];
-    NSArray *publicKeyArray = @[[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
-    NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
-    [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
+    if (![_foundProtests objectForKey:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) {
+        Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
+                                                                     securityIdentity:nil
+                                                                 encryptionPreference:MCEncryptionNone]];
+        newPeer.session.delegate = self;
+        newPeer.peerID = peerID;
+        [_foundProtests setObject:newPeer forKey:peerID.displayName];
+        NSArray *publicKeyArray = @[[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+        NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
+        [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
+    }
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID {
@@ -148,15 +150,17 @@ static const double PRUNE = 30.0;
 }
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID withContext:(NSData *)context invitationHandler:(void (^)(BOOL accept, MCSession *session))invitationHandler {
-    Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
-                                                                 securityIdentity:nil
-                                                             encryptionPreference:MCEncryptionNone]];
-    newPeer.session.delegate = self;
-    newPeer.peerID = peerID;
-    newPeer.isClient = YES;
-    newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
-    [_foundProtests setObject:newPeer forKey:peerID.displayName];
-    invitationHandler(YES, newPeer.session);
+    if (![_foundProtests objectForKey:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) {
+        Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
+                                                                     securityIdentity:nil
+                                                                 encryptionPreference:MCEncryptionNone]];
+        newPeer.session.delegate = self;
+        newPeer.peerID = peerID;
+        newPeer.isClient = YES;
+        newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
+        [_foundProtests setObject:newPeer forKey:peerID.displayName];
+        invitationHandler(YES, newPeer.session);
+    }
 }
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state {
