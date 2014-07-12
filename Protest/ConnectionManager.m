@@ -225,6 +225,37 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (void)sendPeerlist:(Peer*)peerToSendTo {
+    NSMutableArray *peerlist = [NSMutableArray array];
+    for (Peer *peer in [_sessions allValues]) {
+        [peerlist addObject:@[peer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]]];
+        for (Peer *peersPeer in peer.peers) {
+            [peerlist addObject:@[peersPeer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peersPeer.key]]];
+        }
+        [peerlist addObject:@[@"stop"]];
+    }
+    [self sendMessage:peerlist toPeer:peerToSendTo];
+}
+
+- (void)addPeerlist:(NSArray*)peerlist currentPeer:(Peer*)thisPeer {
+    Peer *parentPeer = nil;
+    for (NSArray *peerInfo in peerlist) {
+        NSString *newPeerName = [peerInfo objectAtIndex:0];
+        if ([newPeerName isEqualToString:@"stop"]) {
+            parentPeer = nil;
+            continue;
+        }
+        NSData *newPeerKey = [peerInfo objectAtIndex:1];
+        Peer *newPeer = [[Peer alloc] initWithName:newPeerName andPublicKey:[_appDelegate.cryptoManager addPublicKey:newPeerKey withTag:newPeerName]];
+        if (!parentPeer) {
+            [thisPeer.peers addObject:newPeer];
+            parentPeer = newPeer;
+        } else {
+            [parentPeer.peers addObject:newPeer];
+        }
+    }
+}
+
 - (void)sendMessage:(NSArray*)message toPeer:(Peer*)peer {
     SecKeyRef key = peer.key;
     NSError *error;
@@ -273,7 +304,7 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
         if (_password) {
             if ([[data objectAtIndex:1] isEqualToString:_password]) {
-                [self sendMessage:@[@"Connected", [_sessions allValues]] toPeer:thisPeer];
+                [self sendPeerlist:thisPeer];
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
                 [self sendConnectEvent:thisPeer];
@@ -304,11 +335,7 @@ static const double PRUNE = 30.0;
     
     if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
         NSArray *peerData = [data objectAtIndex:1];
-        for (Peer *peer in peerData) {
-            if (![peer.displayName isEqualToString:_userID]) {
-                [thisPeer.peers addObject:peer];
-            }
-        }
+        [self addPeerlist:peerData currentPeer:thisPeer];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
         }];
