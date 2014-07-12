@@ -273,7 +273,7 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
         if (_password) {
             if ([[data objectAtIndex:1] isEqualToString:_password]) {
-                [self sendMessage:@[@"Connected"] toPeer:thisPeer];
+                [self sendMessage:@[@"Connected", [_sessions allValues]] toPeer:thisPeer];
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
                 [self sendConnectEvent:thisPeer];
@@ -281,7 +281,7 @@ static const double PRUNE = 30.0;
                 [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
             }
         } else {
-            [self sendMessage:@[@"Connected"] toPeer:thisPeer];
+            [self sendMessage:@[@"Connected", [_sessions allValues]] toPeer:thisPeer];
             [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
             [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
             [self sendConnectEvent:thisPeer];
@@ -303,6 +303,12 @@ static const double PRUNE = 30.0;
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
+        NSArray *peerData = [data objectAtIndex:1];
+        for (Peer *peer in peerData) {
+            if (![peer.displayName isEqualToString:_userID]) {
+                [thisPeer.peers addObject:peer];
+            }
+        }
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
         }];
@@ -378,7 +384,9 @@ static const double PRUNE = 30.0;
                 }
             }
             [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
-            [_appDelegate.chatViewController addMessage:newMessage];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [_appDelegate.chatViewController addMessage:newMessage];
+            }];
             for (Peer *peer in _sessions) {
                 [self sendMessage:data toPeer:[_sessions objectForKey:peer]];
             }
