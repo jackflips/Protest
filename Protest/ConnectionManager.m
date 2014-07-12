@@ -300,6 +300,7 @@ static const double PRUNE = 30.0;
         [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
         _leadersPublicKey = thisPeer.leadersKey;
         _nameOfProtest = thisPeer.protestName;
+        [self browse];
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
