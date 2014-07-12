@@ -342,7 +342,7 @@ static const double PRUNE = 30.0;
     
     if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
         //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
-        int counter = (int)[[data objectAtIndex:3] integerValue];
+        int counter = (int)[[data objectAtIndex:2] integerValue];
         if (counter < 3) {
             [self traversePeers:^(Peer* peer){
                 if ([peer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]&&
