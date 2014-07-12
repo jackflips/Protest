@@ -40,6 +40,7 @@ static const double PRUNE = 30.0;
         for (int i=0; i<12; i++) {
             [_userID appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform((u_int32_t)[letters length]) % [letters length]]];
         }
+        NSLog(@"userid: %@", _userID);
     }
     return self;
 }
@@ -430,7 +431,20 @@ static const double PRUNE = 30.0;
     return output;
 }
 
+- (void)printSessions {
+    for (Peer *peer in [_sessions allValues]) {
+        NSLog(@"%@", peer);
+        for (Peer *peersPeer in peer.peers) {
+            NSLog(@"    %@", peersPeer);
+            for (Peer *peersPeersPeer in peersPeer.peers) {
+                NSLog(@"        %@", peersPeersPeer);
+            }
+        }
+    }
+}
+
 - (void)sendMessage:(Message*)message {
+    [self printSessions];
     NSString *time = [self getTimeString];
     NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
     NSLog(@"%@", toHash);
