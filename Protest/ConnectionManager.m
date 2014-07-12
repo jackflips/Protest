@@ -219,6 +219,7 @@ static const double PRUNE = 30.0;
 - (void)sendEventToAllPeers:(NSArray*)event except:(Peer*)exclusion {
     for (Peer *peer in [_sessions allValues]) {
         if (peer != exclusion) {
+            NSLog(@"%@ %@", peer, exclusion);
             [self sendMessage:event toPeer:peer];
         }
     }
