@@ -72,7 +72,7 @@ static const double PRUNE = 30.0;
     NSData *testData1 = [falseTest dataUsingEncoding:NSUTF8StringEncoding];
     NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSData *key = [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
+    NSData *key = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
     NSData *signedData = [_appDelegate.cryptoManager sign:testData withKey:_appDelegate.cryptoManager.privateKey];
     OSStatus *status = [_appDelegate.cryptoManager verify:testData withSignature:signedData andKey:_appDelegate.cryptoManager.publicKey];
     NSLog(@"%i", status);
@@ -123,36 +123,6 @@ static const double PRUNE = 30.0;
     }
 }
 
-- (NSData *)getPublicKeyBitsFromKey:(SecKeyRef)givenKey {
-    
-    static const uint8_t publicKeyIdentifier[] = "com.your.company.publickey";
-    NSData *publicTag = [[NSData alloc] initWithBytes:publicKeyIdentifier length:sizeof(publicKeyIdentifier)];
-    
-    OSStatus sanityCheck = noErr;
-    NSData * publicKeyBits = nil;
-    
-    NSMutableDictionary * queryPublicKey = [[NSMutableDictionary alloc] init];
-    [queryPublicKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [queryPublicKey setObject:publicTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [queryPublicKey setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
-    
-    // Temporarily add key to the Keychain, return as data:
-    NSMutableDictionary * attributes = [queryPublicKey mutableCopy];
-    [attributes setObject:(__bridge id)givenKey forKey:(__bridge id)kSecValueRef];
-    [attributes setObject:@YES forKey:(__bridge id)kSecReturnData];
-    CFTypeRef result;
-    sanityCheck = SecItemAdd((__bridge CFDictionaryRef) attributes, &result);
-    if (sanityCheck == errSecSuccess) {
-        publicKeyBits = CFBridgingRelease(result);
-        
-        // Remove from Keychain again:
-        (void)SecItemDelete((__bridge CFDictionaryRef) queryPublicKey);
-    }
-    
-    return publicKeyBits;
-}
-
-
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error {
     NSLog(@"didn't start browsing for peers");
 }
@@ -164,7 +134,7 @@ static const double PRUNE = 30.0;
     newPeer.session.delegate = self;
     newPeer.peerID = peerID;
     [_foundProtests setObject:newPeer forKey:peerID.displayName];
-    NSArray *publicKeyArray = @[[self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+    NSArray *publicKeyArray = @[[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
     NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
     [browser invitePeer:peerID toSession:newPeer.session withContext:publicKeyContext timeout:120.0];
 }
@@ -196,7 +166,7 @@ static const double PRUNE = 30.0;
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer.isClient) {
             NSError *error;
-            NSArray *message = @[@"Handshake", [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+            NSArray *message = @[@"Handshake", [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
             NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
             NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
@@ -206,73 +176,25 @@ static const double PRUNE = 30.0;
         if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
         else peer = [_sessions objectForKey:peerID.displayName];
         if (peer) {
-            [_sessions removeObjectForKey:peerID.displayName];
             [_appDelegate.viewController removeProtestFromList:peer.protestName];
+            [_sessions removeObjectForKey:peerID.displayName];
+            [self sendDisconnectEvent:peer];
         }
     }
 }
 
-- (NSData*)encryptMessage:(NSData*)message andPublicKey:(SecKeyRef)publicKey {
-    return [_appDelegate.cryptoManager encrypt:message WithPublicKey:publicKey];
-}
-
-- (NSData*)decryptMessage:(NSData*)message {
-    return [_appDelegate.cryptoManager decrypt:message];
-}
-
-- (void)gossip {
-    for (Peer *peer in _sessions) {
-        NSArray *array = @[@"GossipRequest"];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:array];
-        data = [self encryptMessage:data andPublicKey:peer.key];
-        NSError *error;
-        peer.requestOut = YES;
-        [peer.session sendData:data toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
-        if (error) {
-            NSLog(@"%@", [error localizedDescription]);
-        }
+- (void)sendConnectEvent:(Peer*)peer {
+    for (Peer *myPeer in [_sessions allValues]) {
+        [self sendMessage:@[@"PeerConnected",
+                            @[_userID, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]],
+                            @[peer.peerID.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]], [NSNumber numberWithInt:0]] toPeer:myPeer];
     }
 }
 
-- (void)pruneTree {
-    for (Peer __strong *peer in _sessions) {
-        if ([peer getAgeSinceReset] > PRUNE) {
-            peer = nil;
-        }
+- (void)sendDisconnectEvent:(Peer*)peer {
+    for (Peer *myPeer in [_sessions allValues]) {
+        [self sendMessage:@[@"PeerDisconnected", peer.peerID.displayName, [NSNumber numberWithInt:0]] toPeer:myPeer];
     }
-}
-
-- (BOOL)needsToRefreshPeerList {
-    for (Peer *peer in [_sessions allValues]) {
-        if ([peer getAgeSinceReset] > PRUNE) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
-- (void)sendFirstOrderPeerTree:(Peer*)peer {
-    NSError *error;
-    for (Peer *newPeer in [_sessions allValues]) {
-        if ([peer getAgeSinceReset] < PRUNE && newPeer != peer) {
-            NSArray *gossip = [[NSArray alloc] initWithObjects:@"Gossip", [self getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey], newPeer.key, nil];
-            NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:gossip];
-            responseData = [_appDelegate.cryptoManager encrypt:responseData WithPublicKey:peer.key];
-            [peer.session sendData:responseData toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
-        }
-    }
-}
-
-- (BOOL)updateParents {
-    for (Peer *peer in _sessions) {
-        if (peer.requestOut) {
-            return YES;
-        }
-    }
-    for (Peer *peer in _sessions) {
-        peer.isParent = NO;
-    }
-    return NO;
 }
 
 - (void)sendMessage:(NSArray*)message toPeer:(Peer*)peer {
@@ -298,7 +220,7 @@ static const double PRUNE = 30.0;
         thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
         BOOL isPassword = NO;
         if (_password) isPassword = YES;
-        NSData *leadersKeyData = [self getPublicKeyBitsFromKey:_leadersPublicKey];
+        NSData *leadersKeyData = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
         NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData];
         [self sendMessage:handshake2 toPeer:thisPeer];
     }
@@ -310,7 +232,7 @@ static const double PRUNE = 30.0;
         
         if (_nameOfProtest
             && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
-            && [[data objectAtIndex:3] isEqualToData:[self getPublicKeyBitsFromKey:_leadersPublicKey]])
+            && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
         {
             [self sendMessage:@[@"WantsToConnect", _password] toPeer:[_foundProtests objectForKey:thisPeer.peerID.displayName]];
         }
@@ -339,16 +261,6 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
-        }];
-        [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
-        [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
-        _leadersPublicKey = thisPeer.leadersKey;
-        _nameOfProtest = thisPeer.protestName;
-    }
-    
     if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
         [_appDelegate.viewController reset];
         [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
@@ -362,41 +274,24 @@ static const double PRUNE = 30.0;
         _password = nil;
     }
     
-    else if ([[data objectAtIndex:0] isEqualToString:@"GossipRequest"]) {
-        if (![self needsToRefreshPeerList]) {
-            [self sendFirstOrderPeerTree:thisPeer];
-        } else {
-            [self sendFirstOrderPeerTree:thisPeer]; //only sends young peers
-            thisPeer.isParent = YES;
-            [self gossip]; 
-        }
+    if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
+        }];
+        [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+        [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+        _leadersPublicKey = thisPeer.leadersKey;
+        _nameOfProtest = thisPeer.protestName;
     }
     
-    else if ([[data objectAtIndex:0] isEqualToString:@"Gossip"]) {
-        //check length of nsarray to see if it is multihop response or 1
-        if ([data count] > 2) { //multihop repsponse
-            for (Peer *peer in _sessions) {
-                if ([(NSData*)peer.key isEqualToData:(NSData*)[data objectAtIndex:1]]) {
-   //                 [peer.peers addObject:[[Peer alloc] initWithKey:(__bridge SecKeyRef)([data objectAtIndex:2])]];
-                }
-            }
-        } else if ([data count] <= 2) { //first order response
-            [thisPeer resetAge];
-            thisPeer.requestOut = NO;
-            //forward requests to parents. we clear the parent list if all peers have returned
-            if ([self updateParents]) {
-                for (Peer *peer in _sessions) {
-                    if (peer.isParent) {
-                        NSError *error;
-                        NSArray *Gossip = [[NSArray alloc] initWithObjects:@"Gossip", _appDelegate.cryptoManager.publicKey, [data objectAtIndex:1], nil];
-                        NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:Gossip];
-                        responseData = [_appDelegate.cryptoManager encrypt:responseData WithPublicKey:peer.key];
-                        [peer.session sendData:responseData toPeers:[[_sessions allKeysForObject:peer] objectAtIndex:0] withMode:MCSessionSendDataReliable error:&error];
-                    }
-                }
-            }
-        }
+    if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
+        //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
+        
+        
     }
+    
+    
+    
     
     else if ([[data objectAtIndex:0] isEqualToString:@"Message"]) {
         /*

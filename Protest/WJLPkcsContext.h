@@ -31,13 +31,11 @@
 
 - (SecKeyRef)getPublicKeyReference:(NSString*)peerName;
 - (SecKeyRef)addPublicKey:(NSData *)d_key withTag:(NSString *)tag;
+- (NSData*)getPublicKeyBitsFromKey:(SecKeyRef)givenKey;
 
 - (NSData *)encrypt:(NSData *)plainText WithPublicKey:(SecKeyRef)publicKey;
-
 - (NSData *)decrypt:(NSData *)cipherText;
-
 - (NSData *)sign:(NSData *)plainText withKey:(SecKeyRef)key;
-
 - (OSStatus)verify:(NSData *)plainText withSignature:(NSData *)sig andKey:(SecKeyRef)key;
 
 

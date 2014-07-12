@@ -197,6 +197,35 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     return plainText;
 }
 
+- (NSData*)getPublicKeyBitsFromKey:(SecKeyRef)givenKey {
+    
+    static const uint8_t publicKeyIdentifier[] = "com.your.company.publickey";
+    NSData *publicTag = [[NSData alloc] initWithBytes:publicKeyIdentifier length:sizeof(publicKeyIdentifier)];
+    
+    OSStatus sanityCheck = noErr;
+    NSData * publicKeyBits = nil;
+    
+    NSMutableDictionary * queryPublicKey = [[NSMutableDictionary alloc] init];
+    [queryPublicKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
+    [queryPublicKey setObject:publicTag forKey:(__bridge id)kSecAttrApplicationTag];
+    [queryPublicKey setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
+    
+    // Temporarily add key to the Keychain, return as data:
+    NSMutableDictionary * attributes = [queryPublicKey mutableCopy];
+    [attributes setObject:(__bridge id)givenKey forKey:(__bridge id)kSecValueRef];
+    [attributes setObject:@YES forKey:(__bridge id)kSecReturnData];
+    CFTypeRef result;
+    sanityCheck = SecItemAdd((__bridge CFDictionaryRef) attributes, &result);
+    if (sanityCheck == errSecSuccess) {
+        publicKeyBits = CFBridgingRelease(result);
+        
+        // Remove from Keychain again:
+        (void)SecItemDelete((__bridge CFDictionaryRef) queryPublicKey);
+    }
+    
+    return publicKeyBits;
+}
+
 - (void)removePeerPublicKey:(NSString *)peerName {
 	OSStatus sanityCheck = noErr;
 	NSData * peerTag = [[NSData alloc] initWithBytes:(const void *)[peerName UTF8String] length:[peerName length]];
