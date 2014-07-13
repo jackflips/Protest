@@ -30,6 +30,7 @@
 @property (nonatomic, strong) NSString *password;
 @property (nonatomic, strong) NSString *nameOfProtest;
 @property (nonatomic, strong) NSMutableDictionary *foundProtests;
+@property (nonatomic, strong) NSMutableArray *secretMessagePath;
 
 @property (nonatomic) SecKeyRef leadersPublicKey;
 

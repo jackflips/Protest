@@ -33,6 +33,7 @@ static const double PRUNE = 30.0;
         _password = nil;
         _nameOfProtest = nil;
         _foundProtests = [NSMutableDictionary dictionary];
+        _secretMessagePath = [NSMutableArray array];
         
         //create random username
         _userID = [[NSMutableString alloc] init];
@@ -483,6 +484,99 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (Peer*)peerExists:(NSArray*)peers name:(NSString*)displayName {
+    for (Peer *peer in peers) {
+        if ([peer.displayName isEqualToString:displayName]) return peer;
+    }
+    return nil;
+}
+
+- (Peer*)returnPeerGivenName:(NSString*)name currentLevel:(NSArray*)level {
+    for (Peer *peer in level) {
+        if ([name isEqualToString:peer.displayName]) {
+            return peer;
+        } else {
+            if (peer.peers) {
+                Peer *possiblePeer = [self returnPeerGivenName:name currentLevel:peer.peers];
+                if (possiblePeer) {
+                    return possiblePeer;
+                }
+            }
+        }
+    }
+    return nil;
+}
+
+- (Peer*)returnPeerGivenName:(NSString*)name {
+    return [self returnPeerGivenName:name currentLevel:[_sessions allValues]];
+}
+
+- (NSData*)encryptMessageGivenPath:(NSData*)message andPath:(NSArray*)path {
+    NSString *name = path.lastObject;
+    SecKeyRef key = [[self returnPeerGivenName:name] key];
+    NSArray *msg = @[name, [_appDelegate.cryptoManager encrypt:message WithPublicKey:key]];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
+    if (path == nil) {
+        return message;
+    } else {
+        return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(1, path.count-2)]];
+    }
+}
+
+- (BOOL)pathStillValid {
+    NSArray *currentLevel = [_sessions allValues];
+    for (NSString *name in _secretMessagePath) {
+        Peer *peer = [self peerExists:currentLevel name:name];
+        if (name == _secretMessagePath.lastObject) {
+            return YES;
+        } else if (peer.peers) {
+            currentLevel = peer.peers;
+        } else {
+            return NO;
+        }
+    }
+    return NO;
+}
+
+- (void)findAllPathsThroughPeerTreeHelper:(NSArray*)level andWorkingPath:(NSMutableArray*)path paths:(NSMutableArray*)paths {
+    for (Peer *peer in level) {
+        NSMutableArray *newPath = [NSMutableArray arrayWithArray:path];
+        [paths removeObject:path];
+        [paths addObject:newPath];
+        if (peer.peers) {
+            [self findAllPathsThroughPeerTreeHelper:peer.peers andWorkingPath:newPath paths:paths];
+        }
+    }
+}
+
+- (NSArray*)findAllPathsThroughPeerTree {
+    NSMutableArray *paths = [NSMutableArray array];
+    [self findAllPathsThroughPeerTreeHelper:[_sessions allValues] andWorkingPath:[NSMutableArray array] paths:paths];
+    int highestCount = 0;
+    for (NSArray *path in paths) {
+        if (path.count > highestCount) highestCount = (int)path.count;
+    }
+    for (NSArray *path in paths) {
+        if (path.count < highestCount) [paths removeObject:path];
+    }
+    return paths;
+}
+
+- (void)generateNewPath {
+    NSArray *paths = [self findAllPathsThroughPeerTree];
+    _secretMessagePath = paths[arc4random() % paths.count];
+}
+
+- (void)sendMessageAlongPath:(NSData*)data {
+    NSString *name = _secretMessagePath.firstObject;
+    Peer *peer = [self returnPeerGivenName:name];
+    NSError *error;
+    [peer.session sendData:data toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
+}
+
 - (void)sendMessage:(Message*)message {
     [self printSessions];
     NSString *time = [self getTimeString];
@@ -499,28 +593,13 @@ static const double PRUNE = 30.0;
         messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
     }
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
-    NSMutableArray *candidates = [NSMutableArray array];
-    for (MCPeerID *key in _sessions) {
-        if ([[[_sessions objectForKey:key] peers] count] > 0) {
-            [candidates addObject:[_sessions objectForKey:key]];
-        }
-    }
-    if ([candidates count] == 0) {
-        NSArray *allPeers = [_sessions allValues];
-        Peer *target = [allPeers objectAtIndex:arc4random() % allPeers.count];
-        [self sendMessage:messageToSend toPeer:target];
+    
+    
+    if ([self pathStillValid]) {
+        [self sendMessageAlongPath:data];
     } else {
-        Peer *firstHop = [candidates objectAtIndex:arc4random() % [candidates count]];
-        Peer *secondHop = [firstHop.peers objectAtIndex:arc4random() % firstHop.peers.count];
-        MCPeerID *secondHopPeerID = [secondHop.session.connectedPeers objectAtIndex:0];
-        NSData *secondHopData = [_appDelegate.cryptoManager encrypt:data WithPublicKey:secondHop.key];
-        //intermediate hop data is like [@"Forward", Public key to forward to, data]
-        //we really should do 3 hops...
-        NSArray *firstHopDataArray = [NSArray arrayWithObjects:@"Forward", secondHopPeerID, secondHopData, nil];
-        NSData *firstHopData = [NSKeyedArchiver archivedDataWithRootObject:firstHopDataArray];
-        firstHopData = [_appDelegate.cryptoManager encrypt:firstHopData WithPublicKey:firstHop.key];
-        NSError *error;
-        [firstHop.session sendData:firstHopData toPeers:firstHop.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+        [self generateNewPath];
+        [self sendMessageAlongPath:data];
     }
 }
 
