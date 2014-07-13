@@ -304,6 +304,7 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
         if (_password) {
             if ([[data objectAtIndex:1] isEqualToString:_password]) {
+                thisPeer.displayName = thisPeer.peerID.displayName;
                 [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
@@ -312,6 +313,7 @@ static const double PRUNE = 30.0;
                 [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
             }
         } else {
+            thisPeer.displayName = thisPeer.peerID.displayName;
             [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
             [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
             [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
