@@ -15,7 +15,12 @@
 #import "ProtestViewController.h"
 
 
-@interface ConnectionManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate>
+@interface ConnectionManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate> {
+    enum ProtestNetworkState : NSUInteger {
+        ProtestNetworkStateNotConnected,
+        ProtestNetworkStateConnected,
+    };
+}
 
 @property (nonatomic, strong) MCPeerID *peerID;
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
@@ -31,6 +36,7 @@
 @property (nonatomic, strong) NSString *nameOfProtest;
 @property (nonatomic, strong) NSMutableDictionary *foundProtests;
 @property (nonatomic, strong) NSMutableArray *secretMessagePath;
+@property (nonatomic) enum ProtestNetworkState state;
 
 @property (nonatomic) SecKeyRef leadersPublicKey;
 
