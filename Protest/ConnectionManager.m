@@ -161,6 +161,7 @@ static const double PRUNE = 30.0;
         newPeer.peerID = peerID;
         newPeer.isClient = YES;
         newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
+        newPeer.displayName = peerID.displayName;
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
         invitationHandler(YES, newPeer.session);
     }
