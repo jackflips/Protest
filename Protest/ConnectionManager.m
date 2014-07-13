@@ -541,6 +541,7 @@ static const double PRUNE = 30.0;
 - (void)findAllPathsThroughPeerTreeHelper:(NSArray*)level andWorkingPath:(NSMutableArray*)path paths:(NSMutableArray*)paths {
     for (Peer *peer in level) {
         NSMutableArray *newPath = [NSMutableArray arrayWithArray:path];
+        [newPath addObject:peer];
         [paths removeObject:path];
         [paths addObject:newPath];
         if (peer.peers) {
@@ -556,8 +557,12 @@ static const double PRUNE = 30.0;
     for (NSArray *path in paths) {
         if (path.count > highestCount) highestCount = (int)path.count;
     }
-    for (NSArray *path in paths) {
-        if (path.count < highestCount) [paths removeObject:path];
+    for (int i=0; i<paths.count; i++) {
+        if ([paths[i] count] < highestCount) [paths removeObjectAtIndex:i];
+        for (int j=0; j<[paths[i] count]; j++) {
+            paths[i][j] = [paths[i][j] displayName];
+        }
+        
     }
     return paths;
 }
@@ -601,20 +606,6 @@ static const double PRUNE = 30.0;
         [self generateNewPath];
         [self sendMessageAlongPath:data];
     }
-}
-
--(void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress{
-    NSLog(@"session did recieve resource");
-}
-
-
--(void)session:(MCSession *)session didFinishReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID atURL:(NSURL *)localURL withError:(NSError *)error{
-    NSLog(@"session did finish recieving resource");
-}
-
-
--(void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID{
-    NSLog(@"session did recieve stream");
 }
 
 @end
