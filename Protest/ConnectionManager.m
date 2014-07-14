@@ -189,6 +189,13 @@ static const double PRUNE = 30.0;
         if (peer) {
             [_appDelegate.viewController removeProtestFromList:peer.protestName];
             [_sessions removeObjectForKey:peerID.displayName];
+            [self traversePeers:^(Peer *myPeer, Peer *parent){
+                for (int i=0; i<myPeer.peers.count; i++) {
+                    if ([[myPeer.peers[i] displayName] isEqualToString:myPeer.displayName]) {
+                        [myPeer.peers removeObjectAtIndex:i];
+                    }
+                }
+            }];
             [self sendDisconnectEvent:peer];
         }
     }
@@ -424,9 +431,9 @@ static const double PRUNE = 30.0;
                     if ([peer.displayName isEqualToString:data[1][0]] &&
                         ![_userID isEqualToString:data[1][0]]) {
                         NSString *peersDisplayName = data[1][1];
-                        for (Peer *peersPeer in peer.peers) {
-                            if ([peersPeer.displayName isEqualToString:peersDisplayName]) {
-                                [peer.peers removeObject:peersPeer];
+                        for (int i=0; i<peer.peers.count; i++) {
+                            if ([[peer.peers[i] displayName] isEqualToString:peersDisplayName]) {
+                                [peer.peers removeObjectAtIndex:i];
                             }
                         }
                     }
