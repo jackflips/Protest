@@ -535,12 +535,13 @@ static const double PRUNE = 30.0;
     for (Peer *peer in level) {
         if ([name isEqualToString:peer.displayName]) {
             return peer;
-        } else {
-            if (peer.peers) {
-                Peer *possiblePeer = [self returnPeerGivenName:name currentLevel:peer.peers];
-                if (possiblePeer) {
-                    return possiblePeer;
-                }
+        }
+    }
+    for (Peer *peer in level) {
+        if (peer.peers) {
+            Peer *possiblePeer = [self returnPeerGivenName:name currentLevel:peer.peers];
+            if (possiblePeer) {
+                return possiblePeer;
             }
         }
     }
