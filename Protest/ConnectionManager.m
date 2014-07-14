@@ -277,6 +277,20 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (void)sendMessageWithoutEncrypting:(id)message toPeer:(Peer*)peer {
+    NSError *error;
+    NSData *messageData;
+    if ([message isKindOfClass:[NSArray class]]) {
+        messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
+    } else if ([message isKindOfClass:[NSData class]]) {
+        messageData = message;
+    }
+    [peer.session sendData:messageData toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
+}
+
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     NSLog(@"recieved message");
     NSData *decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
@@ -456,12 +470,7 @@ static const double PRUNE = 30.0;
     
     else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
-            for (MCPeerID *key in _sessions) {
-                if ([key.displayName isEqualToString:[[data objectAtIndex:1] displayName]]) {
-                    NSError *error;
-                    [[[_sessions objectForKey:key] session] sendData:[data objectAtIndex:2] toPeers:[NSArray arrayWithObject:key] withMode:MCSessionSendDataReliable error:&error];
-                }
-            }
+            [self sendMessageWithoutEncrypting:data[2] toPeer:[self returnPeerGivenName:data[1]]];
         }
     }
 }
