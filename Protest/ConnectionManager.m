@@ -261,10 +261,15 @@ static const double PRUNE = 30.0;
     }
 }
 
-- (void)sendMessage:(NSArray*)message toPeer:(Peer*)peer {
+- (void)sendMessage:(id)message toPeer:(Peer*)peer {
     SecKeyRef key = peer.key;
     NSError *error;
-    NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
+    NSData *messageData;
+    if ([message isKindOfClass:[NSArray class]]) {
+        messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
+    } else if ([message isKindOfClass:[NSData class]]) {
+        messageData = message;
+    }
     NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:key];
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
     if (error) {
@@ -531,18 +536,6 @@ static const double PRUNE = 30.0;
     return [self returnPeerGivenName:name currentLevel:[_sessions allValues]];
 }
 
-- (NSData*)encryptMessageGivenPath:(NSData*)message andPath:(NSArray*)path {
-    if (path.count > 0) {
-        NSString *name = path.lastObject;
-        SecKeyRef key = [[self returnPeerGivenName:name] key];
-        NSArray *msg = @[name, [_appDelegate.cryptoManager encrypt:message WithPublicKey:key]];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
-    return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(1, path.count-1)]];
-    } else {
-        return message;
-    }
-}
-
 - (BOOL)pathStillValid {
     NSArray *currentLevel = [_sessions allValues];
     for (NSString *name in _secretMessagePath) {
@@ -592,16 +585,28 @@ static const double PRUNE = 30.0;
     _secretMessagePath = paths[arc4random() % paths.count];
 }
 
+- (NSData*)encryptMessageGivenPath:(NSData*)message andPath:(NSArray*)path {
+    if (path.count > 1) {
+        NSString *name = path.lastObject;
+        SecKeyRef key = [[self returnPeerGivenName:name] key];
+        NSArray *msg = @[@"Forward", name, [_appDelegate.cryptoManager encrypt:message WithPublicKey:key]];
+        NSLog(@"encryption: %@", msg);
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
+        return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(0, path.count-1)]];
+    } else {
+        return message;
+    }
+}
+
 - (void)sendMessageAlongPath:(NSData*)data {
     NSString *name = _secretMessagePath.firstObject;
     Peer *peer = [self returnPeerGivenName:name];
-    NSError *error;
     NSData *dataToSend = [self encryptMessageGivenPath:data andPath:_secretMessagePath];
-    NSLog(@"data to send:%@", dataToSend);
-    [peer.session sendData:dataToSend toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
-    if (error) {
-        NSLog(@"%@", error);
+    for (NSString *hop in _secretMessagePath) {
+        NSLog(@"%@", hop);
     }
+    NSLog(@"data to send:%@", dataToSend);
+    [self sendMessage:dataToSend toPeer:peer];
 }
 
 - (void)sendMessage:(Message*)message {
