@@ -375,12 +375,12 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
         NSArray *peerData = [data objectAtIndex:1];
         [self addPeerlist:peerData currentPeer:thisPeer];
+        [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+        [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
         if (_state == ProtestNetworkStateNotConnected) {
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
             }];
-            [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
-            [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
             _leadersPublicKey = thisPeer.leadersKey;
             _nameOfProtest = thisPeer.protestName;
             [self browse];
@@ -448,12 +448,8 @@ static const double PRUNE = 30.0;
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"Message"]) {
-        if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
-            /*
-             Checks to see if you sent a message that hasn't been propogated back to you yet. If it's not your message, then adds it to the buffer.
-             data representation: [@“”Message”, hash, userid, message, (signature)]
-             */
-            Message *thisMessage = [_allMessages objectForKey:[data objectAtIndex:1]];
+        if (_state == ProtestNetworkStateConnected) {
+            Message *thisMessage = [_allMessages objectForKey:data[1]];
             if (!thisMessage) {
                 Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
                 if ([data count] >= 5) {
@@ -466,8 +462,8 @@ static const double PRUNE = 30.0;
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     [_appDelegate.chatViewController addMessage:newMessage];
                 }];
-                for (Peer *peer in _sessions) {
-                    [self sendMessage:data toPeer:[_sessions objectForKey:peer]];
+                for (Peer *peer in [_sessions allValues]) {
+                    [self sendMessage:data toPeer:peer];
                 }
             }
             else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
@@ -477,7 +473,6 @@ static const double PRUNE = 30.0;
             else if (thisMessage) {
                 return;
             }
-            //[self forwardMessage:decryptedData];
         }
     }
     
