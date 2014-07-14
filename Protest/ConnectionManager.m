@@ -137,6 +137,8 @@ static const double PRUNE = 30.0;
                                                                  encryptionPreference:MCEncryptionNone]];
         newPeer.session.delegate = self;
         newPeer.peerID = peerID;
+        newPeer.displayName = peerID.displayName;
+        
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
         NSArray *publicKeyArray = @[[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
         NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
