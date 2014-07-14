@@ -89,6 +89,7 @@ static const double PRUNE = 30.0;
     _leadersPublicKey = _appDelegate.cryptoManager.publicKey;
     _peerID = [[MCPeerID alloc] initWithDisplayName:_userID];
     [self browse];
+    _state = ProtestNetworkStateConnected;
 }
 
 - (void)browse {
@@ -193,18 +194,18 @@ static const double PRUNE = 30.0;
     }
 }
 
-- (void)traversePeersHelper:(Peer*)peer func:(void (^)(Peer*))fn counter:(int)counter {
+- (void)traversePeersHelper:(Peer*)peer func:(void (^)(Peer*, Peer*))fn counter:(int)counter parent:(Peer*)parent {
     if (counter < 3) {
-        fn(peer);
+        fn(peer, parent);
         for (Peer *peersPeer in peer.peers) {
-            [self traversePeersHelper:peersPeer func:fn counter:counter+1];
+            [self traversePeersHelper:peersPeer func:fn counter:counter+1 parent:peer];
         }
     }
 }
 
-- (void)traversePeers:(void (^)(Peer*))fn { //applys fn to all peers up to 3 levels deep
+- (void)traversePeers:(void (^)(Peer*, Peer*))fn { //applys fn to all peers up to 3 levels deep
     for (Peer *peer in [_sessions allValues]) {
-        [self traversePeersHelper:peer func:fn counter:0];
+        [self traversePeersHelper:peer func:fn counter:0 parent:nil];
     }
 }
 
@@ -381,23 +382,28 @@ static const double PRUNE = 30.0;
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
-        if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
-            //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
+        //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
+        if (_state == ProtestNetworkStateConnected &&
+            [_sessions objectForKey:thisPeer.displayName] &&
+            ![_userID isEqualToString:data[1][0]] &&
+            ![_userID isEqualToString:data[2][0]])
+            {
             int counter = (int)[[data objectAtIndex:3] integerValue];
             if (counter < 3) {
-                [self traversePeers:^(Peer* peer){
-                    if ([peer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]] &&
-                        ![_userID isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]] &&
-                        ![_userID isEqualToString:[[data objectAtIndex:2] objectAtIndex:0]])
+                [self traversePeers:^(Peer* peer, Peer* parent){
+                    if ([peer.displayName isEqualToString:data[1][0]])
                     {
-                        for (Peer *peersPeer in peer.peers) {
-                            if ([peersPeer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
-                                return;
-                            }
+                        NSString *newPeerDisplayName = data[2][0];
+                        if (![parent.displayName isEqualToString:newPeerDisplayName]) {
+                            Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
+                            [peer.peers addObject:newPeer];
                         }
-                        NSString *newPeerDisplayName = [[data objectAtIndex:1] objectAtIndex:0];
-                        Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:[[data objectAtIndex:1] objectAtIndex:1] withTag:newPeerDisplayName]];
-                        [peer.peers addObject:newPeer];
+                    } else if ([peer.displayName isEqualToString:data[2][0]]) {
+                        NSString *newPeerDisplayName = data[1][0];
+                        if (![parent.displayName isEqualToString:newPeerDisplayName]) {
+                            Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
+                            [peer.peers addObject:newPeer];
+                        }
                     }
                 }];
                 if (counter < 2) {
@@ -414,10 +420,10 @@ static const double PRUNE = 30.0;
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
             int counter = (int)[[data objectAtIndex:2] integerValue];
             if (counter < 3) {
-                [self traversePeers:^(Peer* peer){
-                    if ([peer.displayName isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]&&
-                        ![_userID isEqualToString:[[data objectAtIndex:1] objectAtIndex:0]]) {
-                        NSString *peersDisplayName = [[data objectAtIndex:1] objectAtIndex:1];
+                [self traversePeers:^(Peer *peer, Peer *parent){
+                    if ([peer.displayName isEqualToString:data[1][0]] &&
+                        ![_userID isEqualToString:data[1][0]]) {
+                        NSString *peersDisplayName = data[1][1];
                         for (Peer *peersPeer in peer.peers) {
                             if ([peersPeer.displayName isEqualToString:peersDisplayName]) {
                                 [peer.peers removeObject:peersPeer];
