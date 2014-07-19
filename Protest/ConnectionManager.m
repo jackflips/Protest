@@ -289,6 +289,7 @@ static const double PRUNE = 30.0;
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
     if (error) {
         NSLog(@"%@", error);
+        
     }
 }
 
