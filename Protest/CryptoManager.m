@@ -199,6 +199,21 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     return plainText;
 }
 
+- (NSData *)encrypt:(NSData *)plainText password:(NSString *)password {
+    NSError *error;
+    return [RNEncryptor encryptData:plainText
+                                        withSettings:kRNCryptorAES256Settings
+                                            password:password
+                                               error:&error];
+}
+
+- (NSData *)decrypt:(NSData *)plainText password:(NSString *)password {
+    NSError *error;
+    return [RNDecryptor decryptData:plainText
+                                        withPassword:password
+                                               error:&error];
+}
+
 - (NSData*)getPublicKeyBitsFromKey:(SecKeyRef)givenKey {
     
     static const uint8_t publicKeyIdentifier[] = "com.your.company.publickey";

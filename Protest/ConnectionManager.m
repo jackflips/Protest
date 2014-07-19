@@ -285,7 +285,12 @@ static const double PRUNE = 30.0;
     } else if ([message isKindOfClass:[NSData class]]) {
         messageData = message;
     }
-    NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:key];
+    NSData *encryptedMessage;
+    if (peer.authenticated) {
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData password:peer.symmetricKey];
+    } else {
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:key];
+    }
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
     if (error) {
         NSLog(@"%@", error);
@@ -309,11 +314,16 @@ static const double PRUNE = 30.0;
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     NSLog(@"recieved message");
-    NSData *decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
-    NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-    NSLog(@"%@", data);
     Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
     if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
+    NSData *decryptedData;
+    if (thisPeer.authenticated) {
+        decryptedData = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+    } else {
+        decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
+    }
+    NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
+    NSLog(@"%@", data);
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
         thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
@@ -354,6 +364,7 @@ static const double PRUNE = 30.0;
                 if ([[data objectAtIndex:1] isEqualToString:_password]) {
                     thisPeer.displayName = thisPeer.peerID.displayName;
                     [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
+                    thisPeer.authenticated = YES;
                     [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                     [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
                     [self sendConnectEvent:thisPeer];
@@ -364,7 +375,9 @@ static const double PRUNE = 30.0;
                 thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:1]]];
                 NSLog(@"%@", thisPeer.symmetricKey);
                 thisPeer.displayName = thisPeer.peerID.displayName;
+                thisPeer.authenticated = YES;
                 [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
+                thisPeer.authenticated = YES;
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
                 [self sendConnectEvent:thisPeer];
@@ -388,6 +401,7 @@ static const double PRUNE = 30.0;
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
+        thisPeer.authenticated = YES;
         NSArray *peerData = [data objectAtIndex:1];
         [self addPeerlist:peerData currentPeer:thisPeer];
         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];

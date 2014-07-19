@@ -40,6 +40,8 @@
 
 - (NSData *)encrypt:(NSData *)plainText WithPublicKey:(SecKeyRef)publicKey;
 - (NSData *)decrypt:(NSData *)cipherText;
+- (NSData *)encrypt:(NSData *)plainText password:(NSString *)password;
+- (NSData *)decrypt:(NSData *)plainText password:(NSString *)password;
 - (NSData *)sign:(NSData *)plainText withKey:(SecKeyRef)key;
 - (OSStatus)verify:(NSData *)plainText withSignature:(NSData *)sig andKey:(SecKeyRef)key;
 
