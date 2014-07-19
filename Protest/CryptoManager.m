@@ -23,9 +23,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#import "WJLPkcsContext.h"
+#import "CryptoManager.h"
 
-@interface WJLPkcsContext ()
+@interface CryptoManager ()
 
 @property (readwrite, assign) SecKeyRef publicKey;
 @property (readwrite, assign) SecKeyRef privateKey;
@@ -80,7 +80,7 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     }
 }
 
-@implementation WJLPkcsContext
+@implementation CryptoManager
 
 - (instancetype)init
 {
@@ -89,6 +89,8 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     if (self) {
         [self generate];
     }
+    _AESEncyptor = [[RNEncryptor alloc] init];
+    _AESDecryptor = [[RNDecryptor alloc] init];
     
     return self;
 }

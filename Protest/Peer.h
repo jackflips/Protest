@@ -21,6 +21,8 @@
 @property (nonatomic) BOOL isClient;
 @property (nonatomic) SecKeyRef leadersKey;
 @property (nonatomic, strong) NSString *protestName;
+@property (nonatomic, strong) NSString *symmetricKeyFragment;
+@property (nonatomic, strong) NSString *symmetricKey;
 
 - (id)initWithSession:(MCSession*)session;
 - (id)initWithName:(NSString*)displayName andPublicKey:(SecKeyRef)key;

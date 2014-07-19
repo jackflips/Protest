@@ -7,10 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04AC4C14197A4A7E0020811E /* MimicManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AC4C13197A4A7E0020811E /* MimicManager.m */; };
+		04AC4C20197A4C9E0020811E /* RNCryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AC4C19197A4C9E0020811E /* RNCryptor.m */; };
+		04AC4C21197A4C9E0020811E /* RNCryptorEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AC4C1B197A4C9E0020811E /* RNCryptorEngine.m */; };
+		04AC4C22197A4C9E0020811E /* RNDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AC4C1D197A4C9E0020811E /* RNDecryptor.m */; };
+		04AC4C23197A4C9E0020811E /* RNEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AC4C1F197A4C9E0020811E /* RNEncryptor.m */; };
 		AD00E8B1193484170032B9CD /* blue_text_bubble@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD00E8AF193484170032B9CD /* blue_text_bubble@2x.png */; };
 		AD00E8B2193484170032B9CD /* blue_text_bubble.png in Resources */ = {isa = PBXBuildFile; fileRef = AD00E8B0193484170032B9CD /* blue_text_bubble.png */; };
 		AD0DF5E218F1F9CC00E0DE91 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD0DF5E118F1F9CC00E0DE91 /* MapKit.framework */; };
-		AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */; };
+		AD4B7BBD1913B95800EFED68 /* CryptoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BBC1913B95800EFED68 /* CryptoManager.m */; };
 		AD4B7BC31913CB2900EFED68 /* Message.m in Sources */ = {isa = PBXBuildFile; fileRef = AD4B7BC21913CB2900EFED68 /* Message.m */; };
 		AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */ = {isa = PBXBuildFile; fileRef = AD70ACC618FA257F00FBBEC8 /* Peer.m */; };
 		AD79606B192155B90022EA58 /* greendot.png in Resources */ = {isa = PBXBuildFile; fileRef = AD79606A192155B90022EA58 /* greendot.png */; };
@@ -109,11 +114,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04AC4C12197A4A7E0020811E /* MimicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MimicManager.h; sourceTree = "<group>"; };
+		04AC4C13197A4A7E0020811E /* MimicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MimicManager.m; sourceTree = "<group>"; };
+		04AC4C16197A4C9E0020811E /* RNCryptor+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RNCryptor+Private.h"; sourceTree = "<group>"; };
+		04AC4C17197A4C9E0020811E /* RNCryptor-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RNCryptor-Prefix.pch"; sourceTree = "<group>"; };
+		04AC4C18197A4C9E0020811E /* RNCryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNCryptor.h; sourceTree = "<group>"; };
+		04AC4C19197A4C9E0020811E /* RNCryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNCryptor.m; sourceTree = "<group>"; };
+		04AC4C1A197A4C9E0020811E /* RNCryptorEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNCryptorEngine.h; sourceTree = "<group>"; };
+		04AC4C1B197A4C9E0020811E /* RNCryptorEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNCryptorEngine.m; sourceTree = "<group>"; };
+		04AC4C1C197A4C9E0020811E /* RNDecryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNDecryptor.h; sourceTree = "<group>"; };
+		04AC4C1D197A4C9E0020811E /* RNDecryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNDecryptor.m; sourceTree = "<group>"; };
+		04AC4C1E197A4C9E0020811E /* RNEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNEncryptor.h; sourceTree = "<group>"; };
+		04AC4C1F197A4C9E0020811E /* RNEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNEncryptor.m; sourceTree = "<group>"; };
 		AD00E8AF193484170032B9CD /* blue_text_bubble@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "blue_text_bubble@2x.png"; sourceTree = "<group>"; };
 		AD00E8B0193484170032B9CD /* blue_text_bubble.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blue_text_bubble.png; sourceTree = "<group>"; };
 		AD0DF5E118F1F9CC00E0DE91 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
-		AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WJLPkcsContext.h; sourceTree = "<group>"; };
-		AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WJLPkcsContext.m; sourceTree = "<group>"; };
+		AD4B7BBB1913B95800EFED68 /* CryptoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptoManager.h; sourceTree = "<group>"; };
+		AD4B7BBC1913B95800EFED68 /* CryptoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptoManager.m; sourceTree = "<group>"; };
 		AD4B7BC11913CB2900EFED68 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		AD4B7BC21913CB2900EFED68 /* Message.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Message.m; sourceTree = "<group>"; };
 		AD70ACC518FA257E00FBBEC8 /* Peer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Peer.h; sourceTree = "<group>"; };
@@ -241,6 +258,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04AC4C15197A4C9E0020811E /* RNCryptor */ = {
+			isa = PBXGroup;
+			children = (
+				04AC4C16197A4C9E0020811E /* RNCryptor+Private.h */,
+				04AC4C17197A4C9E0020811E /* RNCryptor-Prefix.pch */,
+				04AC4C18197A4C9E0020811E /* RNCryptor.h */,
+				04AC4C19197A4C9E0020811E /* RNCryptor.m */,
+				04AC4C1A197A4C9E0020811E /* RNCryptorEngine.h */,
+				04AC4C1B197A4C9E0020811E /* RNCryptorEngine.m */,
+				04AC4C1C197A4C9E0020811E /* RNDecryptor.h */,
+				04AC4C1D197A4C9E0020811E /* RNDecryptor.m */,
+				04AC4C1E197A4C9E0020811E /* RNEncryptor.h */,
+				04AC4C1F197A4C9E0020811E /* RNEncryptor.m */,
+			);
+			path = RNCryptor;
+			sourceTree = "<group>";
+		};
 		AD79609B1921821F0022EA58 /* chat_icons */ = {
 			isa = PBXGroup;
 			children = (
@@ -365,6 +399,8 @@
 				ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */,
 				ADA5D01618F0B35E004CEE2C /* Images.xcassets */,
 				ADA5D00518F0B35E004CEE2C /* Supporting Files */,
+				04AC4C12197A4A7E0020811E /* MimicManager.h */,
+				04AC4C13197A4A7E0020811E /* MimicManager.m */,
 				ADA5D03318F0B3FF004CEE2C /* ConnectionManager.h */,
 				ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */,
 				AD70ACC518FA257E00FBBEC8 /* Peer.h */,
@@ -373,7 +409,7 @@
 				AD8D656118F1282800200485 /* ChatViewController.m */,
 				ADB8701A1966B91E001FC2A0 /* ProtestConfigurationViewController.h */,
 				ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */,
-				ADC7A76E194129090023FB97 /* RSA */,
+				ADC7A76E194129090023FB97 /* Crypto */,
 			);
 			path = Protest;
 			sourceTree = "<group>";
@@ -433,13 +469,14 @@
 			path = Protest/TPKeyboardAvoiding;
 			sourceTree = "<group>";
 		};
-		ADC7A76E194129090023FB97 /* RSA */ = {
+		ADC7A76E194129090023FB97 /* Crypto */ = {
 			isa = PBXGroup;
 			children = (
-				AD4B7BBB1913B95800EFED68 /* WJLPkcsContext.h */,
-				AD4B7BBC1913B95800EFED68 /* WJLPkcsContext.m */,
+				AD4B7BBB1913B95800EFED68 /* CryptoManager.h */,
+				AD4B7BBC1913B95800EFED68 /* CryptoManager.m */,
+				04AC4C15197A4C9E0020811E /* RNCryptor */,
 			);
-			name = RSA;
+			name = Crypto;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -605,19 +642,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04AC4C23197A4C9E0020811E /* RNEncryptor.m in Sources */,
 				ADA625CA1961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */,
 				ADA625C01961605800D31B7C /* DAKeyboardControl.m in Sources */,
 				ADB8701C1966B91E001FC2A0 /* ProtestConfigurationViewController.m in Sources */,
 				ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
 				ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */,
+				04AC4C21197A4C9E0020811E /* RNCryptorEngine.m in Sources */,
 				AD4B7BC31913CB2900EFED68 /* Message.m in Sources */,
 				ADA625CB1961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m in Sources */,
 				ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */,
-				AD4B7BBD1913B95800EFED68 /* WJLPkcsContext.m in Sources */,
+				04AC4C20197A4C9E0020811E /* RNCryptor.m in Sources */,
+				04AC4C14197A4A7E0020811E /* MimicManager.m in Sources */,
+				AD4B7BBD1913B95800EFED68 /* CryptoManager.m in Sources */,
 				AD8D656218F1282800200485 /* ChatViewController.m in Sources */,
 				ADA625CC1961F8E500D31B7C /* TPKeyboardAvoidingTableView.m in Sources */,
 				ADA5D00F18F0B35E004CEE2C /* AppDelegate.m in Sources */,
+				04AC4C22197A4C9E0020811E /* RNDecryptor.m in Sources */,
 				ADA5D00B18F0B35E004CEE2C /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

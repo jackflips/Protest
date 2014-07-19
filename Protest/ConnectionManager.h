@@ -10,7 +10,7 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "Peer.h"
-#import "WJLPkcsContext.h"
+#import "CryptoManager.h"
 #import "Message.h"
 #import "ProtestViewController.h"
 
@@ -31,7 +31,7 @@
 @property (nonatomic, assign) BOOL leader;
 @property (nonatomic, strong) NSMutableArray *currentRequestingPeers;
 @property (nonatomic, strong) NSMutableDictionary *allMessages;
-@property (nonatomic, strong) NSMutableString *userID;
+@property (nonatomic, strong) NSString *userID;
 @property (nonatomic, strong) NSString *password;
 @property (nonatomic, strong) NSString *nameOfProtest;
 @property (nonatomic, strong) NSMutableDictionary *foundProtests;

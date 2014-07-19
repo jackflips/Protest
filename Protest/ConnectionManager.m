@@ -37,14 +37,18 @@ static const double PRUNE = 30.0;
         _state = ProtestNetworkStateNotConnected;
         
         //create random username
-        _userID = [[NSMutableString alloc] init];
-        NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        for (int i=0; i<12; i++) {
-            [_userID appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform((u_int32_t)[letters length]) % [letters length]]];
-        }
-        NSLog(@"userid: %@", _userID);
+        _userID = [self randomString:12];
     }
     return self;
+}
+
+- (NSString*)randomString:(int)length {
+    NSMutableString *str = [[NSMutableString alloc] init];
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for (int i=0; i<length; i++) {
+        [str appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform((u_int32_t)[letters length]) % [letters length]]];
+    }
+    return str;
 }
 
 - (void)disconnectFromPeers {
@@ -117,11 +121,14 @@ static const double PRUNE = 30.0;
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password {
     for (NSString *displayName in _foundProtests) {
         if ([[[_foundProtests objectForKey:displayName] protestName] isEqualToString:protestName]) {
+            Peer *peer = [_foundProtests objectForKey:displayName];
+            NSString *keyFrag2 = [self randomString:32];
+            peer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", peer.symmetricKeyFragment, keyFrag2]];
             if (password) {
-                [self sendMessage:@[@"WantsToConnect", password] toPeer:[_foundProtests objectForKey:displayName]];
+                [self sendMessage:@[@"WantsToConnect", password, keyFrag2] toPeer:peer];
                 _password = password;
             } else {
-                [self sendMessage:@[@"WantsToConnect"] toPeer:[_foundProtests objectForKey:displayName]];
+                [self sendMessage:@[@"WantsToConnect", keyFrag2] toPeer:peer];
             }
         }
     }
@@ -312,17 +319,21 @@ static const double PRUNE = 30.0;
         BOOL isPassword = NO;
         if (_password) isPassword = YES;
         NSData *leadersKeyData = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
-        NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData];
+        thisPeer.symmetricKeyFragment = [self randomString:32];
+        NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData, thisPeer.symmetricKeyFragment];
         [self sendMessage:handshake2 toPeer:thisPeer];
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
         if ([_foundProtests objectForKey:thisPeer.displayName]) {
+            thisPeer.symmetricKeyFragment = [data objectAtIndex:4];
             if (_nameOfProtest
                 && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
                 && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
             {
-                [self sendMessage:@[@"WantsToConnect", _password] toPeer:[_foundProtests objectForKey:thisPeer.peerID.displayName]];
+                NSString *keyFrag2 = [self randomString:32];
+                thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, keyFrag2]];
+                [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.peerID.displayName]];
             }
             else {
                 thisPeer.protestName = [data objectAtIndex:1];
@@ -338,6 +349,7 @@ static const double PRUNE = 30.0;
     if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
         if ([_foundProtests objectForKey:thisPeer.displayName]) {
             if (_password) {
+                thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:2]]];
                 if ([[data objectAtIndex:1] isEqualToString:_password]) {
                     thisPeer.displayName = thisPeer.peerID.displayName;
                     [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
@@ -348,6 +360,8 @@ static const double PRUNE = 30.0;
                     [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
                 }
             } else {
+                thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:1]]];
+                NSLog(@"%@", thisPeer.symmetricKey);
                 thisPeer.displayName = thisPeer.peerID.displayName;
                 [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                 [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];

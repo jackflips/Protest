@@ -23,10 +23,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-@interface WJLPkcsContext : NSObject
+#import "RNEncryptor.h"
+#import "RNDecryptor.h"
+
+@interface CryptoManager : NSObject
 
 @property (readonly, assign) SecKeyRef publicKey;
 @property (readonly, assign) SecKeyRef privateKey;
+@property (strong, nonatomic) RNEncryptor *AESEncyptor;
+@property (strong, nonatomic) RNDecryptor *AESDecryptor;
 
 
 - (SecKeyRef)getPublicKeyReference:(NSString*)peerName;

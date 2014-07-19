@@ -50,12 +50,12 @@
     
     [self registerForKeyboardNotifications];
     
-    [self addMessage:[[Message alloc] initWithMessage:@"Apparently there are a lot of cops at 12th and 3rd" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"a roadblock" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"We should turn." uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Let's go right on 15th" uID:@"2" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Yes! Right on 15th. Let's pack up the pace and stay loud!" uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"pick*" uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Is this a test?" uID:@"0" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Yep" uID:@"1" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Yes." uID:@"2" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Of course it is." uID:@"3" fromLeader:NO]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Just a test." uID:@"4" fromLeader:YES]];
+    [self addMessage:[[Message alloc] initWithMessage:@"Test test test" uID:@"5" fromLeader:NO]];
     
     _toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f,
                                                                      self.view.bounds.size.height - 40.0f,
