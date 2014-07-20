@@ -288,9 +288,12 @@ static const double PRUNE = 30.0;
     if (peer.authenticated) {
         int messageLength = messageData.length;
         NSData *prefix = [NSData dataWithBytes:&messageLength length: sizeof(messageLength)];
+        int g;
+        [prefix getBytes:&g range:NSMakeRange(0, sizeof(int))];
         NSMutableData *newMessageData = [NSMutableData data];
         [newMessageData appendData:prefix];
         [newMessageData appendData:messageData];
+        
         while (newMessageData.length < 2000) {
             u_int8_t new;
             [newMessageData appendBytes:&new length:1];
@@ -327,12 +330,27 @@ static const double PRUNE = 30.0;
     NSData *decryptedData;
     @try {
         if (thisPeer.authenticated) {
+            
+            Byte prefix[4];
+            Byte data[2000];
+            [messageData getBytes:data length:2000];
+            for (int i=0; i<4; i++) {
+                prefix[i] = data[i];
+            }
+            NSData *prefixData = [NSData dataWithBytes:prefix length:4];
             int messageLength;
-            [messageData getBytes:&messageLength length:sizeof(int)];
+            [prefixData getBytes:&messageLength length:4];
+            NSLog(@"%d", messageLength);
+            
+            
+            /*
+            int messageLength;
+            [messageData getBytes:&messageLength length:sizeof(messageLength)];
             Byte *tmp = malloc(messageLength);
             [messageData getBytes:tmp range:NSMakeRange(3, messageLength)];
             NSData *newMessageData = [NSData dataWithBytes:tmp length:messageLength];
             decryptedData = [_appDelegate.cryptoManager decrypt:newMessageData password:thisPeer.symmetricKey];
+             */
         } else {
             decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         }
