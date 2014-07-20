@@ -297,7 +297,7 @@ static const double PRUNE = 30.0;
             newMessageData[i] = garbage;
         }
     }
-    return [NSData dataWithBytes:newMessageData length:messageLength];
+    return [NSData dataWithBytes:newMessageData length:kLength];
 }
 
 - (void)sendMessage:(id)message toPeer:(Peer*)peer {
@@ -349,7 +349,7 @@ static const double PRUNE = 30.0;
             [decryptedBytes getBytes:&messageLength length:4];
             if (messageLength <= 1996) {
                 Byte bytes[messageLength];
-                [decryptedBytes getBytes:bytes range:NSMakeRange(3, messageLength)];
+                [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
                 decryptedData = [NSData dataWithBytes:bytes length:messageLength];
             }
         } else {
