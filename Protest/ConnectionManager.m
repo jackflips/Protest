@@ -21,6 +21,7 @@ static const double PRUNE = 30.0;
     self = [super init];
     
     if (self) {
+        srand(time(NULL));
         _session = nil;
         _peerID = nil;
         _browser = nil;
@@ -276,6 +277,29 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (NSData*)padMessage:(NSData*)message lengthToPadTo:(int)kLength {
+    int messageLength = message.length;
+    NSData *prefix = [NSData dataWithBytes:&messageLength length: sizeof(int)];
+    u_int8_t prefixData[sizeof(int)];
+    [prefix getBytes:prefixData length:sizeof(int)];
+    Byte bytes[messageLength];
+    [message getBytes:bytes length:messageLength];
+    
+    u_int8_t newMessageData[kLength];
+    for (int i=0; i<kLength; i++) {
+        if (i<4) {
+            newMessageData[i] = prefixData[i];
+        } else if (i < messageLength + 4) {
+            newMessageData[i] = bytes[i-4];
+        }
+        else {
+            u_int8_t garbage = rand() % 256;
+            newMessageData[i] = garbage;
+        }
+    }
+    return [NSData dataWithBytes:newMessageData length:messageLength];
+}
+
 - (void)sendMessage:(id)message toPeer:(Peer*)peer {
     NSError *error;
     NSData *messageData;
@@ -286,18 +310,7 @@ static const double PRUNE = 30.0;
     }
     NSData *encryptedMessage;
     if (peer.authenticated) {
-        int messageLength = messageData.length;
-        NSData *prefix = [NSData dataWithBytes:&messageLength length: sizeof(messageLength)];
-        int g;
-        [prefix getBytes:&g range:NSMakeRange(0, sizeof(int))];
-        NSMutableData *newMessageData = [NSMutableData data];
-        [newMessageData appendData:prefix];
-        [newMessageData appendData:messageData];
-        
-        while (newMessageData.length < 2000) {
-            u_int8_t new;
-            [newMessageData appendBytes:&new length:1];
-        }
+        NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
         encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
     } else {
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
@@ -328,39 +341,27 @@ static const double PRUNE = 30.0;
     Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
     if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
     NSData *decryptedData;
+    NSArray *data;
     @try {
         if (thisPeer.authenticated) {
-            
-            Byte prefix[4];
-            Byte data[2000];
-            [messageData getBytes:data length:2000];
-            for (int i=0; i<4; i++) {
-                prefix[i] = data[i];
+            NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+            int messageLength;
+            [decryptedBytes getBytes:&messageLength length:4];
+            if (messageLength <= 1996) {
+                Byte bytes[messageLength];
+                [decryptedBytes getBytes:bytes range:NSMakeRange(3, messageLength)];
+                decryptedData = [NSData dataWithBytes:bytes length:messageLength];
             }
-            NSData *prefixData = [NSData dataWithBytes:prefix length:4];
-            int messageLength;
-            [prefixData getBytes:&messageLength length:4];
-            NSLog(@"%d", messageLength);
-            
-            
-            /*
-            int messageLength;
-            [messageData getBytes:&messageLength length:sizeof(messageLength)];
-            Byte *tmp = malloc(messageLength);
-            [messageData getBytes:tmp range:NSMakeRange(3, messageLength)];
-            NSData *newMessageData = [NSData dataWithBytes:tmp length:messageLength];
-            decryptedData = [_appDelegate.cryptoManager decrypt:newMessageData password:thisPeer.symmetricKey];
-             */
         } else {
             decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         }
+        data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
+        NSLog(@"%@", data);
     }
     @catch (NSException *exception) {
         NSLog(@"%@", exception);
         return;
     }
-    NSArray *data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-    NSLog(@"%@", data);
     
     if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
         thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
