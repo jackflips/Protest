@@ -327,7 +327,12 @@ static const double PRUNE = 30.0;
     NSData *decryptedData;
     @try {
         if (thisPeer.authenticated) {
-            decryptedData = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+            int messageLength;
+            [messageData getBytes:&messageLength length:sizeof(int)];
+            Byte *tmp = malloc(messageLength);
+            [messageData getBytes:tmp range:NSMakeRange(3, messageLength)];
+            NSData *newMessageData = [NSData dataWithBytes:tmp length:messageLength];
+            decryptedData = [_appDelegate.cryptoManager decrypt:newMessageData password:thisPeer.symmetricKey];
         } else {
             decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         }
