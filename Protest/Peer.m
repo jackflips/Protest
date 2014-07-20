@@ -21,6 +21,7 @@
     _session = session;
     _peers = [NSMutableArray array];
     _age = CFAbsoluteTimeGetCurrent();
+    _authenticated = NO;
     return self;
 }
 
@@ -30,6 +31,7 @@
     _age = CFAbsoluteTimeGetCurrent();
     _displayName = displayName;
     _key = key;
+    _authenticated = NO;
     return self;
 }
 
