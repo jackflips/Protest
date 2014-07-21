@@ -39,6 +39,11 @@
     self = [super init];
     _connectionManager = manager;
     _peer = peer;
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        [runLoop addTimer:timer1 forMode:NSDefaultRunLoopMode];
+    }];
     return self;
 }
 

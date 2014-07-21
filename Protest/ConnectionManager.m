@@ -467,9 +467,9 @@ static const double PRUNE = 30.0;
     
     if ([[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
         if (thisPeer.mimicManager) {
-            [self firstMimic:thisPeer];
-        } else {
             [thisPeer.mimicManager recievedMimic];
+        } else {
+            [self firstMimic:thisPeer];
         }
     }
     
