@@ -387,7 +387,7 @@ static const double PRUNE = 30.0;
         [self sendMessage:handshake2 toPeer:thisPeer];
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
         if ([_foundProtests objectForKey:thisPeer.displayName]) {
             thisPeer.symmetricKeyFragment = [data objectAtIndex:4];
             if (_nameOfProtest
@@ -409,7 +409,7 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
         if ([_foundProtests objectForKey:thisPeer.displayName]) {
             if (!_password || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
                 thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:1]]];
@@ -424,7 +424,7 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
         if (_state == ProtestNetworkStateNotConnected) {
             [_appDelegate.viewController reset];
             [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
@@ -439,7 +439,7 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
         NSArray *peerData = [data objectAtIndex:1];
         [self addPeerlist:peerData currentPeer:thisPeer];
         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
@@ -457,13 +457,13 @@ static const double PRUNE = 30.0;
         thisPeer.authenticated = YES;
     }
     
-    if ([([data objectAtIndex:0]) isEqualToString:@"Ack"]) {
+    else if ([([data objectAtIndex:0]) isEqualToString:@"Ack"]) {
         thisPeer.authenticated = YES;
         [self sendConnectEvent:thisPeer];
         [self startMimicTraffic:thisPeer];
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
         if (thisPeer.mimicManager) {
             [thisPeer.mimicManager recievedMimic];
         } else {
@@ -471,7 +471,7 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
         //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
         if (_state == ProtestNetworkStateConnected &&
             [_sessions objectForKey:thisPeer.displayName] &&
@@ -505,7 +505,7 @@ static const double PRUNE = 30.0;
         }
     }
     
-    if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
+    else if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
         //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
             int counter = (int)[[data objectAtIndex:2] integerValue];
@@ -562,6 +562,27 @@ static const double PRUNE = 30.0;
     else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
             [self sendMessageWithoutEncrypting:data[2] toPeer:[self returnPeerGivenName:data[1]]];
+        }
+    }
+    
+    else if ([[data objectAtIndex:0] isEqualToString:@"Census"]) {
+        NSNumber *counter = [data objectAtIndex:1];
+        if (_leader == NO) {
+            NSUInteger randomIndex = arc4random() % [[_sessions allValues] count];
+            Peer *peer = [[_sessions allValues] objectAtIndex:randomIndex];
+            [self sendMessage:@[@"Census", @([counter intValue] + 1)] toPeer:peer];
+        } else {
+            [self censusReturned:[counter intValue]];
+        }
+    }
+    
+    else if ([[data objectAtIndex:0] isEqualToString:@"CensusReport"]) {
+        int newNetworkSize = [[data objectAtIndex:1] intValue];
+        if (networkSize != newNetworkSize) {
+            networkSize = newNetworkSize;
+            for (Peer *peer in [_sessions allValues]) {
+                [self sendMessage:data toPeer:peer];
+            }
         }
     }
 }
@@ -737,6 +758,21 @@ static const double PRUNE = 30.0;
         [self generateNewPath];
         [self sendMessageAlongPath:data];
     }
+}
+
+- (void)conductCensus {
+    NSUInteger randomIndex = arc4random() % [[_sessions allValues] count];
+    Peer *peer = [[_sessions allValues] objectAtIndex:randomIndex];
+    [self sendMessage:@[@"Census", [NSNumber numberWithInt:0]] toPeer:peer];
+    censusOut = YES;
+}
+
+- (void)censusReturned:(int)counter {
+    networkSize = (networkSize + counter)/2;
+    for (Peer *peer in [_sessions allValues]) {
+        [self sendMessage:@[@"CensusReport", [NSNumber numberWithInt:networkSize]] toPeer:peer];
+    }
+    [self conductCensus];
 }
 
 @end

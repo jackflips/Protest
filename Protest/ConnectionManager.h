@@ -20,6 +20,8 @@
         ProtestNetworkStateNotConnected,
         ProtestNetworkStateConnected,
     };
+    BOOL censusOut;
+    int networkSize;
 }
 
 @property (nonatomic, strong) MCPeerID *peerID;

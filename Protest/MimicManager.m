@@ -39,8 +39,8 @@
     _peer = peer;
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-        NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
-        [runLoop addTimer:timer1 forMode:NSDefaultRunLoopMode];
+        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
     }];
     return self;
 }
@@ -60,9 +60,9 @@
 - (void)recievedMimic {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         float interval = [self randomFloatBetween:.1 and:.35];
-        NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
         NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-        [runLoop addTimer:timer1 forMode:NSDefaultRunLoopMode];
+        [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
     }];
 }
 
