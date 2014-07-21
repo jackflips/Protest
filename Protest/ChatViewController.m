@@ -102,8 +102,13 @@
 
 -(void)textFieldDidChange :(UITextField *)theTextField{
     if ([theTextField.text length] > 0) {
-        [_sendButton setTitleColor:[UIColor colorWithRed:0 green:0.478431 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
-        [_sendButton setEnabled:YES];
+        if ([theTextField.text length] > 650) {
+            [_sendButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+            [_sendButton setEnabled:NO];
+        } else {
+            [_sendButton setTitleColor:[UIColor colorWithRed:0 green:0.478431 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
+            [_sendButton setEnabled:YES];
+        }
     } else {
         [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
         [_sendButton setEnabled:NO];

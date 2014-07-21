@@ -249,11 +249,13 @@ static const double PRUNE = 30.0;
 - (NSArray*)getPeerlist {
     NSMutableArray *peerlist = [NSMutableArray array];
     for (Peer *peer in [_sessions allValues]) {
-        [peerlist addObject:@[peer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]]];
-        for (Peer *peersPeer in peer.peers) {
-            [peerlist addObject:@[peersPeer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peersPeer.key]]];
+        if (peer.authenticated) {
+            [peerlist addObject:@[peer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]]];
+            for (Peer *peersPeer in peer.peers) {
+                [peerlist addObject:@[peersPeer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peersPeer.key]]];
+            }
+            [peerlist addObject:@[@"stop"]];
         }
-        [peerlist addObject:@[@"stop"]];
     }
     return peerlist;
 }
@@ -304,12 +306,18 @@ static const double PRUNE = 30.0;
     NSError *error;
     NSData *messageData;
     if ([message isKindOfClass:[NSArray class]]) {
+        for (id __strong thing in message) {
+            if ([thing isKindOfClass:[NSString class]]) {
+                thing = [thing dataUsingEncoding:NSUTF8StringEncoding];
+            }
+        }
         messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
     } else if ([message isKindOfClass:[NSData class]]) {
         messageData = message;
     }
     NSData *encryptedMessage;
     if (peer.authenticated) {
+        NSLog(@"length of message: %lu", (unsigned long)messageData.length);
         NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
         encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
     } else {
@@ -643,7 +651,10 @@ static const double PRUNE = 30.0;
 
 - (NSArray*)findAllPathsThroughPeerTree {
     NSMutableArray *paths = [NSMutableArray array];
-    [self findAllPathsThroughPeerTreeHelper:[_sessions allValues] andWorkingPath:[NSMutableArray array] paths:paths];
+    NSArray *validPeers = [[_sessions allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+        return [object authenticated] == YES;
+    }]];
+    [self findAllPathsThroughPeerTreeHelper:validPeers andWorkingPath:[NSMutableArray array] paths:paths];
     int highestCount = 0;
     for (NSArray *path in paths) {
         if (path.count > highestCount) highestCount = (int)path.count;
