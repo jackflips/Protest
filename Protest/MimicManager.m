@@ -23,9 +23,15 @@
     self = [super init];
     _connectionManager = manager;
     _peer = peer;
-    [NSTimer scheduledTimerWithTimeInterval:.2 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
-    [NSTimer scheduledTimerWithTimeInterval:.4 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
-    [NSTimer scheduledTimerWithTimeInterval:.8 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        [runLoop addTimer:timer1 forMode:NSDefaultRunLoopMode];
+        NSTimer *timer2 = [NSTimer scheduledTimerWithTimeInterval:.4 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        [runLoop addTimer:timer2 forMode:NSDefaultRunLoopMode];
+        NSTimer *timer3 = [NSTimer scheduledTimerWithTimeInterval:.8 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        [runLoop addTimer:timer3 forMode:NSDefaultRunLoopMode];
+    }];
     return self;
 }
 
@@ -42,12 +48,19 @@
 }
 
 - (void)sendMimicTraffic {
-    [_connectionManager sendMessage:@[@"Mimic"] toPeer:_peer];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSLog(@"sending mimic");
+        [_connectionManager sendMessage:@[@"Mimic"] toPeer:_peer];
+    }];
 }
 
 - (void)recievedMimic {
-    float interval = [self randomFloatBetween:.1 and:.35];
-    [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        float interval = [self randomFloatBetween:.1 and:.35];
+        NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        [runLoop addTimer:timer1 forMode:NSDefaultRunLoopMode];
+    }];
 }
 
 @end
