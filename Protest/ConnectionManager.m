@@ -246,6 +246,14 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (void)startMimicTraffic:(Peer*)peer {
+    peer.mimicManager = [[MimicManager alloc] initAndSendMimicWithConnectionManager:self andPeer:peer];
+}
+
+- (void)firstMimic:(Peer*)peer {
+    peer.mimicManager = [[MimicManager alloc] initWithConnectionManager:self andPeer:peer];
+}
+
 - (NSArray*)getPeerlist {
     NSMutableArray *peerlist = [NSMutableArray array];
     for (Peer *peer in [_sessions allValues]) {
@@ -454,6 +462,15 @@ static const double PRUNE = 30.0;
     if ([([data objectAtIndex:0]) isEqualToString:@"Ack"]) {
         thisPeer.authenticated = YES;
         [self sendConnectEvent:thisPeer];
+        [self startMimicTraffic:thisPeer];
+    }
+    
+    if ([[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
+        if (thisPeer.mimicManager) {
+            [self firstMimic:thisPeer];
+        } else {
+            [thisPeer.mimicManager recievedMimic];
+        }
     }
     
     if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {

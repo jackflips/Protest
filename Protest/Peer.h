@@ -6,6 +6,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
+#import "MimicManager.h"
 
 @interface Peer : NSObject
 
@@ -23,6 +24,7 @@
 @property (nonatomic, strong) NSString *protestName;
 @property (nonatomic, strong) NSString *symmetricKeyFragment;
 @property (nonatomic, strong) NSString *symmetricKey;
+@property (nonatomic, strong) MimicManager *mimicManager;
 
 - (id)initWithSession:(MCSession*)session;
 - (id)initWithName:(NSString*)displayName andPublicKey:(SecKeyRef)key;

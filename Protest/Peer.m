@@ -5,6 +5,11 @@
 //
 
 #import "Peer.h"
+#import "MimicManager.h"
+
+@interface Peer()
+
+@end
 
 @implementation Peer
 
