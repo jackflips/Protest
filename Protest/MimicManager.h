@@ -9,9 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MimicManager : NSObject {
-    NSTimer *timer;
-}
+@interface MimicManager : NSObject 
 
 - (id)initAndSendMimicWithConnectionManager:(id)manager andPeer:(id)peer;
 - (id)initWithConnectionManager:(id)manager andPeer:(id)peer;

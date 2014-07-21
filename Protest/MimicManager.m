@@ -25,12 +25,10 @@
     _peer = peer;
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-        NSTimer *timer1 = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
-        [runLoop addTimer:timer1 forMode:NSDefaultRunLoopMode];
-        NSTimer *timer2 = [NSTimer scheduledTimerWithTimeInterval:.4 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
-        [runLoop addTimer:timer2 forMode:NSDefaultRunLoopMode];
-        NSTimer *timer3 = [NSTimer scheduledTimerWithTimeInterval:.8 target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
-        [runLoop addTimer:timer3 forMode:NSDefaultRunLoopMode];
+        for (int i=0; i<6; i++) {
+            NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:(.1 * (i+1)) target:self selector:@selector(sendMimicTraffic) userInfo:nil repeats:NO];
+            [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
+        }
     }];
     return self;
 }

@@ -325,7 +325,6 @@ static const double PRUNE = 30.0;
     }
     NSData *encryptedMessage;
     if (peer.authenticated) {
-        NSLog(@"length of message: %lu", (unsigned long)messageData.length);
         NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
         encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
     } else {
@@ -334,7 +333,6 @@ static const double PRUNE = 30.0;
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
     if (error) {
         NSLog(@"%@", error);
-        
     }
 }
 
