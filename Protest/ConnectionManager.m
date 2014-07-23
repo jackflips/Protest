@@ -36,9 +36,13 @@ static const double PRUNE = 30.0;
         _foundProtests = [NSMutableDictionary dictionary];
         _secretMessagePath = [NSMutableArray array];
         _state = ProtestNetworkStateNotConnected;
+        DIAGNOSTIC_ADDRESS =  @"http://107.170.255.118:8000";
         
         //create random username
         _userID = [self randomString:12];
+        
+        [self sendDiagnosticMessage:[NSString stringWithFormat:@"event=connection&peer=%@&connectedpeer=%@", _userID, @"123"]];
+        
     }
     return self;
 }
@@ -57,6 +61,25 @@ static const double PRUNE = 30.0;
         Peer *peer = [_sessions objectForKey:key];
         [peer.session disconnect];
     }
+}
+
+- (void)sendDiagnosticMessage:(NSString*)requestData {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:
+                             [NSURL URLWithString:DIAGNOSTIC_ADDRESS]];
+    
+    [request setHTTPMethod:@"POST"];
+    NSString *postString = requestData;
+    [request setHTTPBody:[postString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response,
+                                               NSData *data,
+                                               NSError *connectionError) {
+                               if (connectionError) {
+                                   NSLog(@"error: %@", connectionError);
+                               }
+                           }];
 }
 
 - (void)testMessageSending {
@@ -191,6 +214,9 @@ static const double PRUNE = 30.0;
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     } else if (state == MCSessionStateNotConnected) {
+        if (_appDelegate.DIAGNOSTIC_MODE) {
+            [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=connection&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, peerID.displayName]];
+        }
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
         else peer = [_sessions objectForKey:peerID.displayName];
@@ -208,6 +234,8 @@ static const double PRUNE = 30.0;
         }
     }
 }
+
+
 
 - (void)traversePeersHelper:(Peer*)peer func:(void (^)(Peer*, Peer*))fn counter:(int)counter parent:(Peer*)parent {
     if (counter < 3) {
@@ -455,6 +483,7 @@ static const double PRUNE = 30.0;
             [self browse];
             _state = ProtestNetworkStateConnected;
         }
+        [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=connected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
         [self sendMessage:@[@"Ack"] toPeer:thisPeer];
         thisPeer.authenticated = YES;
     }
@@ -508,6 +537,7 @@ static const double PRUNE = 30.0;
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
+        [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
         //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
             int counter = (int)[[data objectAtIndex:2] integerValue];

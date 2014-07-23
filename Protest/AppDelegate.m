@@ -15,6 +15,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     _cryptoManager = [[CryptoManager alloc] init];
+    _DIAGNOSTIC_MODE = YES;
     return YES;
 }
 

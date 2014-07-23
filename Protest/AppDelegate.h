@@ -21,6 +21,7 @@
 @property (strong, nonatomic) ChatViewController *chatViewController;
 @property (strong, nonatomic) ProtestViewController *viewController;
 @property (strong, nonatomic) CryptoManager *cryptoManager;
+@property (nonatomic) BOOL DIAGNOSTIC_MODE;
 
 -(void)addMessageToChat:(Message*)message;
 

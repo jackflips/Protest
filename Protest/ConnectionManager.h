@@ -22,6 +22,7 @@
     };
     BOOL censusOut;
     int networkSize;
+    NSString *DIAGNOSTIC_ADDRESS;
 }
 
 @property (nonatomic, strong) MCPeerID *peerID;
