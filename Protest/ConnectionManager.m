@@ -214,6 +214,9 @@ static const double PRUNE = 30.0;
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     } else if (state == MCSessionStateNotConnected) {
+        if (_appDelegate.DIAGNOSTIC_MODE) {
+            [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, peerID.displayName]];
+        }
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
         else peer = [_sessions objectForKey:peerID.displayName];
@@ -533,7 +536,6 @@ static const double PRUNE = 30.0;
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
-        [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
         //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
             int counter = (int)[[data objectAtIndex:2] integerValue];
