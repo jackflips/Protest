@@ -757,18 +757,18 @@ static const double PRUNE = 30.0;
     NSString *name = _secretMessagePath.firstObject;
     Peer *peer = [self returnPeerGivenName:name];
     NSData *dataToSend = [self encryptMessageGivenPath:data andPath:_secretMessagePath];
+    NSLog(@"true path:");
     for (NSString *hop in _secretMessagePath) {
         NSLog(@"%@", hop);
     }
-    NSLog(@"data to send:%@", dataToSend);
     [self sendMessage:dataToSend toPeer:peer];
 }
 
 - (void)sendMessage:(Message*)message {
+    NSLog(@"current peers:");
     [self printSessions];
     NSString *time = [self getTimeString];
     NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
-    NSLog(@"%@", toHash);
     NSString *hash = [self MD5:toHash];
     [_allMessages setObject:message forKey:hash];
     NSArray *messageToSend;
