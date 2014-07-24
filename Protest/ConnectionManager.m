@@ -394,7 +394,7 @@ static const double PRUNE = 30.0;
                 [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
                 decryptedData = [NSData dataWithBytes:bytes length:messageLength];
              */
-            decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
+            decryptedData = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
         } else {
             decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         }
