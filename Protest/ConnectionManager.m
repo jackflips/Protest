@@ -376,7 +376,6 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
-    NSLog(@"recieved message");
     Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
     if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
     NSData *decryptedData;
