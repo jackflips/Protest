@@ -533,7 +533,7 @@ static const double PRUNE = 30.0;
     }
     
     else if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
-        [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
+        [self sendDiagnosticMessage:[NSString stringWithFormat:@"event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
         //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
             int counter = (int)[[data objectAtIndex:2] integerValue];
