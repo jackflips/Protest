@@ -41,7 +41,7 @@ static const double PRUNE = 30.0;
         //create random username
         _userID = [self randomString:12];
         
-        [self sendDiagnosticMessage:[NSString stringWithFormat:@"event=connection&peer=%@&connectedpeer=%@", _userID, @"123"]];
+        //[self sendDiagnosticMessage:[NSString stringWithFormat:@"event=connection&peer=%@&connectedpeer=%@", _userID, @"123"]];
         
     }
     return self;
