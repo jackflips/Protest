@@ -353,8 +353,8 @@ static const double PRUNE = 30.0;
     }
     NSData *encryptedMessage;
     if (peer.authenticated) {
-        NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
-        encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
+        //NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData password:peer.symmetricKey];
     } else {
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
@@ -385,6 +385,7 @@ static const double PRUNE = 30.0;
     NSArray *data;
     @try {
         if (thisPeer.authenticated) {
+            /*
             NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
             int messageLength;
             [decryptedBytes getBytes:&messageLength length:4];
@@ -392,7 +393,8 @@ static const double PRUNE = 30.0;
                 Byte bytes[messageLength];
                 [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
                 decryptedData = [NSData dataWithBytes:bytes length:messageLength];
-            }
+             */
+            decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         } else {
             decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         }
@@ -745,7 +747,6 @@ static const double PRUNE = 30.0;
         NSString *name = path.lastObject;
         SecKeyRef key = [[self returnPeerGivenName:name] key];
         NSArray *msg = @[@"Forward", name, [_appDelegate.cryptoManager encrypt:message WithPublicKey:key]];
-        NSLog(@"encryption: %@", msg);
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
         return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(0, path.count-1)]];
     } else {
