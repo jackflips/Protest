@@ -52,7 +52,6 @@
 
 - (void)sendMimicTraffic {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSLog(@"sending mimic");
         [_connectionManager sendMessage:@[@"Mimic"] toPeer:_peer];
     }];
 }
