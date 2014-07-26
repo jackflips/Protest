@@ -410,6 +410,7 @@ static const double PRUNE = 30.0;
                 NSLog(@"%@", data);
             }
             */
+            NSLog(@"%@", data[0]);
         }
         @catch (NSException *exception) {
             NSLog(@"%@", exception);
