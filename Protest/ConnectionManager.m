@@ -379,255 +379,260 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
-    Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
-    if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
-    NSData *decryptedData;
-    NSArray *data;
     @try {
-        if (thisPeer.authenticated) {
-            NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
-            int messageLength;
-            [decryptedBytes getBytes:&messageLength length:4];
-            if (messageLength <= 1996) {
-                Byte bytes[messageLength];
-                [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
-                decryptedData = [NSData dataWithBytes:bytes length:messageLength];
-            }
-        } else {
-            decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
-        }
+        Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
+        if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
+        NSData *decryptedData;
+        NSArray *data;
         @try {
+            if (thisPeer.authenticated) {
+                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+                int messageLength;
+                [decryptedBytes getBytes:&messageLength length:4];
+                if (messageLength <= 1996) {
+                    Byte bytes[messageLength];
+                    [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
+                    decryptedData = [NSData dataWithBytes:bytes length:messageLength];
+                }
+            } else {
+                decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
+            }
+            @try {
+                data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
+            }
+            @catch (NSException *exception) {
+                decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
+            }
             data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
+            /*
+            if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
+                NSLog(@"%@", data);
+            }
+            */
         }
         @catch (NSException *exception) {
-            decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
+            NSLog(@"%@", exception);
+            return;
         }
-        data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-        /*
-        if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
-            NSLog(@"%@", data);
+        
+        if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
+            thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
+            BOOL isPassword = NO;
+            if (_password) isPassword = YES;
+            NSData *leadersKeyData = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
+            thisPeer.symmetricKeyFragment = [self randomString:32];
+            NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData, thisPeer.symmetricKeyFragment];
+            [self sendMessage:handshake2 toPeer:thisPeer];
         }
-        */
-    }
-    @catch (NSException *exception) {
-        NSLog(@"%@", exception);
-        return;
-    }
-    
-    if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
-        thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
-        BOOL isPassword = NO;
-        if (_password) isPassword = YES;
-        NSData *leadersKeyData = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
-        thisPeer.symmetricKeyFragment = [self randomString:32];
-        NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData, thisPeer.symmetricKeyFragment];
-        [self sendMessage:handshake2 toPeer:thisPeer];
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
-        if ([_foundProtests objectForKey:thisPeer.displayName]) {
-            thisPeer.symmetricKeyFragment = [data objectAtIndex:4];
-            if (_nameOfProtest
-                && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
-                && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
-            {
-                NSString *keyFrag2 = [self randomString:32];
-                thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, keyFrag2]];
-                [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.displayName]];
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
+            if ([_foundProtests objectForKey:thisPeer.displayName]) {
+                thisPeer.symmetricKeyFragment = [data objectAtIndex:4];
+                if (_nameOfProtest
+                    && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
+                    && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
+                {
+                    NSString *keyFrag2 = [self randomString:32];
+                    thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, keyFrag2]];
+                    [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.displayName]];
+                }
+                else {
+                    thisPeer.protestName = [data objectAtIndex:1];
+                    thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];
+                    thisPeer.displayName = thisPeer.peerID.displayName;
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
+                    }];
+                }
             }
-            else {
-                thisPeer.protestName = [data objectAtIndex:1];
-                thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];
-                thisPeer.displayName = thisPeer.peerID.displayName;
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
+            if ([_foundProtests objectForKey:thisPeer.displayName]) {
+                if (!_password || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
+                    thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:1]]];
+                    [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
+                    [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+                    [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+                } else {
+                    [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
+                    [thisPeer.session disconnect];
+                    [_foundProtests removeObjectForKey:thisPeer.displayName];
+                }
+            }
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
+            if (_state == ProtestNetworkStateNotConnected) {
+                [_appDelegate.viewController reset];
+                [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
+                UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Incorrect Password"
+                                                                  message:@"Your password was incorrect."
+                                                                 delegate:nil
+                                                        cancelButtonTitle:@"OK"
+                                                        otherButtonTitles:nil];
+                
+                [message show];
+                _password = nil;
+            }
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
+            NSArray *peerData = [data objectAtIndex:1];
+            [self addPeerlist:peerData currentPeer:thisPeer];
+            [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
+            [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+            if (_state == ProtestNetworkStateNotConnected) {
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
+                    [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
                 }];
+                _leadersPublicKey = thisPeer.leadersKey;
+                _nameOfProtest = thisPeer.protestName;
+                [self browse];
+                _state = ProtestNetworkStateConnected;
             }
+            [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=connected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
+            [self sendMessage:@[@"Ack"] toPeer:thisPeer];
+            thisPeer.authenticated = YES;
         }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
-        if ([_foundProtests objectForKey:thisPeer.displayName]) {
-            if (!_password || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
-                thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:1]]];
-                [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
-                [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
-                [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
+        
+        else if ([([data objectAtIndex:0]) isEqualToString:@"Ack"]) {
+            thisPeer.authenticated = YES;
+            [self sendConnectEvent:thisPeer];
+            [self startMimicTraffic:thisPeer];
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
+            if (thisPeer.mimicManager) {
+                [thisPeer.mimicManager recievedMimic];
             } else {
-                [self sendMessage:@[@"WrongPassword"] toPeer:thisPeer];
-                [thisPeer.session disconnect];
-                [_foundProtests removeObjectForKey:thisPeer.displayName];
+                [self firstMimic:thisPeer];
             }
         }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
-        if (_state == ProtestNetworkStateNotConnected) {
-            [_appDelegate.viewController reset];
-            [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
-            UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Incorrect Password"
-                                                              message:@"Your password was incorrect."
-                                                             delegate:nil
-                                                    cancelButtonTitle:@"OK"
-                                                    otherButtonTitles:nil];
-            
-            [message show];
-            _password = nil;
-        }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"Connected"]) {
-        NSArray *peerData = [data objectAtIndex:1];
-        [self addPeerlist:peerData currentPeer:thisPeer];
-        [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
-        [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
-        if (_state == ProtestNetworkStateNotConnected) {
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
-            }];
-            _leadersPublicKey = thisPeer.leadersKey;
-            _nameOfProtest = thisPeer.protestName;
-            [self browse];
-            _state = ProtestNetworkStateConnected;
-        }
-        [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=connected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, thisPeer.displayName]];
-        [self sendMessage:@[@"Ack"] toPeer:thisPeer];
-        thisPeer.authenticated = YES;
-    }
-    
-    else if ([([data objectAtIndex:0]) isEqualToString:@"Ack"]) {
-        thisPeer.authenticated = YES;
-        [self sendConnectEvent:thisPeer];
-        [self startMimicTraffic:thisPeer];
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
-        if (thisPeer.mimicManager) {
-            [thisPeer.mimicManager recievedMimic];
-        } else {
-            [self firstMimic:thisPeer];
-        }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
-        //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
-        if (_state == ProtestNetworkStateConnected &&
-            [_sessions objectForKey:thisPeer.displayName] &&
-            ![_userID isEqualToString:data[1][0]] &&
-            ![_userID isEqualToString:data[2][0]])
-            {
-            int counter = (int)[[data objectAtIndex:3] integerValue];
-            if (counter < 3) {
-                [self traversePeers:^(Peer* peer, Peer* parent){
-                    if ([peer.displayName isEqualToString:data[1][0]])
-                    {
-                        NSString *newPeerDisplayName = data[2][0];
-                        if (![parent.displayName isEqualToString:newPeerDisplayName]) {
-                            if (![parent.peers containsObject:newPeerDisplayName]) {
-                                Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
-                                [peer.peers addObject:newPeer];
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"PeerConnected"]) {
+            //protocol: [0: @"PeerConnected", 1: [Peer 1's displayName, publicKey], 2: [Peer 2's displayName, publicKey], 3:counter
+            if (_state == ProtestNetworkStateConnected &&
+                [_sessions objectForKey:thisPeer.displayName] &&
+                ![_userID isEqualToString:data[1][0]] &&
+                ![_userID isEqualToString:data[2][0]])
+                {
+                int counter = (int)[[data objectAtIndex:3] integerValue];
+                if (counter < 3) {
+                    [self traversePeers:^(Peer* peer, Peer* parent){
+                        if ([peer.displayName isEqualToString:data[1][0]])
+                        {
+                            NSString *newPeerDisplayName = data[2][0];
+                            if (![parent.displayName isEqualToString:newPeerDisplayName]) {
+                                if (![parent.peers containsObject:newPeerDisplayName]) {
+                                    Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
+                                    [peer.peers addObject:newPeer];
+                                }
+                            }
+                        } else if ([peer.displayName isEqualToString:data[2][0]]) {
+                            NSString *newPeerDisplayName = data[1][0];
+                            if (![parent.displayName isEqualToString:newPeerDisplayName]) {
+                                if (![parent.peers containsObject:newPeerDisplayName]) {
+                                    Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
+                                    [peer.peers addObject:newPeer];
+                                }
                             }
                         }
-                    } else if ([peer.displayName isEqualToString:data[2][0]]) {
-                        NSString *newPeerDisplayName = data[1][0];
-                        if (![parent.displayName isEqualToString:newPeerDisplayName]) {
-                            if (![parent.peers containsObject:newPeerDisplayName]) {
-                                Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
-                                [peer.peers addObject:newPeer];
-                            }
-                        }
+                    }];
+                    NSLog(@"Peer %@ -> Peer %@", data[1][0], data[2][0]);
+                    [self printSessions];
+                    if (counter < 2) {
+                        NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
+                        [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:3];
+                        [self sendEventToAllPeers:dataCopy except:thisPeer];
                     }
-                }];
-                NSLog(@"Peer %@ -> Peer %@", data[1][0], data[2][0]);
-                [self printSessions];
-                if (counter < 2) {
-                    NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
-                    [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:3];
-                    [self sendEventToAllPeers:dataCopy except:thisPeer];
                 }
             }
         }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
-        //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
-        if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
-            int counter = (int)[[data objectAtIndex:2] integerValue];
-            if (counter < 3) {
-                [self traversePeers:^(Peer *peer, Peer *parent){
-                    if ([peer.displayName isEqualToString:data[1][0]] &&
-                        ![_userID isEqualToString:data[1][0]]) {
-                        NSString *peersDisplayName = data[1][1];
-                        for (int i=0; i<peer.peers.count; i++) {
-                            if ([[peer.peers[i] displayName] isEqualToString:peersDisplayName]) {
-                                [peer.peers removeObjectAtIndex:i];
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"PeerDisconnected"]) {
+            //protocol: @[@"PeerDisconnected", @[_userID, peer.displayName], counter]
+            if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
+                int counter = (int)[[data objectAtIndex:2] integerValue];
+                if (counter < 3) {
+                    [self traversePeers:^(Peer *peer, Peer *parent){
+                        if ([peer.displayName isEqualToString:data[1][0]] &&
+                            ![_userID isEqualToString:data[1][0]]) {
+                            NSString *peersDisplayName = data[1][1];
+                            for (int i=0; i<peer.peers.count; i++) {
+                                if ([[peer.peers[i] displayName] isEqualToString:peersDisplayName]) {
+                                    [peer.peers removeObjectAtIndex:i];
+                                }
                             }
                         }
+                    }];
+                    if (counter < 2) {
+                        NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
+                        [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:2];
+                        [self sendEventToAllPeers:dataCopy except:thisPeer];
                     }
-                }];
-                if (counter < 2) {
-                    NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
-                    [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:2];
-                    [self sendEventToAllPeers:dataCopy except:thisPeer];
                 }
             }
         }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"Message"]) {
-        if (_state == ProtestNetworkStateConnected) {
-            Message *thisMessage = [_allMessages objectForKey:data[1]];
-            if (!thisMessage) {
-                Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
-                if ([data count] >= 5) {
-                    OSStatus status = [_appDelegate.cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
-                    if (status == 0) { //if verified...
-                        newMessage.fromLeader = YES;
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"Message"]) {
+            if (_state == ProtestNetworkStateConnected) {
+                Message *thisMessage = [_allMessages objectForKey:data[1]];
+                if (!thisMessage) {
+                    Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
+                    if ([data count] >= 5) {
+                        OSStatus status = [_appDelegate.cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
+                        if (status == 0) { //if verified...
+                            newMessage.fromLeader = YES;
+                        }
+                    }
+                    [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [_appDelegate.chatViewController addMessage:newMessage];
+                    }];
+                    for (Peer *peer in [_sessions allValues]) {
+                        [self sendMessage:data toPeer:peer];
                     }
                 }
-                [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    [_appDelegate.chatViewController addMessage:newMessage];
-                }];
+                else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
+                    [thisMessage.timer invalidate];
+                    thisMessage.timer = nil;
+                }
+                else if (thisMessage) {
+                    return;
+                }
+            }
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
+            if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
+                [self sendMessage:data[2] toPeer:[self returnPeerGivenName:data[1]]];
+            }
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"Census"]) {
+            NSNumber *counter = [data objectAtIndex:1];
+            if (_leader == NO) {
+                NSUInteger randomIndex = arc4random() % [[_sessions allValues] count];
+                Peer *peer = [[_sessions allValues] objectAtIndex:randomIndex];
+                [self sendMessage:@[@"Census", @([counter intValue] + 1)] toPeer:peer];
+            } else {
+                [self censusReturned:[counter intValue]];
+            }
+        }
+        
+        else if ([[data objectAtIndex:0] isEqualToString:@"CensusReport"]) {
+            int newNetworkSize = [[data objectAtIndex:1] intValue];
+            if (networkSize != newNetworkSize) {
+                networkSize = newNetworkSize;
                 for (Peer *peer in [_sessions allValues]) {
                     [self sendMessage:data toPeer:peer];
                 }
             }
-            else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
-                [thisMessage.timer invalidate];
-                thisMessage.timer = nil;
-            }
-            else if (thisMessage) {
-                return;
-            }
         }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
-        if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
-            [self sendMessage:data[2] toPeer:[self returnPeerGivenName:data[1]]];
-        }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"Census"]) {
-        NSNumber *counter = [data objectAtIndex:1];
-        if (_leader == NO) {
-            NSUInteger randomIndex = arc4random() % [[_sessions allValues] count];
-            Peer *peer = [[_sessions allValues] objectAtIndex:randomIndex];
-            [self sendMessage:@[@"Census", @([counter intValue] + 1)] toPeer:peer];
-        } else {
-            [self censusReturned:[counter intValue]];
-        }
-    }
-    
-    else if ([[data objectAtIndex:0] isEqualToString:@"CensusReport"]) {
-        int newNetworkSize = [[data objectAtIndex:1] intValue];
-        if (networkSize != newNetworkSize) {
-            networkSize = newNetworkSize;
-            for (Peer *peer in [_sessions allValues]) {
-                [self sendMessage:data toPeer:peer];
-            }
-        }
+    } @catch (NSException *exception) {
+        NSLog(@"CRASH: %@", exception);
+        NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
     }
 }
 
@@ -794,13 +799,14 @@ static const double PRUNE = 30.0;
     }
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
     
-    
-    if ([self pathStillValid]) {
-        [self sendMessageAlongPath:data];
-    } else {
-        [self generateNewPath];
-        [self sendMessageAlongPath:data];
-    }
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        if ([self pathStillValid]) {
+            [self sendMessageAlongPath:data];
+        } else {
+            [self generateNewPath];
+            [self sendMessageAlongPath:data];
+        }
+    }];
 }
 
 - (void)conductCensus {
