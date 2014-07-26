@@ -403,9 +403,11 @@ static const double PRUNE = 30.0;
             decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
         }
         data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
+        /*
         if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
             NSLog(@"%@", data);
         }
+        */
     }
     @catch (NSException *exception) {
         NSLog(@"%@", exception);
@@ -532,6 +534,8 @@ static const double PRUNE = 30.0;
                         }
                     }
                 }];
+                NSLog(@"Peer %@ -> Peer %@", data[1][0], data[2][0]);
+                [self printSessions];
                 if (counter < 2) {
                     NSMutableArray *dataCopy = [NSMutableArray arrayWithArray:data];
                     [dataCopy setObject:[NSNumber numberWithInt:counter+1] atIndexedSubscript:3];
