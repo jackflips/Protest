@@ -115,7 +115,7 @@ static const double PRUNE = 30.0;
 - (void)startProtest:(NSString*)name password:(NSString*)password {
     NSLog(@"manager gonna browse");
     _nameOfProtest = name;
-    _password = password;
+    if (password) _password = password;
     _leadersPublicKey = _appDelegate.cryptoManager.publicKey;
     _peerID = [[MCPeerID alloc] initWithDisplayName:_userID];
     [self browse];
@@ -447,7 +447,7 @@ static const double PRUNE = 30.0;
             
             else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
                 if ([_foundProtests objectForKey:thisPeer.displayName]) {
-                    if ([_password isEqualToString:@"0"] || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
+                    if ([_password isEqualToString:@""] || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
                         thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:3]]];
                         [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
