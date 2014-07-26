@@ -429,14 +429,16 @@ static const double PRUNE = 30.0;
             
             else if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
                 if ([_foundProtests objectForKey:thisPeer.displayName]) {
-                    thisPeer.symmetricKeyFragment = [data objectAtIndex:4];
+                    thisPeer.symmetricKeyFragment = data[4];
                     if (_nameOfProtest
                         && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
                         && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
                     {
                         NSString *keyFrag2 = [self randomString:32];
                         thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, keyFrag2]];
-                        [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.displayName]];
+                        NSString *password = @"";
+                        if (_password) password = _password;
+                        [self sendMessage:@[@"WantsToConnect", password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.displayName]];
                     }
                     else {
                         thisPeer.protestName = [data objectAtIndex:1];
@@ -452,7 +454,7 @@ static const double PRUNE = 30.0;
             else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
                 if ([_foundProtests objectForKey:thisPeer.displayName]) {
                     if (!_password || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
-                        thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:1]]];
+                        thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:2]]];
                         [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                         [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
