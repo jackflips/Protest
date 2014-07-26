@@ -783,23 +783,24 @@ static const double PRUNE = 30.0;
 }
 
 - (void)sendMessage:(Message*)message {
-    NSLog(@"current peers:");
-    [self printSessions];
-    NSString *time = [self getTimeString];
-    NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
-    NSString *hash = [self MD5:toHash];
-    [_allMessages setObject:message forKey:hash];
-    NSArray *messageToSend;
-    if (_leader) {
-        NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
-        messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, sig, nil];
-    } else {
-        messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
-    }
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
-    
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSLog(@"current peers:");
+        [self printSessions];
+        NSString *time = [self getTimeString];
+        NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
+        NSString *hash = [self MD5:toHash];
+        [_allMessages setObject:message forKey:hash];
+        NSArray *messageToSend;
+        if (_leader) {
+            NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
+            NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
+            messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, sig, nil];
+        } else {
+            messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
+        }
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
+        
+        
         if ([self pathStillValid]) {
             [self sendMessageAlongPath:data];
         } else {
