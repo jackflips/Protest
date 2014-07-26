@@ -453,7 +453,7 @@ static const double PRUNE = 30.0;
             
             else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
                 if ([_foundProtests objectForKey:thisPeer.displayName]) {
-                    if (!_password || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
+                    if ([_password isEqualToString:@""] || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
                         thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:2]]];
                         [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
