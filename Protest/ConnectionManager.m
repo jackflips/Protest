@@ -828,4 +828,9 @@ static const double PRUNE = 30.0;
     [self conductCensus];
 }
 
+- (void) session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void (^)(BOOL accept))certificateHandler
+{
+    certificateHandler(YES);
+}
+
 @end
