@@ -405,12 +405,9 @@ static const double PRUNE = 30.0;
                 decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
             }
             data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-            /*
             if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
                 NSLog(@"%@", data);
             }
-            */
-            NSLog(@"%@", data[0]);
         }
         @catch (NSException *exception) {
             NSLog(@"%@", exception);
