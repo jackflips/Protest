@@ -523,14 +523,18 @@ static const double PRUNE = 30.0;
                     {
                         NSString *newPeerDisplayName = data[2][0];
                         if (![parent.displayName isEqualToString:newPeerDisplayName]) {
-                            Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
-                            [peer.peers addObject:newPeer];
+                            if (![parent.peers containsObject:newPeerDisplayName]) {
+                                Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
+                                [peer.peers addObject:newPeer];
+                            }
                         }
                     } else if ([peer.displayName isEqualToString:data[2][0]]) {
                         NSString *newPeerDisplayName = data[1][0];
                         if (![parent.displayName isEqualToString:newPeerDisplayName]) {
-                            Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
-                            [peer.peers addObject:newPeer];
+                            if (![parent.peers containsObject:newPeerDisplayName]) {
+                                Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
+                                [peer.peers addObject:newPeer];
+                            }
                         }
                     }
                 }];
