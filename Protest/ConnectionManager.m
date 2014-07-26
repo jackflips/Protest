@@ -380,11 +380,11 @@ static const double PRUNE = 30.0;
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
+    NSArray *data;
     @try {
         Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
         if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
         NSData *decryptedData;
-        NSArray *data;
         @try {
             if (thisPeer.authenticated) {
                 NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
@@ -634,6 +634,10 @@ static const double PRUNE = 30.0;
     } @catch (NSException *exception) {
         NSLog(@"CRASH: %@", exception);
         NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
+        NSLog(@"%@", data);
+        for (id thing in data) {
+            NSLog(@"%@", thing);
+        }
     }
 }
 
