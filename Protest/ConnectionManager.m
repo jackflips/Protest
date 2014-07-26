@@ -353,8 +353,8 @@ static const double PRUNE = 30.0;
     }
     NSData *encryptedMessage;
     if (peer.authenticated) {
-        //NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
-        encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData password:peer.symmetricKey];
+        NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
     } else {
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
@@ -385,7 +385,6 @@ static const double PRUNE = 30.0;
     NSArray *data;
     @try {
         if (thisPeer.authenticated) {
-            /*
             NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
             int messageLength;
             [decryptedBytes getBytes:&messageLength length:4];
@@ -393,8 +392,7 @@ static const double PRUNE = 30.0;
                 Byte bytes[messageLength];
                 [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
                 decryptedData = [NSData dataWithBytes:bytes length:messageLength];
-             */
-            decryptedData = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+            }
         } else {
             decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
         }
