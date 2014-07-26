@@ -599,7 +599,7 @@ static const double PRUNE = 30.0;
     
     else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
         if (_state == ProtestNetworkStateConnected && [_sessions objectForKey:thisPeer.displayName]) {
-            [self sendMessageWithoutEncrypting:data[2] toPeer:[self returnPeerGivenName:data[1]]];
+            [self sendMessage:data[2] toPeer:[self returnPeerGivenName:data[1]]];
         }
     }
     
