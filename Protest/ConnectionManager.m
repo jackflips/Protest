@@ -431,7 +431,7 @@ static const double PRUNE = 30.0;
             {
                 NSString *keyFrag2 = [self randomString:32];
                 thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, keyFrag2]];
-                [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.peerID.displayName]];
+                [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:[_foundProtests objectForKey:thisPeer.displayName]];
             }
             else {
                 thisPeer.protestName = [data objectAtIndex:1];
