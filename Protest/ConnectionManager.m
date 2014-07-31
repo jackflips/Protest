@@ -150,6 +150,7 @@ static const double PRUNE = 30.0;
             Peer *peer = [_foundProtests objectForKey:displayName];
             NSString *keyFrag2 = [self randomString:32];
             peer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", peer.symmetricKeyFragment, keyFrag2]];
+            NSLog(@"%@", peer.symmetricKey);
             [self sendMessage:@[@"WantsToConnect", _password, keyFrag2] toPeer:peer];
         }
     }
@@ -336,31 +337,29 @@ static const double PRUNE = 30.0;
 }
 
 - (void)sendMessage:(id)message toPeer:(Peer*)peer {
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSError *error;
-        NSData *messageData;
-        if ([message isKindOfClass:[NSArray class]]) {
-            for (id __strong thing in message) {
-                if ([thing isKindOfClass:[NSString class]]) {
-                    thing = [thing dataUsingEncoding:NSUTF8StringEncoding];
-                }
+    NSError *error;
+    NSData *messageData;
+    if ([message isKindOfClass:[NSArray class]]) {
+        for (id __strong thing in message) {
+            if ([thing isKindOfClass:[NSString class]]) {
+                thing = [thing dataUsingEncoding:NSUTF8StringEncoding];
             }
-            messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
-        } else if ([message isKindOfClass:[NSData class]]) {
-            messageData = message;
         }
-        NSData *encryptedMessage;
-        if (peer.authenticated) {
-            NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
-            encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
-        } else {
-            encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
-        }
-        [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
-        if (error) {
-            NSLog(@"%@", error);
-        }
-    }];
+        messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
+    } else if ([message isKindOfClass:[NSData class]]) {
+        messageData = message;
+    }
+    NSData *encryptedMessage;
+    if (peer.authenticated) {
+        NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
+    } else {
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
+    }
+    [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
 }
 
 - (void)sendMessageWithoutEncrypting:(id)message toPeer:(Peer*)peer {
@@ -401,9 +400,10 @@ static const double PRUNE = 30.0;
                     data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
                 }
                 @catch (NSException *exception) {
+                    NSLog(@"%@", exception);
                     decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
+                    data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
                 }
-                data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
                 if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
                     NSLog(@"%@", data);
                 }
@@ -416,7 +416,7 @@ static const double PRUNE = 30.0;
             if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
                 thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
                 BOOL isPassword = NO;
-                if (_password) isPassword = YES;
+                if (![_password isEqualToString:@""]) isPassword = YES;
                 NSData *leadersKeyData = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
                 thisPeer.symmetricKeyFragment = [self randomString:32];
                 NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData, thisPeer.symmetricKeyFragment];
@@ -448,7 +448,8 @@ static const double PRUNE = 30.0;
             else if ([[data objectAtIndex:0] isEqualToString:@"WantsToConnect"]) {
                 if ([_foundProtests objectForKey:thisPeer.displayName]) {
                     if ([_password isEqualToString:@""] || (_password && [[data objectAtIndex:1] isEqualToString:_password])) {
-                        thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, [data objectAtIndex:3]]];
+                        thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, data[2]]];
+                        NSLog(@"%@", thisPeer.symmetricKey);
                         [self sendMessage:@[@"Connected", [self getPeerlist]] toPeer:thisPeer];
                         [_sessions setObject:thisPeer forKey:thisPeer.peerID.displayName];
                         [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
@@ -574,32 +575,35 @@ static const double PRUNE = 30.0;
             }
             
             else if ([[data objectAtIndex:0] isEqualToString:@"Message"]) {
-                if (_state == ProtestNetworkStateConnected) {
-                    Message *thisMessage = [_allMessages objectForKey:data[1]];
-                    if (!thisMessage) {
-                        Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
-                        if ([data count] >= 5) {
-                            OSStatus status = [_appDelegate.cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
-                            if (status == 0) { //if verified...
-                                newMessage.fromLeader = YES;
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    if (_state == ProtestNetworkStateConnected) {
+                        Message *thisMessage = [_allMessages objectForKey:data[1]];
+                        if (!thisMessage) {
+                            Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
+                            if ([data count] >= 5) {
+                                OSStatus status = [_appDelegate.cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
+                                if (status == 0) { //if verified...
+                                    newMessage.fromLeader = YES;
+                                }
+                            }
+                            [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
+                            [_appDelegate.chatViewController addMessage:newMessage];
+                            for (Peer *peer in [_sessions allValues]) {
+                                [self sendMessage:data toPeer:peer];
                             }
                         }
-                        [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
-                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                            [_appDelegate.chatViewController addMessage:newMessage];
-                        }];
-                        for (Peer *peer in [_sessions allValues]) {
-                            [self sendMessage:data toPeer:peer];
+                        else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
+                            [thisMessage.timer invalidate];
+                            thisMessage.timer = nil;
+                            for (Peer *peer in [_sessions allValues]) { //in case you are a chokepoint
+                                [self sendMessage:data toPeer:peer];
+                            }
+                        }
+                        else if (thisMessage) {
+                            return;
                         }
                     }
-                    else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
-                        [thisMessage.timer invalidate];
-                        thisMessage.timer = nil;
-                    }
-                    else if (thisMessage) {
-                        return;
-                    }
-                }
+                }];
             }
             
             else if ([[data objectAtIndex:0] isEqualToString:@"Forward"]) {
@@ -786,31 +790,29 @@ static const double PRUNE = 30.0;
 }
 
 - (void)sendMessage:(Message*)message {
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSLog(@"current peers:");
-        [self printSessions];
-        NSString *time = [self getTimeString];
-        NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
-        NSString *hash = [self MD5:toHash];
-        [_allMessages setObject:message forKey:hash];
-        NSArray *messageToSend;
-        if (_leader) {
-            NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
-            NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
-            messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, sig, nil];
-        } else {
-            messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
-        }
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
-        
-        
-        if ([self pathStillValid]) {
-            [self sendMessageAlongPath:data];
-        } else {
-            [self generateNewPath];
-            [self sendMessageAlongPath:data];
-        }
-    }];
+    NSLog(@"current peers:");
+    [self printSessions];
+    NSString *time = [self getTimeString];
+    NSString *toHash = [NSString stringWithFormat: @"%@%@%@", time, _userID, message.message];
+    NSString *hash = [self MD5:toHash];
+    [_allMessages setObject:message forKey:hash];
+    NSArray *messageToSend;
+    if (_leader) {
+        NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
+        messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, sig, nil];
+    } else {
+        messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
+    }
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:messageToSend];
+    
+    
+    if ([self pathStillValid]) {
+        [self sendMessageAlongPath:data];
+    } else {
+        [self generateNewPath];
+        [self sendMessageAlongPath:data];
+    }
 }
 
 - (void)conductCensus {
