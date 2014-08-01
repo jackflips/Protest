@@ -738,10 +738,11 @@ static const double PRUNE = 30.0;
     }
     for (int i=0; i<paths.count; i++) {
         if ([paths[i] count] < highestCount) [paths removeObjectAtIndex:i];
+    }
+    for (int i=0; i<paths.count; i++) {
         for (int j=0; j<[paths[i] count]; j++) {
             paths[i][j] = [paths[i][j] displayName];
         }
-        
     }
     return paths;
 }
