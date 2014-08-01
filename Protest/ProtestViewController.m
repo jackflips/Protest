@@ -45,6 +45,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager = [[ConnectionManager alloc] init];
     [_appDelegate.manager searchForProtests];

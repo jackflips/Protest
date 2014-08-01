@@ -349,10 +349,15 @@ static const double PRUNE = 30.0;
     } else if ([message isKindOfClass:[NSData class]]) {
         messageData = message;
     }
+    NSMutableData *dataToSend;
     NSData *encryptedMessage;
     if (peer.authenticated) {
         NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
         encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
+        int authCode = 0;
+        dataToSend = [NSMutableData dataWithBytes:&authCode length:sizeof(int)];
+        [dataToSend appendData:encryptedMessage];
+        encryptedMessage = [NSData dataWithData:dataToSend];
     } else {
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
@@ -383,37 +388,38 @@ static const double PRUNE = 30.0;
             Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
             if (thisPeer == nil) thisPeer = [_foundProtests objectForKey:peerID.displayName];
             NSData *decryptedData;
-            @try {
-                if (thisPeer.authenticated) {
-                    NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
-                    int messageLength;
-                    [decryptedBytes getBytes:&messageLength length:4];
-                    if (messageLength <= 1996) {
-                        Byte bytes[messageLength];
-                        [decryptedBytes getBytes:bytes range:NSMakeRange(4, messageLength)];
-                        decryptedData = [NSData dataWithBytes:bytes length:messageLength];
-                    }
-                } else {
+            
+            /* Decrypt */
+            if (thisPeer.authenticated) {
+                /* Get encryption status prefix - whether or not message is doubly encrypted (TLS + Onion) */
+                int twiceEncrypted;
+                [messageData getBytes:&twiceEncrypted length:sizeof(int)];
+                Byte bytes[messageData.length];
+                [messageData getBytes:bytes range:NSMakeRange(sizeof(int), messageData.length - sizeof(int))];
+                NSData *processedMessageData = [NSData dataWithBytes:bytes length:messageData.length - sizeof(int)];
+                
+                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:processedMessageData password:thisPeer.symmetricKey];
+                int messageLength;
+                [decryptedBytes getBytes:&messageLength length:sizeof(int)];
+                if (messageLength <= 1996) { //to prevent overflow attacks
+                    Byte bytes[messageLength];
+                    [decryptedBytes getBytes:bytes range:NSMakeRange(sizeof(int), messageLength)];
+                    decryptedData = [NSData dataWithBytes:bytes length:messageLength];
+                }
+                if (twiceEncrypted) {
                     decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
                 }
-                @try {
-                    data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-                }
-                @catch (NSException *exception) {
-                    NSLog(@"%@", exception);
-                    decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
-                    data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-                }
-                if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
-                    NSLog(@"%@", data);
-                }
-            }
-            @catch (NSException *exception) {
-                NSLog(@"%@", exception);
-                return;
+            } else {
+                decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
             }
             
-            if ([[data objectAtIndex:0] isEqualToString:@"Handshake"]) {
+            data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
+            if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
+                NSLog(@"%@", data);
+            }
+            
+            /* Message routing */
+            if ([data[0] isEqualToString:@"Handshake"]) {
                 thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
                 BOOL isPassword = NO;
                 if (![_password isEqualToString:@""]) isPassword = YES;
@@ -423,7 +429,7 @@ static const double PRUNE = 30.0;
                 [self sendMessage:handshake2 toPeer:thisPeer];
             }
             
-            else if ([[data objectAtIndex:0] isEqualToString:@"HandshakeBack"]) {
+            else if ([data[0] isEqualToString:@"HandshakeBack"]) {
                 if ([_foundProtests objectForKey:thisPeer.displayName]) {
                     thisPeer.symmetricKeyFragment = data[4];
                     if (_nameOfProtest
@@ -518,7 +524,7 @@ static const double PRUNE = 30.0;
                     {
                     int counter = (int)[[data objectAtIndex:3] integerValue];
                     if (counter < 3) {
-                        [self traversePeers:^(Peer* peer, Peer* parent){
+                        [self traversePeers:^(Peer* peer, Peer* parent) {
                             if ([peer.displayName isEqualToString:data[1][0]])
                             {
                                 NSString *newPeerDisplayName = data[2][0];
@@ -767,15 +773,21 @@ static const double PRUNE = 30.0;
 }
 
 - (NSData*)encryptMessageGivenPath:(NSData*)message andPath:(NSArray*)path {
-    if (path.count > 1) {
-        NSString *name = path.lastObject;
-        SecKeyRef key = [[self returnPeerGivenName:name] key];
-        NSArray *msg = @[@"Forward", name, [_appDelegate.cryptoManager encrypt:message WithPublicKey:key]];
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
-        return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(0, path.count-1)]];
-    } else {
+    NSData *encryptedData;
+    NSString *name = path.lastObject;
+    SecKeyRef key = [[self returnPeerGivenName:name] key];
+    if (path.count <= 1) {
         return message;
+    } else if (path.count == 3) {
+        NSData *msgData = [_appDelegate.cryptoManager encrypt:message WithPublicKey:key];
+        int twiceEncryptionStatus = 1;
+        NSMutableData *status = [NSMutableData dataWithBytes:&twiceEncryptionStatus length:sizeof(int)];
+        [status appendData:msgData];
+        encryptedData = [NSData dataWithData:status];
     }
+    NSArray *msg = @[@"Forward", name, encryptedData];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
+    return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(0, path.count-1)]];
 }
 
 - (void)sendMessageAlongPath:(NSData*)data {
