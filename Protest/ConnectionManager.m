@@ -286,8 +286,33 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (NSData*)addPrefixToData:(NSData*)message prefix:(int)prefixInt {
+    NSData *prefix = [NSData dataWithBytes:&prefixInt length:sizeof(int)];
+    u_int8_t prefixData[sizeof(int)];
+    [prefix getBytes:prefixData length:sizeof(int)];
+    Byte bytes[message.length];
+    [message getBytes:bytes length:message.length];
+    int kLength = (int)message.length + sizeof(int);
+    u_int8_t newMessage[kLength];
+    for (int i=0; i<kLength; i++) {
+        if (i<sizeof(int)) {
+            newMessage[i] = prefixData[i];
+        } else {
+            newMessage[i] = bytes[i-sizeof(int)];
+        }
+    }
+    return [NSData dataWithBytes:newMessage length:kLength];
+
+}
+
+- (int)prefixOf:(NSData*)message {
+    int prefix;
+    [message getBytes:&prefix length:sizeof(int)];
+    return prefix;
+}
+
 - (NSData*)padMessage:(NSData*)message lengthToPadTo:(int)kLength {
-    int messageLength = message.length;
+    int messageLength = (int)message.length;
     NSData *prefix = [NSData dataWithBytes:&messageLength length: sizeof(int)];
     u_int8_t prefixData[sizeof(int)];
     [prefix getBytes:prefixData length:sizeof(int)];
@@ -296,9 +321,9 @@ static const double PRUNE = 30.0;
     
     u_int8_t newMessageData[kLength];
     for (int i=0; i<kLength; i++) {
-        if (i<4) {
+        if (i<sizeof(int)) {
             newMessageData[i] = prefixData[i];
-        } else if (i < messageLength + 4) {
+        } else if (i < messageLength + sizeof(int)) {
             newMessageData[i] = bytes[i-4];
         }
         else {
@@ -322,18 +347,14 @@ static const double PRUNE = 30.0;
     } else if ([message isKindOfClass:[NSData class]]) {
         messageData = message;
     }
-    NSMutableData *dataToSend;
     NSData *encryptedMessage;
     if (peer.authenticated) {
-        int twiceEncrypted;
-        [messageData getBytes:&twiceEncrypted length:sizeof(int)];
-        if (twiceEncrypted != 0) {
-            int authCode = 0;
-            dataToSend = [NSMutableData dataWithBytes:&authCode length:sizeof(int)];
-            [dataToSend appendData:messageData];
+        int prefix = [self prefixOf:messageData];
+        if (prefix != 1) {
+            messageData = [self addPrefixToData:messageData prefix:0];
         }
-        NSData *newMessageData = [self padMessage:(NSData*)dataToSend lengthToPadTo:2000];
-        encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
+        NSData *paddedMessageData = [self padMessage:messageData lengthToPadTo:2000];
+        encryptedMessage = [_appDelegate.cryptoManager encrypt:paddedMessageData password:peer.symmetricKey];
     } else {
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
@@ -367,24 +388,26 @@ static const double PRUNE = 30.0;
             
             /* Decrypt */
             if (thisPeer.authenticated) {
-                /* Get encryption status prefix - whether or not message is doubly encrypted (TLS + Onion) */
-                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
-                int twiceEncrypted;
-                [decryptedBytes getBytes:&twiceEncrypted length:sizeof(int)];
-                Byte bytes[decryptedBytes.length - sizeof(int)];
-                [decryptedBytes getBytes:bytes range:NSMakeRange(sizeof(int), decryptedBytes.length - sizeof(int))];
-                NSData *processedMessageData = [NSData dataWithBytes:bytes length:messageData.length - sizeof(int)];
                 
-                int messageLength;
-                [processedMessageData getBytes:&messageLength length:sizeof(int)];
-                if (messageLength <= 1996) { //to prevent overflow attacks
+                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+                int messageLength = [self prefixOf:decryptedBytes];
+                NSData *unpackedData;
+                if (messageLength <= 2100) { //to prevent overflow attacks
                     Byte bytes[messageLength];
-                    [processedMessageData getBytes:bytes range:NSMakeRange(sizeof(int), messageLength)];
-                    decryptedData = [NSData dataWithBytes:bytes length:messageLength];
+                    [decryptedBytes getBytes:bytes range:NSMakeRange(sizeof(int), messageLength)];
+                    unpackedData = [NSData dataWithBytes:bytes length:messageLength];
                 }
-                if (twiceEncrypted) {
+                
+                /* Get encryption status prefix - whether or not message is doubly encrypted (TLS + Onion) */
+                int encryptionPrefix = [self prefixOf:unpackedData];
+                Byte bytes[unpackedData.length - sizeof(int)];
+                [unpackedData getBytes:bytes range:NSMakeRange(sizeof(int), unpackedData.length - sizeof(int))];
+                decryptedData = [NSData dataWithBytes:bytes length:unpackedData.length - sizeof(int)];
+                
+                if (encryptionPrefix == 1) {
                     decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
                 }
+                
             } else {
                 decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
             }
