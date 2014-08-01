@@ -84,34 +84,6 @@ static const double PRUNE = 30.0;
                            }];
 }
 
-- (void)testMessageSending {
-    [NSTimer scheduledTimerWithTimeInterval:2.0
-                                     target:self
-                                   selector:@selector(sendamessage)
-                                   userInfo:nil
-                                    repeats:YES];
-}
-
-- (void)sendamessage {
-    Message *message = [[Message alloc] initWithMessage:@"In 2012, he was named by Time Magazine as one of the 100 most influential people in the world. He's crippled international fraud." uID:@"1234" fromLeader:YES];
-    [_appDelegate addMessageToChat:message];
-    Message *message1 = [[Message alloc] initWithMessage:@"Medical school." uID:@"1235" fromLeader:YES];
-    [_appDelegate addMessageToChat:message1];
-}
-
-- (void)hashTest {
-    NSString *test = @"test data";
-    NSString *falseTest = @"test dat12";
-    NSData *testData1 = [falseTest dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *testData = [test dataUsingEncoding:NSUTF8StringEncoding];
-    
-    NSData *key = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey];
-    NSData *signedData = [_appDelegate.cryptoManager sign:testData withKey:_appDelegate.cryptoManager.privateKey];
-    OSStatus *status = [_appDelegate.cryptoManager verify:testData withSignature:signedData andKey:_appDelegate.cryptoManager.publicKey];
-    NSLog(@"%i", status);
-    
-}
-
 - (void)startProtest:(NSString*)name password:(NSString*)password {
     NSLog(@"manager gonna browse");
     _nameOfProtest = name;
@@ -195,7 +167,8 @@ static const double PRUNE = 30.0;
         newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
         newPeer.displayName = peerID.displayName;
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
-        invitationHandler(YES, newPeer.session);
+        BOOL shouldAccept = ([_userID compare:peerID.displayName] == NSOrderedDescending);
+        invitationHandler(shouldAccept, newPeer.session);
     }
 }
 
@@ -531,6 +504,9 @@ static const double PRUNE = 30.0;
                                 if (![parent.displayName isEqualToString:newPeerDisplayName]) {
                                     if (![parent.peers containsObject:newPeerDisplayName]) {
                                         Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
+                                        for (Peer *child in peer.peers) {
+                                            if ([child.displayName isEqualToString:newPeerDisplayName]) return;
+                                        }
                                         [peer.peers addObject:newPeer];
                                     }
                                 }
@@ -539,6 +515,9 @@ static const double PRUNE = 30.0;
                                 if (![parent.displayName isEqualToString:newPeerDisplayName]) {
                                     if (![parent.peers containsObject:newPeerDisplayName]) {
                                         Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
+                                        for (Peer *child in peer.peers) {
+                                            if ([child.displayName isEqualToString:newPeerDisplayName]) return;
+                                        }
                                         [peer.peers addObject:newPeer];
                                     }
                                 }
