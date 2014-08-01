@@ -168,7 +168,7 @@ static const double PRUNE = 30.0;
         newPeer.displayName = peerID.displayName;
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
         BOOL shouldAccept = ([_userID compare:peerID.displayName] == NSOrderedDescending);
-        invitationHandler(shouldAccept, newPeer.session);
+        invitationHandler(YES, newPeer.session);
     }
 }
 
