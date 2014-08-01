@@ -325,12 +325,15 @@ static const double PRUNE = 30.0;
     NSMutableData *dataToSend;
     NSData *encryptedMessage;
     if (peer.authenticated) {
-        NSData *newMessageData = [self padMessage:(NSData*)messageData lengthToPadTo:2000];
+        int twiceEncrypted;
+        [messageData getBytes:&twiceEncrypted length:sizeof(int)];
+        if (twiceEncrypted != 0) {
+            int authCode = 0;
+            dataToSend = [NSMutableData dataWithBytes:&authCode length:sizeof(int)];
+            [dataToSend appendData:messageData];
+        }
+        NSData *newMessageData = [self padMessage:(NSData*)dataToSend lengthToPadTo:2000];
         encryptedMessage = [_appDelegate.cryptoManager encrypt:newMessageData password:peer.symmetricKey];
-        int authCode = 0;
-        dataToSend = [NSMutableData dataWithBytes:&authCode length:sizeof(int)];
-        [dataToSend appendData:encryptedMessage];
-        encryptedMessage = [NSData dataWithData:dataToSend];
     } else {
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
@@ -365,22 +368,22 @@ static const double PRUNE = 30.0;
             /* Decrypt */
             if (thisPeer.authenticated) {
                 /* Get encryption status prefix - whether or not message is doubly encrypted (TLS + Onion) */
+                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
                 int twiceEncrypted;
-                [messageData getBytes:&twiceEncrypted length:sizeof(int)];
-                Byte bytes[messageData.length];
-                [messageData getBytes:bytes range:NSMakeRange(sizeof(int), messageData.length - sizeof(int))];
+                [decryptedBytes getBytes:&twiceEncrypted length:sizeof(int)];
+                Byte bytes[decryptedBytes.length - sizeof(int)];
+                [decryptedBytes getBytes:bytes range:NSMakeRange(sizeof(int), decryptedBytes.length - sizeof(int))];
                 NSData *processedMessageData = [NSData dataWithBytes:bytes length:messageData.length - sizeof(int)];
                 
-                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:processedMessageData password:thisPeer.symmetricKey];
                 int messageLength;
-                [decryptedBytes getBytes:&messageLength length:sizeof(int)];
+                [processedMessageData getBytes:&messageLength length:sizeof(int)];
                 if (messageLength <= 1996) { //to prevent overflow attacks
                     Byte bytes[messageLength];
-                    [decryptedBytes getBytes:bytes range:NSMakeRange(sizeof(int), messageLength)];
+                    [processedMessageData getBytes:bytes range:NSMakeRange(sizeof(int), messageLength)];
                     decryptedData = [NSData dataWithBytes:bytes length:messageLength];
                 }
                 if (twiceEncrypted) {
-                    decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
+                    decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
                 }
             } else {
                 decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
@@ -758,18 +761,16 @@ static const double PRUNE = 30.0;
     SecKeyRef key = [[self returnPeerGivenName:name] key];
     if (path.count <= 1) {
         return message;
-    } else if (path.count == 3) {
+    } else {
         NSData *msgData = [_appDelegate.cryptoManager encrypt:message WithPublicKey:key];
         int twiceEncryptionStatus = 1;
         NSMutableData *status = [NSMutableData dataWithBytes:&twiceEncryptionStatus length:sizeof(int)];
         [status appendData:msgData];
         encryptedData = [NSData dataWithData:status];
-    } else {
-        encryptedData = [_appDelegate.cryptoManager encrypt:message WithPublicKey:key];
+        NSArray *msg = @[@"Forward", name, encryptedData];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
+        return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(0, path.count-1)]];
     }
-    NSArray *msg = @[@"Forward", name, encryptedData];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
-    return [self encryptMessageGivenPath:data andPath:[path subarrayWithRange:NSMakeRange(0, path.count-1)]];
 }
 
 - (void)sendMessageAlongPath:(NSData*)data {
