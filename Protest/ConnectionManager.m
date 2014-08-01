@@ -387,7 +387,7 @@ static const double PRUNE = 30.0;
             }
             
             data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
-            if (![[data objectAtIndex:0] isEqualToString:@"Mimic"]) {
+            if (![[data objectAtIndex:0] isEqualToString:@"Mimic"] && ![data[0] isEqualToString:@"PeerConnected"]) {
                 NSLog(@"%@", data);
             }
             
@@ -764,6 +764,8 @@ static const double PRUNE = 30.0;
         NSMutableData *status = [NSMutableData dataWithBytes:&twiceEncryptionStatus length:sizeof(int)];
         [status appendData:msgData];
         encryptedData = [NSData dataWithData:status];
+    } else {
+        encryptedData = [_appDelegate.cryptoManager encrypt:message WithPublicKey:key];
     }
     NSArray *msg = @[@"Forward", name, encryptedData];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:msg];
