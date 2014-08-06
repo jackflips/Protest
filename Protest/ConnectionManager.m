@@ -98,6 +98,7 @@ static const double PRUNE = 30.0;
     _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_peerID serviceType:@"Protest"];
     [_browser setDelegate:self];
     [_browser startBrowsingForPeers];
+    _currentlyBrowsing = YES;
 }
 
 - (void)searchForProtests {
@@ -167,8 +168,9 @@ static const double PRUNE = 30.0;
         newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
         newPeer.displayName = peerID.displayName;
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
-        BOOL shouldAccept = ([_userID compare:peerID.displayName] == NSOrderedDescending);
-        invitationHandler(YES, newPeer.session);
+        BOOL shouldAccept = YES;
+        if (_currentlyBrowsing) shouldAccept = ([_userID compare:peerID.displayName] == NSOrderedDescending);
+        invitationHandler(shouldAccept, newPeer.session);
     }
 }
 
@@ -246,11 +248,15 @@ static const double PRUNE = 30.0;
 }
 
 - (void)startMimicTraffic:(Peer*)peer {
-    peer.mimicManager = [[MimicManager alloc] initAndSendMimicWithConnectionManager:self andPeer:peer];
+    if (!_appDelegate.DIAGNOSTIC_MODE) {
+        peer.mimicManager = [[MimicManager alloc] initAndSendMimicWithConnectionManager:self andPeer:peer];
+    }
 }
 
 - (void)firstMimic:(Peer*)peer {
-    peer.mimicManager = [[MimicManager alloc] initWithConnectionManager:self andPeer:peer];
+    if (!_appDelegate.DIAGNOSTIC_MODE) {
+        peer.mimicManager = [[MimicManager alloc] initWithConnectionManager:self andPeer:peer];
+    }
 }
 
 - (NSArray*)getPeerlist {
@@ -359,6 +365,7 @@ static const double PRUNE = 30.0;
         encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
+    [self sendDiagnosticMessage:[NSString stringWithFormat:@"event=sent-message&peer=%@", _userID]];
     if (error) {
         NSLog(@"%@", error);
     }
@@ -380,6 +387,7 @@ static const double PRUNE = 30.0;
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)messageData fromPeer:(MCPeerID *)peerID{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [self sendDiagnosticMessage:[NSString stringWithFormat:@"event=recieved-message&peer=%@", _userID]];
         NSArray *data;
         @try {
             Peer *thisPeer = [_sessions objectForKey:peerID.displayName];
@@ -388,7 +396,6 @@ static const double PRUNE = 30.0;
             
             /* Decrypt */
             if (thisPeer.authenticated) {
-                
                 NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
                 int messageLength = [self prefixOf:decryptedBytes];
                 NSData *unpackedData;
@@ -808,6 +815,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)sendMessage:(Message*)message {
+    [NSString stringWithFormat:@"event=sentmessage&peer=%@", _userID];
     NSLog(@"current peers:");
     [self printSessions];
     NSString *time = [self getTimeString];

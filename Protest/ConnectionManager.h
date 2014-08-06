@@ -32,6 +32,7 @@
 @property (nonatomic, strong) MCSession *anotherSession;
 @property (nonatomic, strong) NSMutableDictionary *sessions;
 @property (nonatomic, assign) BOOL leader;
+@property (nonatomic, assign) BOOL currentlyBrowsing;
 @property (nonatomic, strong) NSMutableArray *currentRequestingPeers;
 @property (nonatomic, strong) NSMutableDictionary *allMessages;
 @property (nonatomic, strong) NSString *userID;
