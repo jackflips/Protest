@@ -174,6 +174,10 @@ static const double PRUNE = 30.0;
     }
 }
 
+- (void)showBrowserResults {
+    NSLog(@"%d", _foundProtests.count);
+}
+
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state {
     NSLog(@"peer did change state: %ld", state);
     if (state == MCSessionStateConnected) {

@@ -52,5 +52,6 @@
 - (void)searchForProtests;
 - (void)disconnectFromPeers;
 - (void)testMessageSending;
+- (void)showBrowserResults;
 
 @end

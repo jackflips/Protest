@@ -177,6 +177,9 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (IBAction)showBrowseResults:(id)sender {
+    [_appDelegate.manager showBrowserResults];
+}
 
 #pragma mark - UITextField Delegate method implementation
 
