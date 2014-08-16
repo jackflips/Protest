@@ -18,8 +18,8 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (nonatomic) SecKeyRef leaderKey;
 @property (strong, nonatomic) ConnectionManager *manager;
-@property (strong, nonatomic) ChatViewController *chatViewController;
-@property (strong, nonatomic) ProtestViewController *viewController;
+@property (strong, nonatomic, retain) ChatViewController *chatViewController;
+@property (strong, nonatomic, retain) ProtestViewController *viewController;
 @property (strong, nonatomic) CryptoManager *cryptoManager;
 @property (nonatomic) BOOL DIAGNOSTIC_MODE;
 

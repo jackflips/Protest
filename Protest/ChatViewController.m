@@ -30,7 +30,7 @@
     
     _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     _appDelegate.chatViewController = self;
-
+    
     
     _chatSource = [NSMutableArray array];
     _availAvatars = [NSMutableArray array];
@@ -58,16 +58,16 @@
     [self addMessage:[[Message alloc] initWithMessage:@"Test test test" uID:@"5" fromLeader:NO]];
     
     _toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f,
-                                                                     self.view.bounds.size.height - 40.0f,
-                                                                     self.view.bounds.size.width,
-                                                                     40.0f)];
+                                                           self.view.bounds.size.height - 40.0f,
+                                                           self.view.bounds.size.width,
+                                                           40.0f)];
     _toolBar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:_toolBar];
     
     _textField = [[UITextField alloc] initWithFrame:CGRectMake(10.0f,
-                                                                           6.0f,
-                                                                           _toolBar.bounds.size.width - 20.0f - 68.0f,
-                                                                           30.0f)];
+                                                               6.0f,
+                                                               _toolBar.bounds.size.width - 20.0f - 68.0f,
+                                                               30.0f)];
     _textField.borderStyle = UITextBorderStyleRoundedRect;
     _textField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [_toolBar addSubview:_textField];
@@ -76,9 +76,9 @@
     _sendButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
     [_sendButton setTitle:@"Send" forState:UIControlStateNormal];
     _sendButton.frame = CGRectMake(_toolBar.bounds.size.width - 68.0f,
-                                  6.0f,
-                                  58.0f,
-                                  29.0f);
+                                   6.0f,
+                                   58.0f,
+                                   29.0f);
     [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [_sendButton setEnabled:NO];
     [_sendButton addTarget:self action:@selector(sendButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -193,7 +193,7 @@
 
 - (IBAction)exitButtonPressed:(id)sender {
     [_appDelegate.viewController reset];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    //[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 
@@ -242,7 +242,7 @@
 
 - (UITableViewCell*)othersChatBubble:(NSString*)text cell:(UITableViewCell*)cell avatarID:(int)id fromLeader:(BOOL)fromLeader {
     UIImage *bubbleImage = [[UIImage imageNamed:@"white_text_bubble.png"]
-                           resizableImageWithCapInsets:UIEdgeInsetsMake(20, 6, 6, 0)];
+                            resizableImageWithCapInsets:UIEdgeInsetsMake(20, 6, 6, 0)];
     cell.backgroundColor = [UIColor clearColor];
     UIImageView *bubbleImageView = [[UIImageView alloc] initWithImage:bubbleImage];
     UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 50, 20)];
@@ -298,7 +298,7 @@
     NSDictionary *attributesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
                                           [UIFont fontWithName:@"Futura Std" size:12], NSFontAttributeName,
                                           nil];
-
+    
     CGRect frame = [textLabel.text boundingRectWithSize:CGSizeMake(220, 2000.0)
                                                 options:NSStringDrawingUsesLineFragmentOrigin
                                              attributes:attributesDictionary
@@ -333,7 +333,7 @@
     } else {
         cell = [self othersChatBubble:message.message cell:cell avatarID:[[_avatarForUser objectForKey:message.uId] intValue] fromLeader:message.fromLeader];
     }
-
+    
     return cell;
     
 }

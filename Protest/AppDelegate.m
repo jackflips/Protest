@@ -16,6 +16,14 @@
 {
     _cryptoManager = [[CryptoManager alloc] init];
     _DIAGNOSTIC_MODE = YES;
+    _viewController = [[ProtestViewController alloc] init];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.rootViewController = _viewController;
+    [self.window makeKeyAndVisible];
+    /*
+    [self.window.rootViewController presentViewController:protestViewController
+                                                 animated:YES
+                                               completion:nil]; */
     return YES;
 }
 

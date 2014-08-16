@@ -63,6 +63,10 @@ static const double PRUNE = 30.0;
         Peer *peer = [_sessions objectForKey:key];
         [peer.session disconnect];
     }
+    [_advertiser stopAdvertisingPeer];
+    _advertiser = nil;
+    [_browser stopBrowsingForPeers];
+    _browser = nil;
 }
 
 - (void)sendDiagnosticMessage:(NSString*)requestData {
@@ -690,7 +694,7 @@ static const double PRUNE = 30.0;
 
 - (void)messageExpired:(Message *)message {
     [self sendMessage:message.message];
-    [_allMessages removeObjectForKey:message.hash];
+    [_allMessages removeObjectForKey:message.md5hash];
 }
 
 - (NSString*)getTimeString {

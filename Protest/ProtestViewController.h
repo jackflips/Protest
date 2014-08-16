@@ -21,5 +21,7 @@
 - (void)removeProtestFromList:(NSString*)nameOfProtest;
 - (void)reset;
 - (void)finalTest;
+- (void)dismissConfig;
+- (void)startChat:(NSString*)name;
 
 @end

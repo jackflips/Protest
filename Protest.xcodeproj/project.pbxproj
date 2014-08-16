@@ -74,7 +74,6 @@
 		AD7960EF1921902D0022EA58 /* exitbutton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD7960ED1921902D0022EA58 /* exitbutton@2x.png */; };
 		AD7960F21921A34D0022EA58 /* white_text_bubble.png in Resources */ = {isa = PBXBuildFile; fileRef = AD7960F01921A34D0022EA58 /* white_text_bubble.png */; };
 		AD7960F31921A34D0022EA58 /* white_text_bubble@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD7960F11921A34D0022EA58 /* white_text_bubble@2x.png */; };
-		AD8D656218F1282800200485 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD8D656118F1282800200485 /* ChatViewController.m */; };
 		AD9C8519191F3AD200E23B7D /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = AD9C8517191F3AD200E23B7D /* header.png */; };
 		AD9C851A191F3AD200E23B7D /* header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD9C8518191F3AD200E23B7D /* header@2x.png */; };
 		AD9C851E191F5C5300E23B7D /* FuturaStd-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AD9C851C191F5C5300E23B7D /* FuturaStd-Medium.otf */; };
@@ -86,8 +85,6 @@
 		ADA5D00918F0B35E004CEE2C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D00718F0B35E004CEE2C /* InfoPlist.strings */; };
 		ADA5D00B18F0B35E004CEE2C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D00A18F0B35E004CEE2C /* main.m */; };
 		ADA5D00F18F0B35E004CEE2C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */; };
-		ADA5D01218F0B35E004CEE2C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D01018F0B35E004CEE2C /* Main.storyboard */; };
-		ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */; };
 		ADA5D01718F0B35E004CEE2C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADA5D01618F0B35E004CEE2C /* Images.xcassets */; };
 		ADA5D01E18F0B35E004CEE2C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADA5D01D18F0B35E004CEE2C /* XCTest.framework */; };
 		ADA5D01F18F0B35E004CEE2C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADA5CFFE18F0B35E004CEE2C /* Foundation.framework */; };
@@ -100,7 +97,12 @@
 		ADA625CB1961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C51961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m */; };
 		ADA625CC1961F8E500D31B7C /* TPKeyboardAvoidingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */; };
 		ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */; };
-		ADB8701C1966B91E001FC2A0 /* ProtestConfigurationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */; };
+		ADE2A9BB199EE037003B0F08 /* ProtestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADE2A9B9199EE037003B0F08 /* ProtestViewController.m */; };
+		ADE2A9BC199EE037003B0F08 /* ProtestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ADE2A9BA199EE037003B0F08 /* ProtestViewController.xib */; };
+		ADE2AA09199EE7D1003B0F08 /* ProtestConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADE2AA07199EE7D0003B0F08 /* ProtestConfigViewController.m */; };
+		ADE2AA0A199EE7D1003B0F08 /* ProtestConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ADE2AA08199EE7D0003B0F08 /* ProtestConfigViewController.xib */; };
+		ADE2AA0E199EF056003B0F08 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADE2AA0C199EF056003B0F08 /* ChatViewController.m */; };
+		ADE2AA0F199EF056003B0F08 /* ChatViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ADE2AA0D199EF056003B0F08 /* ChatViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -191,8 +193,6 @@
 		AD7960ED1921902D0022EA58 /* exitbutton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "exitbutton@2x.png"; sourceTree = "<group>"; };
 		AD7960F01921A34D0022EA58 /* white_text_bubble.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = white_text_bubble.png; sourceTree = "<group>"; };
 		AD7960F11921A34D0022EA58 /* white_text_bubble@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "white_text_bubble@2x.png"; sourceTree = "<group>"; };
-		AD8D656018F1282800200485 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
-		AD8D656118F1282800200485 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
 		AD9C8517191F3AD200E23B7D /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
 		AD9C8518191F3AD200E23B7D /* header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "header@2x.png"; sourceTree = "<group>"; };
 		AD9C851C191F5C5300E23B7D /* FuturaStd-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FuturaStd-Medium.otf"; sourceTree = "<group>"; };
@@ -208,9 +208,6 @@
 		ADA5D00C18F0B35E004CEE2C /* Protest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Protest-Prefix.pch"; sourceTree = "<group>"; };
 		ADA5D00D18F0B35E004CEE2C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		ADA5D01118F0B35E004CEE2C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		ADA5D01318F0B35E004CEE2C /* ProtestViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProtestViewController.h; sourceTree = "<group>"; };
-		ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProtestViewController.m; sourceTree = "<group>"; };
 		ADA5D01618F0B35E004CEE2C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		ADA5D01C18F0B35E004CEE2C /* ProtestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProtestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA5D01D18F0B35E004CEE2C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -229,8 +226,15 @@
 		ADA625C71961F8E500D31B7C /* TPKeyboardAvoidingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingTableView.m; sourceTree = "<group>"; };
 		ADA625C81961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+TPKeyboardAvoidingAdditions.h"; sourceTree = "<group>"; };
 		ADA625C91961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+TPKeyboardAvoidingAdditions.m"; sourceTree = "<group>"; };
-		ADB8701A1966B91E001FC2A0 /* ProtestConfigurationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtestConfigurationViewController.h; sourceTree = "<group>"; };
-		ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtestConfigurationViewController.m; sourceTree = "<group>"; };
+		ADE2A9B8199EE037003B0F08 /* ProtestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtestViewController.h; sourceTree = "<group>"; };
+		ADE2A9B9199EE037003B0F08 /* ProtestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtestViewController.m; sourceTree = "<group>"; };
+		ADE2A9BA199EE037003B0F08 /* ProtestViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProtestViewController.xib; sourceTree = "<group>"; };
+		ADE2AA06199EE7D0003B0F08 /* ProtestConfigViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtestConfigViewController.h; sourceTree = "<group>"; };
+		ADE2AA07199EE7D0003B0F08 /* ProtestConfigViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtestConfigViewController.m; sourceTree = "<group>"; };
+		ADE2AA08199EE7D0003B0F08 /* ProtestConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProtestConfigViewController.xib; sourceTree = "<group>"; };
+		ADE2AA0B199EF056003B0F08 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
+		ADE2AA0C199EF056003B0F08 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
+		ADE2AA0D199EF056003B0F08 /* ChatViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChatViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -394,9 +398,15 @@
 				AD4B7BC21913CB2900EFED68 /* Message.m */,
 				ADA5D00D18F0B35E004CEE2C /* AppDelegate.h */,
 				ADA5D00E18F0B35E004CEE2C /* AppDelegate.m */,
-				ADA5D01018F0B35E004CEE2C /* Main.storyboard */,
-				ADA5D01318F0B35E004CEE2C /* ProtestViewController.h */,
-				ADA5D01418F0B35E004CEE2C /* ProtestViewController.m */,
+				ADE2A9B8199EE037003B0F08 /* ProtestViewController.h */,
+				ADE2A9B9199EE037003B0F08 /* ProtestViewController.m */,
+				ADE2A9BA199EE037003B0F08 /* ProtestViewController.xib */,
+				ADE2AA06199EE7D0003B0F08 /* ProtestConfigViewController.h */,
+				ADE2AA07199EE7D0003B0F08 /* ProtestConfigViewController.m */,
+				ADE2AA08199EE7D0003B0F08 /* ProtestConfigViewController.xib */,
+				ADE2AA0B199EF056003B0F08 /* ChatViewController.h */,
+				ADE2AA0C199EF056003B0F08 /* ChatViewController.m */,
+				ADE2AA0D199EF056003B0F08 /* ChatViewController.xib */,
 				ADA5D01618F0B35E004CEE2C /* Images.xcassets */,
 				ADA5D00518F0B35E004CEE2C /* Supporting Files */,
 				04AC4C12197A4A7E0020811E /* MimicManager.h */,
@@ -405,10 +415,6 @@
 				ADA5D03418F0B3FF004CEE2C /* ConnectionManager.m */,
 				AD70ACC518FA257E00FBBEC8 /* Peer.h */,
 				AD70ACC618FA257F00FBBEC8 /* Peer.m */,
-				AD8D656018F1282800200485 /* ChatViewController.h */,
-				AD8D656118F1282800200485 /* ChatViewController.m */,
-				ADB8701A1966B91E001FC2A0 /* ProtestConfigurationViewController.h */,
-				ADB8701B1966B91E001FC2A0 /* ProtestConfigurationViewController.m */,
 				ADC7A76E194129090023FB97 /* Crypto */,
 			);
 			path = Protest;
@@ -575,6 +581,7 @@
 				AD7960EF1921902D0022EA58 /* exitbutton@2x.png in Resources */,
 				AD79608E19215FCE0022EA58 /* greendotlocked.png in Resources */,
 				AD79606D19215C590022EA58 /* greendot@2x.png in Resources */,
+				ADE2AA0F199EF056003B0F08 /* ChatViewController.xib in Resources */,
 				AD7960D31921821F0022EA58 /* icon24@2x.png in Resources */,
 				AD00E8B2193484170032B9CD /* blue_text_bubble.png in Resources */,
 				AD7960DF1921821F0022EA58 /* icon35@2x.png in Resources */,
@@ -612,9 +619,10 @@
 				AD7960E81921821F0022EA58 /* icon6@2x.png in Resources */,
 				AD7960D11921821F0022EA58 /* icon22@2x.png in Resources */,
 				AD7960DA1921821F0022EA58 /* icon30@2x.png in Resources */,
+				ADE2A9BC199EE037003B0F08 /* ProtestViewController.xib in Resources */,
 				AD7960D51921821F0022EA58 /* icon26@2x.png in Resources */,
 				AD79609019215FCE0022EA58 /* orangedotlocked.png in Resources */,
-				ADA5D01218F0B35E004CEE2C /* Main.storyboard in Resources */,
+				ADE2AA0A199EE7D1003B0F08 /* ProtestConfigViewController.xib in Resources */,
 				AD7960D71921821F0022EA58 /* icon28@2x.png in Resources */,
 				AD7960DE1921821F0022EA58 /* icon34@2x.png in Resources */,
 				AD7960E21921821F0022EA58 /* icon38@2x.png in Resources */,
@@ -642,21 +650,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADE2A9BB199EE037003B0F08 /* ProtestViewController.m in Sources */,
 				04AC4C23197A4C9E0020811E /* RNEncryptor.m in Sources */,
+				ADE2AA09199EE7D1003B0F08 /* ProtestConfigViewController.m in Sources */,
 				ADA625CA1961F8E500D31B7C /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				AD70ACC718FA257F00FBBEC8 /* Peer.m in Sources */,
 				ADA625C01961605800D31B7C /* DAKeyboardControl.m in Sources */,
-				ADB8701C1966B91E001FC2A0 /* ProtestConfigurationViewController.m in Sources */,
 				ADA625CD1961F8E500D31B7C /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
-				ADA5D01518F0B35E004CEE2C /* ProtestViewController.m in Sources */,
 				04AC4C21197A4C9E0020811E /* RNCryptorEngine.m in Sources */,
 				AD4B7BC31913CB2900EFED68 /* Message.m in Sources */,
 				ADA625CB1961F8E500D31B7C /* TPKeyboardAvoidingScrollView.m in Sources */,
 				ADA5D03518F0B3FF004CEE2C /* ConnectionManager.m in Sources */,
 				04AC4C20197A4C9E0020811E /* RNCryptor.m in Sources */,
 				04AC4C14197A4A7E0020811E /* MimicManager.m in Sources */,
+				ADE2AA0E199EF056003B0F08 /* ChatViewController.m in Sources */,
 				AD4B7BBD1913B95800EFED68 /* CryptoManager.m in Sources */,
-				AD8D656218F1282800200485 /* ChatViewController.m in Sources */,
 				ADA625CC1961F8E500D31B7C /* TPKeyboardAvoidingTableView.m in Sources */,
 				ADA5D00F18F0B35E004CEE2C /* AppDelegate.m in Sources */,
 				04AC4C22197A4C9E0020811E /* RNDecryptor.m in Sources */,
@@ -689,14 +697,6 @@
 				ADA5D00818F0B35E004CEE2C /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		ADA5D01018F0B35E004CEE2C /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				ADA5D01118F0B35E004CEE2C /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		ADA5D02618F0B35E004CEE2C /* InfoPlist.strings */ = {

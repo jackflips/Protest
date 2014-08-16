@@ -29,8 +29,6 @@
 		<string>Gotham-Medium.otf</string>
 		<string>FuturaStd-Medium.otf</string>
 	</array>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

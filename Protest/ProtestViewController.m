@@ -8,12 +8,13 @@
 
 #import "ProtestViewController.h"
 #import "ConnectionManager.h"
-#import "ProtestConfigurationViewController.h"
 #import "AppDelegate.h"
+#import "ProtestConfigViewController.h"
 
 @interface ProtestViewController ()
 
 @property (nonatomic, retain) AppDelegate *appDelegate;
+@property (nonatomic, retain) ProtestConfigViewController *configController;
 
 @end
 
@@ -49,7 +50,7 @@
     _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     _appDelegate.manager = [[ConnectionManager alloc] init];
     [_appDelegate.manager searchForProtests];
-
+    
     _appDelegate.viewController = self;
     tableSource = [NSMutableArray array];
     Protest *sampleProt = [[Protest alloc] initWithName:@"Tahrir Square Allstars" passwordNeeded:YES andHealth:1];
@@ -61,7 +62,7 @@
     _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
     [_startProtestButton addTarget:self action:@selector(startProtest) forControlEvents:UIControlEventTouchUpInside];
     [_startProtestButton setBackgroundImage:[UIImage imageNamed:@"addbutton.png"]
-                      forState:UIControlStateNormal];
+                                   forState:UIControlStateNormal];
     [self.view addSubview:_startProtestButton];
     self.view.backgroundColor = [UIColor colorWithRed:0.945 green:0.941 blue:0.918 alpha:1];
 }
@@ -111,6 +112,7 @@
     [_appDelegate.manager disconnectFromPeers];
     _appDelegate.manager = [[ConnectionManager alloc] init];
     [_appDelegate.manager searchForProtests];
+    [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)removeProtestFromList:(NSString*)nameOfProtest {
@@ -191,17 +193,45 @@
 }
 
 - (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password {
-    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    ChatViewController *chatViewController = (ChatViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
-    _appDelegate.chatViewController = chatViewController;
-    [self presentViewController:chatViewController animated:YES completion:nil];
-    [_appDelegate.manager joinProtest:nameOfProtest password:password];
+    @try {
+        _appDelegate.chatViewController = [[ChatViewController alloc] init];
+        [self presentViewController:_appDelegate.chatViewController animated:YES completion:nil];
+        [_appDelegate.window.rootViewController presentViewController:_appDelegate.chatViewController
+                                                             animated:YES
+                                                           completion:nil];
+        [_appDelegate.manager joinProtest:nameOfProtest password:password];
+    }
+    @catch (NSException * e) {
+        NSLog(@"Exception: %@", e);
+    }
 }
 
+- (void)startChat:(NSString*)name {
+    if (!_appDelegate.chatViewController) {
+        _appDelegate.chatViewController = [[ChatViewController alloc] init];
+    }
+    [_configController dismissViewControllerAnimated:NO completion:nil];
+    [self presentViewController:_appDelegate.chatViewController
+                                              animated:YES
+                                            completion:^{
+                                                [_appDelegate.chatViewController chatLoaded:name];
+                                            }];
+ }
+
+
 - (void)startProtest {
-    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    ProtestConfigurationViewController *configurationViewController = (ProtestConfigurationViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"ProtestConfigurationViewController"];
-    [self presentViewController:configurationViewController animated:YES completion:nil];
+    if (!_configController) {
+        _configController = [[ProtestConfigViewController alloc] init];
+    } else {
+        [_configController reset];
+    }
+    [self presentViewController:_configController
+                                                 animated:YES
+                                               completion:nil];
+}
+
+- (void)dismissConfig {
+    [_configController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning
