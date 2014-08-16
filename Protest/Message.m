@@ -14,7 +14,6 @@
     self = [super init];
     _message = message;
     _uId = uID;
-    _md5hash = nil;
     _fromLeader = fromLeader;
     return self;
 }

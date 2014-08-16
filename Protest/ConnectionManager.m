@@ -635,7 +635,7 @@ static const double PRUNE = 30.0;
                         else if (thisMessage.timer) { //if you sent the message and it had a timer, delete it.
                             [thisMessage.timer invalidate];
                             thisMessage.timer = nil;
-                            for (Peer *peer in [_sessions allValues]) { //in case you are a chokepoint
+                            for (Peer *peer in [_sessions allValues]) { //everyone needs to broadcast, including you
                                 [self sendMessage:data toPeer:peer];
                             }
                         }
@@ -690,11 +690,6 @@ static const double PRUNE = 30.0;
         NSError *error;
         [peer.session sendData:data toPeers:[NSArray arrayWithObject:key] withMode:MCSessionSendDataReliable error:&error];
     }
-}
-
-- (void)messageExpired:(Message *)message {
-    [self sendMessage:message.message];
-    [_allMessages removeObjectForKey:message.md5hash];
 }
 
 - (NSString*)getTimeString {

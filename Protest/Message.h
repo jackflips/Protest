@@ -16,7 +16,6 @@
 @property (nonatomic, strong) NSString *uId;
 @property (nonatomic, strong) NSString *message;
 @property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, strong) NSString *md5hash;
 @property (nonatomic)         BOOL fromLeader;
 
 - (id)initWithMessage:(NSString*)message uID:(NSString*)uID fromLeader:(BOOL)fromLeader;
