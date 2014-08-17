@@ -7,30 +7,19 @@
 //
 
 #import "AppDelegate.h"
-#import "ConnectionManager.h"
 #import "ProtestViewController.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    _cryptoManager = [[CryptoManager alloc] init];
-    _DIAGNOSTIC_MODE = YES;
-    _viewController = [[ProtestViewController alloc] init];
+    ProtestViewController *protestViewController = [[ProtestViewController alloc] init];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = _viewController;
+    self.window.rootViewController = protestViewController;
     [self.window makeKeyAndVisible];
-    /*
-    [self.window.rootViewController presentViewController:protestViewController
-                                                 animated:YES
-                                               completion:nil]; */
     return YES;
 }
 
--(void)addMessageToChat:(Message*)message {
-    [_chatViewController addMessage:message];
-}
-							
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -39,9 +28,8 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    [_manager disconnectFromPeers];
-    [_chatViewController dismissViewControllerAnimated:YES completion:nil];
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+//    [_chatViewController dismissViewControllerAnimated:YES completion:nil];
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 
@@ -57,7 +45,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-    [_manager disconnectFromPeers];
+  //  [_manager disconnectFromPeers];
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 

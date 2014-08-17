@@ -9,6 +9,15 @@
 #import <UIKit/UIKit.h>
 #import "Message.h"
 #import "DAKeyboardControl.h"
+#import "ConnectionManager.h"
+
+@class ChatViewController;
+
+@protocol ChatViewControllerDelegate <NSObject>
+
+- (void)exitChatViewController:(ChatViewController *)self;
+
+@end
 
 @interface ChatViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
 @property (strong, nonatomic) IBOutlet UITextField *textField;
@@ -20,6 +29,7 @@
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (strong, nonatomic) IBOutlet UIButton *sendButton;
 @property (strong, nonatomic) IBOutlet UIToolbar *toolBar;
+@property (weak, nonatomic) id<ChatViewControllerDelegate> delegate;
 
 - (void)chatLoaded:(NSString*)protestName;
 - (void)addMessage:(Message*)message;

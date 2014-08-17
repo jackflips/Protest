@@ -11,11 +11,8 @@
 //
 
 #import "ChatViewController.h"
-#import "AppDelegate.h"
 
 @interface ChatViewController ()
-
-@property (nonatomic, strong) AppDelegate *appDelegate;
 
 -(void)sendMyMessage;
 -(void)didReceiveDataWithNotification:(NSNotification *)notification;
@@ -24,13 +21,21 @@
 
 @implementation ChatViewController
 
+- (void)dismiss
+{
+    [self dismissViewControllerAnimated:NO completion:nil];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    _appDelegate.chatViewController = self;
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismiss) name:UIApplicationDidEnterBackgroundNotification object:nil];
     
     _chatSource = [NSMutableArray array];
     _availAvatars = [NSMutableArray array];
@@ -49,13 +54,6 @@
     [_spinner startAnimating];
     
     [self registerForKeyboardNotifications];
-    
-    [self addMessage:[[Message alloc] initWithMessage:@"Is this a test?" uID:@"0" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Yep" uID:@"1" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Yes." uID:@"2" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Of course it is." uID:@"3" fromLeader:NO]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Just a test." uID:@"4" fromLeader:YES]];
-    [self addMessage:[[Message alloc] initWithMessage:@"Test test test" uID:@"5" fromLeader:NO]];
     
     _toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f,
                                                            self.view.bounds.size.height - 40.0f,
@@ -96,8 +94,20 @@
     
     [_textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     
+    /*
     NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
     [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
+     */
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(chatLoadedNotification:)
+                                                 name:@"chatLoaded"
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(newMessage:)
+                                                 name:@"addMessage"
+                                               object:nil];
 }
 
 -(void)textFieldDidChange :(UITextField *)theTextField{
@@ -139,8 +149,8 @@
     UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
     _chatTable.contentInset = contentInsets;
     _chatTable.scrollIndicatorInsets = contentInsets;
-    NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
-    [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
+    //NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
+    //[_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)aNotification
@@ -150,15 +160,13 @@
     _chatTable .scrollIndicatorInsets = contentInsets;
 }
 
-
-- (void)chatLoaded:(NSString*)protestName {
-    _protestName.hidden = NO;
-    _chatTable.hidden = NO;
-    _protestName.text = protestName;
-    [_spinner removeFromSuperview];
+- (void)chatLoadedNotification:(NSNotification*)note {
+    NSString *protestName = [[note userInfo] valueForKey:@"protestName"];
+    [self chatLoaded:protestName];
 }
 
-- (void)addMessage:(Message*)message {
+- (void)newMessage:(NSNotification*)note {
+    Message *message = [[note userInfo] valueForKey:@"newMessage"];
     if ([_avatarForUser objectForKey:message.uId] == nil) {
         uint32_t rnd = arc4random_uniform((uint32_t)_availAvatars.count - 1) + 1; //between 2 and availAvatars.count
         NSNumber *avatarNum = [_availAvatars objectAtIndex:rnd];
@@ -171,6 +179,14 @@
     [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
+- (void)chatLoaded:(NSString*)protestName {
+    NSLog(@"hello");
+    _protestName.hidden = NO;
+    _chatTable.hidden = NO;
+    _protestName.text = protestName;
+    [_spinner removeFromSuperview];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -178,7 +194,7 @@
 }
 
 - (IBAction)showBrowseResults:(id)sender {
-    [_appDelegate.manager showBrowserResults];
+    [[ConnectionManager shared] showBrowserResults];
 }
 
 #pragma mark - UITextField Delegate method implementation
@@ -192,14 +208,13 @@
 #pragma mark - IBAction method implementation
 
 - (IBAction)exitButtonPressed:(id)sender {
-    [_appDelegate.viewController reset];
-    //[self dismissViewControllerAnimated:YES completion:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"viewControllerReset" object:self userInfo:nil];
 }
 
 
 - (IBAction)sendButtonPressed:(id)sender {
     NSLog(@"send button pressed");
-    Message *myMessage = [[Message alloc] initWithMessage:_textField.text uID:_appDelegate.manager.userID fromLeader:NO];
+    Message *myMessage = [[Message alloc] initWithMessage:_textField.text uID:[ConnectionManager shared].userID fromLeader:NO];
     myMessage.timer = [NSTimer scheduledTimerWithTimeInterval:10.0
                                                        target:self
                                                      selector:@selector(messageNotReturned)
@@ -208,7 +223,7 @@
     [_textField setText:@""];
     [_chatSource addObject:myMessage];
     [_chatTable reloadData];
-    [_appDelegate.manager sendMessage:myMessage];
+    [[ConnectionManager shared] sendMessage:myMessage];
     [self.view endEditing:YES];
 }
 
@@ -328,7 +343,7 @@
     
     
     Message *message = [_chatSource objectAtIndex:indexPath.row];
-    if ([message.uId isEqualToString:_appDelegate.manager.userID]) {
+    if ([message.uId isEqualToString:[ConnectionManager shared].userID]) {
         cell = [self selfChatBubble:message.message cell:cell];
     } else {
         cell = [self othersChatBubble:message.message cell:cell avatarID:[[_avatarForUser objectForKey:message.uId] intValue] fromLeader:message.fromLeader];

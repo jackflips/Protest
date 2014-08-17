@@ -11,23 +11,23 @@
 @implementation ProtestConfigViewController
 
 - (IBAction)exitButtonPressed:(id)sender {
-    [_appDelegate.viewController dismissConfig];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"dismissConfig" object:self];
     //[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)startProtest:(id)sender {
-    _appDelegate.manager.leader = YES;
+    [ConnectionManager shared].leader = YES;
     NSString *password = nil;
     if (_passwordField.text.length > 0) password = _passwordField.text;
-    [_appDelegate.manager startProtest:_protestNameField.text password:password];
-    [_appDelegate.viewController startChat:_protestNameField.text];
+    [[ConnectionManager shared] startProtest:_protestNameField.text password:password];
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:_protestNameField.text, @"protestName", nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"startChat" object:self userInfo:info];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     NSLog(@"view did load");
-    _appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     _startButton.enabled = NO;
     [_startButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [_protestNameField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];

@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-@class AppDelegate;
 
 @interface Message : NSObject
 

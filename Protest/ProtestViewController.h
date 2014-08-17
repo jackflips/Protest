@@ -7,8 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@class AppDelegate;
+#import "ConnectionManager.h"
 
 @interface ProtestViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate> {
     NSMutableArray *tableSource;
@@ -17,9 +16,6 @@
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) UIButton *startProtestButton;
 
-- (void)addProtestToList:(NSString*)nameOfProtest password:(BOOL)password health:(int)health;
-- (void)removeProtestFromList:(NSString*)nameOfProtest;
-- (void)reset;
 - (void)finalTest;
 - (void)dismissConfig;
 - (void)startChat:(NSString*)name;

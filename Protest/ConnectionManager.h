@@ -14,8 +14,8 @@
 #import "Message.h"
 #import "ProtestViewController.h"
 
-
-@interface ConnectionManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate> {
+@interface ConnectionManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate>
+{
     enum ProtestNetworkState : NSUInteger {
         ProtestNetworkStateNotConnected,
         ProtestNetworkStateConnected,
@@ -42,8 +42,13 @@
 @property (nonatomic, strong) NSMutableArray *secretMessagePath;
 @property (nonatomic) enum ProtestNetworkState state;
 
+@property (nonatomic) BOOL DIAGNOSTIC_MODE;
+
 @property (nonatomic) SecKeyRef leadersPublicKey;
 
++ (ConnectionManager *)shared;
+
+- (void)resetState;
 - (void)joinProtest:(NSString*)protestName password:(NSString*)password;
 - (void)startProtest:(NSString*)name password:(NSString*)password;
 - (void)sendMessage:(id)message toPeer:(Peer*)peer;

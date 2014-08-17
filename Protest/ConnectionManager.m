@@ -5,48 +5,68 @@
 
 #import "ConnectionManager.h"
 #import "ChatViewController.h"
-#import "AppDelegate.h"
 
 @interface ConnectionManager()
-
-@property (nonatomic, retain) AppDelegate *appDelegate;
 
 @end
 
 @implementation ConnectionManager
+{
+    CryptoManager *cryptoManager;
+    BOOL DIAGNOSTIC_MODE;
+}
 
 static const double PRUNE = 30.0;
+
++ (ConnectionManager *)shared
+{
+    static ConnectionManager *shared = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        shared = [[ConnectionManager alloc] init];
+    });
+    return shared;
+}
 
 - (id)init{
     self = [super init];
     
     if (self) {
-        srand(time(NULL));
-        _session = nil;
-        _peerID = nil;
-        _browser = nil;
-        _advertiser = nil;
-        _leadersPublicKey = nil;
-        _leader = NO;
-        _sessions = [[NSMutableDictionary alloc] init];
-        _allMessages = [[NSMutableDictionary alloc] init];
-        _appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        _password = nil;
-        _nameOfProtest = nil;
-        _foundProtests = [NSMutableDictionary dictionary];
-        _secretMessagePath = [NSMutableArray array];
-        _state = ProtestNetworkStateNotConnected;
-        DIAGNOSTIC_ADDRESS =  @"http://107.170.255.118:8000";
-        _password = @"";
         
-        //create random username
-        _userID = [self randomString:12];
-        NSLog(@"%@", _userID);
+        DIAGNOSTIC_MODE = YES;
         
-        //[self sendDiagnosticMessage:[NSString stringWithFormat:@"event=connection&peer=%@&connectedpeer=%@", _userID, @"123"]];
+        [self resetState];
         
+        cryptoManager = [[CryptoManager alloc] init];
     }
     return self;
+}
+
+- (void)resetState
+{
+    srand(time(NULL));
+    _session = nil;
+    _peerID = nil;
+    _browser = nil;
+    _advertiser = nil;
+    _leadersPublicKey = nil;
+    _leader = NO;
+    _sessions = [[NSMutableDictionary alloc] init];
+    _allMessages = [[NSMutableDictionary alloc] init];
+    
+    _password = nil;
+    _nameOfProtest = nil;
+    _foundProtests = [NSMutableDictionary dictionary];
+    _secretMessagePath = [NSMutableArray array];
+    _state = ProtestNetworkStateNotConnected;
+    DIAGNOSTIC_ADDRESS =  @"http://107.170.255.118:8000";
+    _password = @"";
+    
+    //create random username
+    _userID = [self randomString:12];
+    NSLog(@"%@", _userID);
+    
+    //[self sendDiagnosticMessage:[NSString stringWithFormat:@"event=connection&peer=%@&connectedpeer=%@", _userID, @"123"]];
 }
 
 - (NSString*)randomString:(int)length {
@@ -92,7 +112,7 @@ static const double PRUNE = 30.0;
     NSLog(@"manager gonna browse");
     _nameOfProtest = name;
     if (password) _password = password;
-    _leadersPublicKey = _appDelegate.cryptoManager.publicKey;
+    _leadersPublicKey = cryptoManager.publicKey;
     _peerID = [[MCPeerID alloc] initWithDisplayName:_userID];
     [self browse];
     _state = ProtestNetworkStateConnected;
@@ -152,7 +172,7 @@ static const double PRUNE = 30.0;
         newPeer.displayName = peerID.displayName;
         
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
-        NSArray *publicKeyArray = @[[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+        NSArray *publicKeyArray = @[[cryptoManager getPublicKeyBitsFromKey:cryptoManager.publicKey]];
         NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
         BOOL shouldInvite = NO;
         if (_nameOfProtest) {
@@ -185,7 +205,7 @@ static const double PRUNE = 30.0;
         newPeer.session.delegate = self;
         newPeer.peerID = peerID;
         newPeer.isClient = YES;
-        newPeer.key = [_appDelegate.cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
+        newPeer.key = [cryptoManager addPublicKey:[[NSKeyedUnarchiver unarchiveObjectWithData:context] objectAtIndex:0] withTag:peerID.displayName];
         newPeer.displayName = peerID.displayName;
         [_foundProtests setObject:newPeer forKey:peerID.displayName];
         invitationHandler(YES, newPeer.session);
@@ -203,20 +223,21 @@ static const double PRUNE = 30.0;
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer.isClient) {
             NSError *error;
-            NSArray *message = @[@"Handshake", [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]];
+            NSArray *message = @[@"Handshake", [cryptoManager getPublicKeyBitsFromKey:cryptoManager.publicKey]];
             NSData *messageData = [NSKeyedArchiver archivedDataWithRootObject:message];
-            NSData *encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
+            NSData *encryptedMessage = [cryptoManager encrypt:messageData WithPublicKey:peer.key];
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     } else if (state == MCSessionStateNotConnected) {
-        if (_appDelegate.DIAGNOSTIC_MODE) {
+        if ([ConnectionManager shared].DIAGNOSTIC_MODE) {
             [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, peerID.displayName]];
         }
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
         else peer = [_sessions objectForKey:peerID.displayName];
         if (peer) {
-            [_appDelegate.viewController removeProtestFromList:peer.protestName];
+            NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:peer.protestName, @"protestName", nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"removeProtestFromList" object:self userInfo:info];
             [_sessions removeObjectForKey:peerID.displayName];
             [self traversePeers:^(Peer *myPeer, Peer *parent){
                 for (int i=0; i<myPeer.peers.count; i++) {
@@ -249,8 +270,8 @@ static const double PRUNE = 30.0;
 
 - (void)sendConnectEvent:(Peer*)peer {
     [self sendEventToAllPeers:@[@"PeerConnected",
-                               @[_userID, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_appDelegate.cryptoManager.publicKey]],
-                                @[peer.peerID.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]], [NSNumber numberWithInt:0]] except:peer];
+                               @[_userID, [cryptoManager getPublicKeyBitsFromKey:cryptoManager.publicKey]],
+                                @[peer.peerID.displayName, [cryptoManager getPublicKeyBitsFromKey:peer.key]], [NSNumber numberWithInt:0]] except:peer];
 }
 
 - (void)sendDisconnectEvent:(Peer*)peer {
@@ -270,13 +291,13 @@ static const double PRUNE = 30.0;
 }
 
 - (void)startMimicTraffic:(Peer*)peer {
-    if (!_appDelegate.DIAGNOSTIC_MODE) {
+    if (_DIAGNOSTIC_MODE) {
         peer.mimicManager = [[MimicManager alloc] initAndSendMimicWithConnectionManager:self andPeer:peer];
     }
 }
 
 - (void)firstMimic:(Peer*)peer {
-    if (!_appDelegate.DIAGNOSTIC_MODE) {
+    if (_DIAGNOSTIC_MODE) {
         peer.mimicManager = [[MimicManager alloc] initWithConnectionManager:self andPeer:peer];
     }
 }
@@ -285,9 +306,9 @@ static const double PRUNE = 30.0;
     NSMutableArray *peerlist = [NSMutableArray array];
     for (Peer *peer in [_sessions allValues]) {
         if (peer.authenticated) {
-            [peerlist addObject:@[peer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peer.key]]];
+            [peerlist addObject:@[peer.displayName, [cryptoManager getPublicKeyBitsFromKey:peer.key]]];
             for (Peer *peersPeer in peer.peers) {
-                [peerlist addObject:@[peersPeer.displayName, [_appDelegate.cryptoManager getPublicKeyBitsFromKey:peersPeer.key]]];
+                [peerlist addObject:@[peersPeer.displayName, [cryptoManager getPublicKeyBitsFromKey:peersPeer.key]]];
             }
             [peerlist addObject:@[@"stop"]];
         }
@@ -304,7 +325,7 @@ static const double PRUNE = 30.0;
             continue;
         }
         NSData *newPeerKey = [peerInfo objectAtIndex:1];
-        Peer *newPeer = [[Peer alloc] initWithName:newPeerName andPublicKey:[_appDelegate.cryptoManager addPublicKey:newPeerKey withTag:newPeerName]];
+        Peer *newPeer = [[Peer alloc] initWithName:newPeerName andPublicKey:[cryptoManager addPublicKey:newPeerKey withTag:newPeerName]];
         if (!parentPeer) {
             [thisPeer.peers addObject:newPeer];
             parentPeer = newPeer;
@@ -382,9 +403,9 @@ static const double PRUNE = 30.0;
             messageData = [self addPrefixToData:messageData prefix:0];
         }
         NSData *paddedMessageData = [self padMessage:messageData lengthToPadTo:2000];
-        encryptedMessage = [_appDelegate.cryptoManager encrypt:paddedMessageData password:peer.symmetricKey];
+        encryptedMessage = [cryptoManager encrypt:paddedMessageData password:peer.symmetricKey];
     } else {
-        encryptedMessage = [_appDelegate.cryptoManager encrypt:messageData WithPublicKey:peer.key];
+        encryptedMessage = [cryptoManager encrypt:messageData WithPublicKey:peer.key];
     }
     [peer.session sendData:encryptedMessage toPeers:@[peer.peerID] withMode:MCSessionSendDataReliable error:&error];
     [self sendDiagnosticMessage:[NSString stringWithFormat:@"event=sent-message&peer=%@", _userID]];
@@ -418,7 +439,7 @@ static const double PRUNE = 30.0;
             
             /* Decrypt */
             if (thisPeer.authenticated) {
-                NSData *decryptedBytes = [_appDelegate.cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
+                NSData *decryptedBytes = [cryptoManager decrypt:messageData password:thisPeer.symmetricKey];
                 int messageLength = [self prefixOf:decryptedBytes];
                 NSData *unpackedData;
                 if (messageLength <= 2100) { //to prevent overflow attacks
@@ -434,11 +455,11 @@ static const double PRUNE = 30.0;
                 decryptedData = [NSData dataWithBytes:bytes length:unpackedData.length - sizeof(int)];
                 
                 if (encryptionPrefix == 1) {
-                    decryptedData = [_appDelegate.cryptoManager decrypt:decryptedData];
+                    decryptedData = [cryptoManager decrypt:decryptedData];
                 }
                 
             } else {
-                decryptedData = [_appDelegate.cryptoManager decrypt:messageData];
+                decryptedData = [cryptoManager decrypt:messageData];
             }
             
             data = [NSKeyedUnarchiver unarchiveObjectWithData:decryptedData];
@@ -448,10 +469,10 @@ static const double PRUNE = 30.0;
             
             /* Message routing */
             if ([data[0] isEqualToString:@"Handshake"]) {
-                thisPeer.key = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
+                thisPeer.key = [cryptoManager addPublicKey:[data objectAtIndex:1] withTag:peerID.displayName];
                 BOOL isPassword = NO;
                 if (![_password isEqualToString:@""]) isPassword = YES;
-                NSData *leadersKeyData = [_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
+                NSData *leadersKeyData = [cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey];
                 thisPeer.symmetricKeyFragment = [self randomString:32];
                 NSArray *handshake2 = @[@"HandshakeBack", _nameOfProtest, [NSNumber numberWithBool:isPassword], leadersKeyData, thisPeer.symmetricKeyFragment];
                 [self sendMessage:handshake2 toPeer:thisPeer];
@@ -462,7 +483,7 @@ static const double PRUNE = 30.0;
                     thisPeer.symmetricKeyFragment = data[4];
                     if (_nameOfProtest
                         && [[data objectAtIndex:1] isEqualToString:_nameOfProtest]
-                        && [[data objectAtIndex:3] isEqualToData:[_appDelegate.cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
+                        && [[data objectAtIndex:3] isEqualToData:[cryptoManager getPublicKeyBitsFromKey:_leadersPublicKey]])
                     {
                         NSString *keyFrag2 = [self randomString:32];
                         thisPeer.symmetricKey = [self MD5:[NSString stringWithFormat: @"%@%@", thisPeer.symmetricKeyFragment, keyFrag2]];
@@ -470,10 +491,11 @@ static const double PRUNE = 30.0;
                     }
                     else {
                         thisPeer.protestName = [data objectAtIndex:1];
-                        thisPeer.leadersKey = [_appDelegate.cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];
+                        thisPeer.leadersKey = [cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];
                         thisPeer.displayName = thisPeer.peerID.displayName;
                         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                            [_appDelegate.viewController addProtestToList:[data objectAtIndex:1] password:[[data objectAtIndex:2] boolValue] health:1];
+                            NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[data objectAtIndex:1], @"protestName", [[data objectAtIndex:2] boolValue], @"protestHasPassword", [NSNumber numberWithInt:1], @"protestHealth", nil];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:@"addProtestToList" object:self userInfo:info];
                         }];
                     }
                 }
@@ -497,16 +519,8 @@ static const double PRUNE = 30.0;
             
             else if ([[data objectAtIndex:0] isEqualToString:@"WrongPassword"]) {
                 if (_state == ProtestNetworkStateNotConnected) {
-                    [_appDelegate.viewController reset];
-                    [_appDelegate.chatViewController dismissViewControllerAnimated:YES completion:nil];
-                    UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Incorrect Password"
-                                                                      message:@"Your password was incorrect."
-                                                                     delegate:nil
-                                                            cancelButtonTitle:@"OK"
-                                                            otherButtonTitles:nil];
-                    
-                    [message show];
                     _password = nil;
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"viewControllerReset" object:self userInfo:nil];
                 }
             }
             
@@ -517,7 +531,8 @@ static const double PRUNE = 30.0;
                 [_foundProtests removeObjectForKey:thisPeer.peerID.displayName];
                 if (_state == ProtestNetworkStateNotConnected) {
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        [_appDelegate.chatViewController chatLoaded:thisPeer.protestName];
+                        NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:thisPeer.protestName, @"protestName", nil];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"chatLoaded" object:self userInfo:info];
                     }];
                     _leadersPublicKey = thisPeer.leadersKey;
                     _nameOfProtest = thisPeer.protestName;
@@ -558,7 +573,7 @@ static const double PRUNE = 30.0;
                                 NSString *newPeerDisplayName = data[2][0];
                                 if (![parent.displayName isEqualToString:newPeerDisplayName]) {
                                     if (![parent.peers containsObject:newPeerDisplayName]) {
-                                        Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
+                                        Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[cryptoManager addPublicKey:data[2][1] withTag:newPeerDisplayName]];
                                         for (Peer *child in peer.peers) {
                                             if ([child.displayName isEqualToString:newPeerDisplayName]) return;
                                         }
@@ -569,7 +584,7 @@ static const double PRUNE = 30.0;
                                 NSString *newPeerDisplayName = data[1][0];
                                 if (![parent.displayName isEqualToString:newPeerDisplayName]) {
                                     if (![parent.peers containsObject:newPeerDisplayName]) {
-                                        Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[_appDelegate.cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
+                                        Peer *newPeer = [[Peer alloc] initWithName:newPeerDisplayName andPublicKey:[cryptoManager addPublicKey:data[1][1] withTag:newPeerDisplayName]];
                                         for (Peer *child in peer.peers) {
                                             if ([child.displayName isEqualToString:newPeerDisplayName]) return;
                                         }
@@ -621,13 +636,14 @@ static const double PRUNE = 30.0;
                         if (!thisMessage) {
                             Message *newMessage = [[Message alloc] initWithMessage:[data objectAtIndex:3] uID:[data objectAtIndex:2] fromLeader:NO];
                             if ([data count] >= 5) {
-                                OSStatus status = [_appDelegate.cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
+                                OSStatus status = [cryptoManager verify:[[data objectAtIndex:3] dataUsingEncoding:NSUTF8StringEncoding] withSignature:[data objectAtIndex:4] andKey:_leadersPublicKey];
                                 if (status == 0) { //if verified...
                                     newMessage.fromLeader = YES;
                                 }
                             }
                             [_allMessages setObject:newMessage forKey:[data objectAtIndex:1]];
-                            [_appDelegate.chatViewController addMessage:newMessage];
+                            NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:newMessage, @"newMessage", nil];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:@"addMessage" object:self userInfo:info];
                             for (Peer *peer in [_sessions allValues]) {
                                 [self sendMessage:data toPeer:peer];
                             }
@@ -686,7 +702,7 @@ static const double PRUNE = 30.0;
 - (void)forwardMessage:(NSData*)data {
     for (MCPeerID* key in _sessions) {
         Peer *peer = [_sessions objectForKey:key];
-        data = [_appDelegate.cryptoManager encrypt:data WithPublicKey:peer.key];
+        data = [cryptoManager encrypt:data WithPublicKey:peer.key];
         NSError *error;
         [peer.session sendData:data toPeers:[NSArray arrayWithObject:key] withMode:MCSessionSendDataReliable error:&error];
     }
@@ -809,7 +825,7 @@ static const double PRUNE = 30.0;
     if (path.count <= 1) {
         return message;
     } else {
-        NSData *msgData = [_appDelegate.cryptoManager encrypt:message WithPublicKey:key];
+        NSData *msgData = [cryptoManager encrypt:message WithPublicKey:key];
         int twiceEncryptionStatus = 1;
         NSMutableData *status = [NSMutableData dataWithBytes:&twiceEncryptionStatus length:sizeof(int)];
         [status appendData:msgData];
@@ -842,7 +858,7 @@ static const double PRUNE = 30.0;
     NSArray *messageToSend;
     if (_leader) {
         NSData *messageData = [message.message dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *sig = [_appDelegate.cryptoManager sign:messageData withKey:_appDelegate.cryptoManager.privateKey];
+        NSData *sig = [cryptoManager sign:messageData withKey:cryptoManager.privateKey];
         messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, sig, nil];
     } else {
         messageToSend = [NSArray arrayWithObjects:@"Message", hash, _userID, message.message, nil];
