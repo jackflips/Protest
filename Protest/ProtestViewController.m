@@ -97,19 +97,22 @@
 
 
 - (void)updateProtestHealth {
-    [tableSource sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        Protest *d1 = obj1, *d2 = obj2;
-        if (d1.numberOfPeers > d2.numberOfPeers) return NSOrderedDescending;
-        else if (d1.numberOfPeers == d2.numberOfPeers) return NSOrderedSame;
-        else return NSOrderedAscending;
-    }];
-    int topProtest = [[tableSource objectAtIndex:0] numberOfPeers];
-    for (Protest *prot in tableSource) {
-        if (prot.numberOfPeers >= topProtest/2) {
-            prot.health = 1;
-        } else {
-            prot.health = 0;
+    if (tableSource.count > 0) {
+        [tableSource sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            Protest *d1 = obj1, *d2 = obj2;
+            if (d1.numberOfPeers > d2.numberOfPeers) return NSOrderedDescending;
+            else if (d1.numberOfPeers == d2.numberOfPeers) return NSOrderedSame;
+            else return NSOrderedAscending;
+        }];
+        int topProtest = [[tableSource objectAtIndex:0] numberOfPeers];
+        for (Protest *prot in tableSource) {
+            if (prot.numberOfPeers >= topProtest/2) {
+                prot.health = 1;
+            } else {
+                prot.health = 0;
+            }
         }
+        
     }
 }
 
@@ -131,6 +134,8 @@
     [[ConnectionManager shared] searchForProtests];
     
     [_chatViewController dismissViewControllerAnimated:YES completion:nil];
+    _chatViewController = nil;
+    _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
 }
 
 - (void)addProtestToList:(NSNotification*)note {
@@ -152,6 +157,7 @@
 
 - (void)dismissConfig:(NSNotification*)note {
     [_configController dismissViewControllerAnimated:YES completion:nil];
+    _configController = nil;
 }
 
 - (void)removeProtestFromList:(NSNotification*)note {

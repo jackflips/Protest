@@ -36,6 +36,7 @@ static const double PRUNE = 30.0;
         DIAGNOSTIC_MODE = YES;
         
         [self resetState];
+        _userID = [self randomString:12];
         
         cryptoManager = [[CryptoManager alloc] init];
     }
@@ -44,7 +45,7 @@ static const double PRUNE = 30.0;
 
 - (void)resetState
 {
-    srand(time(NULL));
+    srand((uint)time(NULL));
     _session = nil;
     _peerID = nil;
     _browser = nil;
@@ -61,12 +62,6 @@ static const double PRUNE = 30.0;
     _state = ProtestNetworkStateNotConnected;
     DIAGNOSTIC_ADDRESS =  @"http://107.170.255.118:8000";
     _password = @"";
-    
-    //create random username
-    _userID = [self randomString:12];
-    NSLog(@"%@", _userID);
-    
-    //[self sendDiagnosticMessage:[NSString stringWithFormat:@"event=connection&peer=%@&connectedpeer=%@", _userID, @"123"]];
 }
 
 - (NSString*)randomString:(int)length {
