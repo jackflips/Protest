@@ -248,6 +248,7 @@ static const double PRUNE = 30.0;
             }];
             [self sendDisconnectEvent:peer];
         }
+        NSLog(@"%@", _sessions);
     }
 }
 
@@ -737,13 +738,6 @@ static const double PRUNE = 30.0;
     }
 }
 
-- (Peer*)peerExists:(NSArray*)peers name:(NSString*)displayName {
-    for (Peer *peer in peers) {
-        if ([peer.displayName isEqualToString:displayName]) return peer;
-    }
-    return nil;
-}
-
 - (Peer*)returnPeerGivenName:(NSString*)name currentLevel:(NSArray*)level {
     for (Peer *peer in level) {
         if ([name isEqualToString:peer.displayName]) {
@@ -766,18 +760,13 @@ static const double PRUNE = 30.0;
 }
 
 - (BOOL)pathStillValid {
-    NSArray *currentLevel = [_sessions allValues];
-    for (NSString *name in _secretMessagePath) {
-        Peer *peer = [self peerExists:currentLevel name:name];
-        if (name == _secretMessagePath.lastObject) {
-            return YES;
-        } else if (peer.peers) {
-            currentLevel = peer.peers;
-        } else {
+    if (_secretMessagePath.count == 0) return NO;
+    for (NSString *hop in _secretMessagePath) {
+        if ([self returnPeerGivenName:hop] == nil) {
             return NO;
         }
     }
-    return NO;
+    return YES;
 }
 
 - (void)findAllPathsThroughPeerTreeHelper:(NSArray*)level andWorkingPath:(NSMutableArray*)path paths:(NSMutableArray*)paths {

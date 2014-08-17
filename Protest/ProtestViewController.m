@@ -124,6 +124,7 @@
 
 - (void)reset:(NSNotification*)note {
     [tableSource removeAllObjects];
+    [_tableView reloadData];
     
     [[ConnectionManager shared] disconnectFromPeers];
     [[ConnectionManager shared] resetState];
