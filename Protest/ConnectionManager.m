@@ -792,7 +792,7 @@ static const double PRUNE = 30.0;
     [self findAllPathsThroughPeerTreeHelper:validPeers andWorkingPath:[NSMutableArray array] paths:paths];
     int highestCount = 0;
     for (NSArray *path in paths) {
-        if (path.count > highestCount) highestCount = (int)path.count;
+        if (path.count > highestCount && path.count < 4) highestCount = (int)path.count;
     }
     for (int i=0; i<paths.count; i++) {
         if ([paths[i] count] < highestCount) [paths removeObjectAtIndex:i];
