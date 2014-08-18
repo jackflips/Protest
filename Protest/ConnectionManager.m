@@ -37,6 +37,7 @@ static const double PRUNE = 30.0;
         
         [self resetState];
         _userID = [self randomString:12];
+        NSLog(@"ID: %@", _userID);
         
         cryptoManager = [[CryptoManager alloc] init];
     }
@@ -158,6 +159,7 @@ static const double PRUNE = 30.0;
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info {
+    NSLog(@"peer browser has seen: %@", peerID.displayName);
     if (![_foundProtests objectForKey:peerID.displayName] && ![_sessions objectForKey:peerID.displayName]) {
         Peer *newPeer = [[Peer alloc] initWithSession:[[MCSession alloc] initWithPeer:_peerID
                                                                      securityIdentity:nil
@@ -170,7 +172,8 @@ static const double PRUNE = 30.0;
         NSArray *publicKeyArray = @[[cryptoManager getPublicKeyBitsFromKey:cryptoManager.publicKey]];
         NSData *publicKeyContext = [NSKeyedArchiver archivedDataWithRootObject:publicKeyArray];
         BOOL shouldInvite = NO;
-        if (_nameOfProtest) {
+        NSLog(@"Browser found peer with protest name: %@", _nameOfProtest);
+        if (_nameOfProtest && ![_userID isEqualToString:peerID.displayName]) {
             if ([[info objectForKey:@"name"] isEqualToString:[[self MD5:_nameOfProtest] substringToIndex:10]]) {
                 shouldInvite = ([_userID compare:peerID.displayName] == NSOrderedDescending);
             } else if ([info objectForKey:@"name"] == nil) {

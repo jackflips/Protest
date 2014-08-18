@@ -225,7 +225,6 @@
 }
 
 - (void)chatLoaded:(NSString*)protestName {
-    NSLog(@"hello");
     _protestName.hidden = NO;
     _chatTable.hidden = NO;
     _protestName.text = protestName;
