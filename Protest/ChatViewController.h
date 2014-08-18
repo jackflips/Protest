@@ -30,6 +30,7 @@
 @property (strong, nonatomic) IBOutlet UIButton *sendButton;
 @property (strong, nonatomic) IBOutlet UIToolbar *toolBar;
 @property (weak, nonatomic) id<ChatViewControllerDelegate> delegate;
+@property (strong, nonatomic) Message *warningMessage;
 
 - (void)chatLoaded:(NSString*)protestName;
 - (void)addMessage:(Message*)message;

@@ -53,6 +53,9 @@
     [self.view addSubview:_spinner]; // spinner is not visible until started
     [_spinner startAnimating];
     
+    _warningMessage = [[Message alloc] initWithMessage:@"There's no one else in the chat right now." uID:@"41" fromLeader:NO];
+    [_avatarForUser setValue:[NSNumber numberWithInt:41] forKey:_warningMessage.uId];
+    
     [self registerForKeyboardNotifications];
     
     _toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0f,
@@ -108,16 +111,54 @@
                                              selector:@selector(newMessage:)
                                                  name:@"addMessage"
                                                object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updatePeerNumber:)
+                                                 name:@"updatePeerNumber"
+                                               object:nil];
+    
+}
+
+- (void)updatePeerNumber:(NSNotification*)note {
+    int numberOfPeers = (int)[[ConnectionManager shared] sessions].count;
+    if (numberOfPeers == 0) {
+        [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+        [_sendButton setEnabled:NO];
+        [_textField setEnabled:NO];
+        [self addNoPeersWarning];
+    } else {
+        [_sendButton setEnabled:YES];
+        [_textField setEnabled:YES];
+        if ([_textField.text length] > 0) {
+            [_sendButton setTitleColor:[UIColor colorWithRed:0 green:0.478431 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
+        }
+        [self removeNoPeersWarning];
+        //[self updateNumber];
+    }
+}
+
+- (void)addNoPeersWarning {
+    [_chatSource addObject:_warningMessage];
+    [_chatTable reloadData];
+    NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
+    [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
+}
+
+- (void)removeNoPeersWarning {
+    [_chatSource removeObject:_warningMessage];
+    [_chatTable reloadData];
 }
 
 -(void)textFieldDidChange :(UITextField *)theTextField{
     if ([theTextField.text length] > 0) {
-        if ([theTextField.text length] > 650) {
+        if ([theTextField.text length] > 650) { //need to constrain messages to a certain length to ensure all of the packets will be uniform
             [_sendButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
             [_sendButton setEnabled:NO];
         } else {
-            [_sendButton setTitleColor:[UIColor colorWithRed:0 green:0.478431 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
-            [_sendButton setEnabled:YES];
+            if ([[ConnectionManager shared] sessions].count > 0) {
+                [_sendButton setTitleColor:[UIColor colorWithRed:0 green:0.478431 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
+                [_sendButton setEnabled:YES];
+            }
         }
     } else {
         [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
@@ -165,8 +206,7 @@
     [self chatLoaded:protestName];
 }
 
-- (void)newMessage:(NSNotification*)note {
-    Message *message = [[note userInfo] valueForKey:@"newMessage"];
+- (void)addMessage:(Message *)message {
     if ([_avatarForUser objectForKey:message.uId] == nil) {
         uint32_t rnd = arc4random_uniform((uint32_t)_availAvatars.count - 1) + 1; //between 2 and availAvatars.count
         NSNumber *avatarNum = [_availAvatars objectAtIndex:rnd];
@@ -179,12 +219,18 @@
     [_chatTable scrollToRowAtIndexPath:ipath atScrollPosition: UITableViewScrollPositionTop animated:YES];
 }
 
+- (void)newMessage:(NSNotification*)note {
+    Message *message = [[note userInfo] valueForKey:@"newMessage"];
+    [self addMessage:message];
+}
+
 - (void)chatLoaded:(NSString*)protestName {
     NSLog(@"hello");
     _protestName.hidden = NO;
     _chatTable.hidden = NO;
     _protestName.text = protestName;
     [_spinner removeFromSuperview];
+    [self updatePeerNumber:nil];
 }
 
 - (void)didReceiveMemoryWarning
