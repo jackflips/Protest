@@ -445,6 +445,8 @@ static const double PRUNE = 30.0;
                     unpackedData = [NSData dataWithBytes:bytes length:messageLength];
                 }
                 
+                if (unpackedData.length < sizeof(int)) return;
+                
                 /* Get encryption status prefix - whether or not message is doubly encrypted (TLS + Onion) */
                 int encryptionPrefix = [self prefixOf:unpackedData];
                 Byte bytes[unpackedData.length - sizeof(int)];
