@@ -262,6 +262,7 @@
 
 - (IBAction)sendButtonPressed:(id)sender {
     NSLog(@"send button pressed");
+    [_textField resignFirstResponder];
     Message *myMessage = [[Message alloc] initWithMessage:_textField.text uID:[ConnectionManager shared].userID fromLeader:NO];
     myMessage.timer = [NSTimer scheduledTimerWithTimeInterval:10.0
                                                        target:self

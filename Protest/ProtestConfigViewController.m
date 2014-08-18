@@ -16,6 +16,8 @@
 }
 
 - (IBAction)startProtest:(id)sender {
+    [_protestNameField resignFirstResponder];
+    [_passwordField resignFirstResponder];
     [ConnectionManager shared].leader = YES;
     NSString *password = nil;
     if (_passwordField.text.length > 0) password = _passwordField.text;
