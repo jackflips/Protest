@@ -134,7 +134,6 @@
     [[ConnectionManager shared] searchForProtests];
     
     [_chatViewController dismissViewControllerAnimated:YES completion:nil];
-    _chatViewController = nil;
     _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
 }
 
@@ -157,7 +156,6 @@
 
 - (void)dismissConfig:(NSNotification*)note {
     [_configController dismissViewControllerAnimated:YES completion:nil];
-    _configController = nil;
 }
 
 - (void)removeProtestFromList:(NSNotification*)note {
@@ -257,7 +255,9 @@
 
 - (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password
 {
-    _chatViewController = [[ChatViewController alloc] init];
+    if (!_chatViewController) {
+        _chatViewController = [[ChatViewController alloc] init];
+    }
     
     [self presentViewController:_chatViewController animated:YES completion:nil];
     

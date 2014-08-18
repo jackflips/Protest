@@ -224,7 +224,6 @@ static const double PRUNE = 30.0;
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     } else if (state == MCSessionStateNotConnected) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"updatePeerNumber" object:self userInfo:nil];
         if ([ConnectionManager shared].DIAGNOSTIC_MODE) {
             [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, peerID.displayName]];
         }
@@ -243,6 +242,9 @@ static const double PRUNE = 30.0;
                 }
             }];
             [self sendDisconnectEvent:peer];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"updatePeerNumber" object:self userInfo:nil];
+            }];
         }
         NSLog(@"%@", _sessions);
     }

@@ -121,7 +121,7 @@
 
 - (void)updatePeerNumber:(NSNotification*)note {
     int numberOfPeers = (int)[[ConnectionManager shared] sessions].count;
-    if (numberOfPeers == 0) {
+    if (numberOfPeers <= 0) {
         [_sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
         [_sendButton setEnabled:NO];
         [_textField setEnabled:NO];
@@ -254,7 +254,9 @@
 #pragma mark - IBAction method implementation
 
 - (IBAction)exitButtonPressed:(id)sender {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"viewControllerReset" object:self userInfo:nil];
+    dispatch_async(dispatch_get_main_queue(),^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"viewControllerReset" object:self userInfo:nil];
+    });
 }
 
 
