@@ -224,9 +224,7 @@ static const double PRUNE = 30.0;
             [peer.session sendData:encryptedMessage toPeers:@[peerID] withMode:MCSessionSendDataReliable error:&error];
         }
     } else if (state == MCSessionStateNotConnected) {
-        if ([ConnectionManager shared].DIAGNOSTIC_MODE) {
-            [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, peerID.displayName]];
-        }
+        [self sendDiagnosticMessage:[NSString stringWithFormat:@"protest=%@&event=disconnected&peer=%@&connectedpeer=%@", _nameOfProtest, _userID, peerID.displayName]];
         Peer *peer = [_foundProtests objectForKey:peerID.displayName];
         if (peer) [_foundProtests removeObjectForKey:peerID.displayName];
         else peer = [_sessions objectForKey:peerID.displayName];
