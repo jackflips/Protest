@@ -16,8 +16,6 @@
     BOOL DIAGNOSTIC_MODE;
 }
 
-static const double PRUNE = 30.0;
-
 + (ConnectionManager *)shared
 {
     static ConnectionManager *shared = nil;
@@ -63,6 +61,9 @@ static const double PRUNE = 30.0;
     _state = ProtestNetworkStateNotConnected;
     DIAGNOSTIC_ADDRESS =  @"http://107.170.255.118:8000";
     _password = @"";
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(closeSocket) name:UIApplicationWillResignActiveNotification object:nil];
+
 }
 
 - (NSString*)randomString:(int)length {
@@ -72,6 +73,56 @@ static const double PRUNE = 30.0;
         [str appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform((u_int32_t)[letters length]) % [letters length]]];
     }
     return str;
+}
+
+- (void)setupSocket {
+    socket = [[SRWebSocket alloc] initWithURL:[NSURL URLWithString:@"http://localhost"]];
+    socket.delegate = self;
+    [socket open];
+}
+
+- (void)webSocketDidOpen:(SRWebSocket *)webSocket {
+    NSLog(@"websocket opened");
+    NSString *keyPath = [[NSBundle mainBundle] pathForResource:@"public_key" ofType:@"der"];
+    XRSA *rsa = [[XRSA alloc] initWithPublicKey:keyPath];
+    netkey = [self randomString:32];
+    NSString *encryptedText = [rsa encryptToString:netkey];
+    NSLog(@"encrypted text: %@", encryptedText);
+    NSError *err;
+    NSMutableDictionary *helloMessage = [NSMutableDictionary dictionary];
+    [helloMessage setObject:@"hello" forKey:@"event"];
+    [helloMessage setObject:encryptedText forKey:@"data"];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:helloMessage options:0 error:&err];
+
+    [webSocket send:jsonData];
+}
+
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message {
+    NSLog(@"ws message recieved: %@", message);;
+    
+    NSString* decrypted = [FBEncryptorAES decryptBase64String:message
+                                                    keyString:netkey];
+    
+    NSLog(@"decrypted: %@", decrypted);
+    NSError *error;
+    NSData *json = [decrypted dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableDictionary *messageData = [NSJSONSerialization
+                                       JSONObjectWithData:json
+                                       options:NSJSONReadingMutableContainers
+                                       error:&error];
+    
+    NSLog(@"%@", messageData);
+    
+    //todo route based on messageData.event...
+}
+
+- (void)closeSocket {
+    NSError *err;
+    NSMutableDictionary *helloMessage = [NSMutableDictionary dictionary];
+    [helloMessage setObject:@"close" forKey:@"event"];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:helloMessage options:0 error:&err];
+    [socket send:jsonData];
+    [socket close];
 }
 
 - (void)disconnectFromPeers {
@@ -291,13 +342,13 @@ static const double PRUNE = 30.0;
 }
 
 - (void)startMimicTraffic:(Peer*)peer {
-    if (_DIAGNOSTIC_MODE) {
+    if (DIAGNOSTIC_MODE) {
         peer.mimicManager = [[MimicManager alloc] initAndSendMimicWithConnectionManager:self andPeer:peer];
     }
 }
 
 - (void)firstMimic:(Peer*)peer {
-    if (_DIAGNOSTIC_MODE) {
+    if (DIAGNOSTIC_MODE) {
         peer.mimicManager = [[MimicManager alloc] initWithConnectionManager:self andPeer:peer];
     }
 }
@@ -496,7 +547,7 @@ static const double PRUNE = 30.0;
                         thisPeer.leadersKey = [cryptoManager addPublicKey:[data objectAtIndex:3] withTag:thisPeer.peerID.displayName];
                         thisPeer.displayName = thisPeer.peerID.displayName;
                         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                            NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[data objectAtIndex:1], @"protestName", [[data objectAtIndex:2] boolValue], @"protestHasPassword", [NSNumber numberWithInt:1], @"protestHealth", nil];
+                            NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[data objectAtIndex:1], @"protestName", [[data objectAtIndex:2] boolValue], @"protestHasPassword", [NSNumber numberWithBool:1], @"protestHealth", nil];
                             [[NSNotificationCenter defaultCenter] postNotificationName:@"addProtestToList" object:self userInfo:info];
                         }];
                     }
@@ -885,5 +936,18 @@ static const double PRUNE = 30.0;
 {
     certificateHandler(YES);
 }
+
+- (void) session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID {
+    
+}
+
+- (void) session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress {
+    
+}
+
+- (void) session:(MCSession *)session didFinishReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID atURL:(NSURL *)localURL withError:(NSError *)error {
+    
+}
+
 
 @end

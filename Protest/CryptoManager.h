@@ -26,15 +26,15 @@
 #import "RNEncryptor.h"
 #import "RNDecryptor.h"
 
-@interface CryptoManager : NSObject
+@interface CryptoManager : NSObject {
+    RNEncryptor *AESEncryptor;
+    RNDecryptor *AESDecryptor;
+}
 
 @property (readonly, assign) SecKeyRef publicKey;
 @property (readonly, assign) SecKeyRef privateKey;
-@property (strong, nonatomic) RNEncryptor *AESEncyptor;
-@property (strong, nonatomic) RNDecryptor *AESDecryptor;
 
 
-- (SecKeyRef)getPublicKeyReference:(NSString*)peerName;
 - (SecKeyRef)addPublicKey:(NSData *)d_key withTag:(NSString *)tag;
 - (NSData*)getPublicKeyBitsFromKey:(SecKeyRef)givenKey;
 
@@ -44,6 +44,8 @@
 - (NSData *)decrypt:(NSData *)plainText password:(NSString *)password;
 - (NSData *)sign:(NSData *)plainText withKey:(SecKeyRef)key;
 - (OSStatus)verify:(NSData *)plainText withSignature:(NSData *)sig andKey:(SecKeyRef)key;
+- (NSData *)encryptString:(NSString *)plainText withX509Certificate:(NSData *)certificate;
++ (instancetype)sharedProcessor;
 
 
 @end

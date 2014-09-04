@@ -1,15 +1,13 @@
 //
 //  ViewController.m
-//  MCTest
+//  Protest
 //
-//  Created by John Rogers on 4/5/14.
-//  Copyright (c) 2014 John Rogers. All rights reserved.
+//  Created by John Rogers on 9/2/14.
+//  Copyright (c) 2014 metacupcake. All rights reserved.
 //
 
-#import "ProtestViewController.h"
-#import "ConnectionManager.h"
-#import "ProtestConfigViewController.h"
-#import "ChatViewController.h"
+#import "ViewController.h"
+
 
 @interface Protest : NSObject
 
@@ -34,22 +32,18 @@
 
 @end
 
-@interface ProtestViewController ()
+@interface ViewController () 
 
 @property (nonatomic, retain) ProtestConfigViewController *configController;
 @property (nonatomic, retain) ChatViewController *chatViewController;
 
 @end
 
-@implementation ProtestViewController
+@implementation ViewController
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    
-    _internetManager = [[InternetManager alloc] init];
-    
-    /*
+    //[[ConnectionManager shared] setupSocket];
     
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     
@@ -58,6 +52,7 @@
     tableSource = [NSMutableArray array];
     Protest *sampleProt = [[Protest alloc] initWithName:@"Tahrir Square Allstars" passwordNeeded:YES andHealth:1];
     [tableSource addObject:sampleProt];
+    [_tableView reloadData];
     //other sample protest names: @"John/Yoko Bed-in", @"Prague Spring Breakers"
     
     _startProtestButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -85,11 +80,6 @@
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(startChat:)
-                                                 name:@"startChat"
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(reset:)
                                                  name:@"viewControllerReset"
                                                object:nil];
@@ -98,7 +88,7 @@
                                              selector:@selector(dismissConfig:)
                                                  name:@"dismissConfig"
                                                object:nil];
-     */
+    
 }
 
 - (void)updateProtestHealth {
@@ -131,20 +121,21 @@
 }
 
 - (void)reset:(NSNotification*)note {
-    [tableSource removeAllObjects];
-    [_tableView reloadData];
-    
-    [[ConnectionManager shared] disconnectFromPeers];
-    [[ConnectionManager shared] resetState];
-    [[ConnectionManager shared] searchForProtests];
-    
-    [_chatViewController dismissViewControllerAnimated:YES completion:nil];
-    _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [tableSource removeAllObjects];
+        [_tableView reloadData];
+        [[ConnectionManager shared] disconnectFromPeers];
+        [[ConnectionManager shared] resetState];
+        [[ConnectionManager shared] searchForProtests];
+        
+        [_chatViewController dismissViewControllerAnimated:YES completion:nil];
+        _startProtestButton.frame = CGRectMake(0, ([tableSource count] * 55) + 94, 320, 46);
+    }];
 }
 
 - (void)addProtestToList:(NSNotification*)note {
     NSString *nameOfProtest = [[note userInfo] valueForKey:@"protestName"];
-    NSString *password = [[note userInfo] valueForKey:@"protestHasPassword"];
+    BOOL password = [[[note userInfo] valueForKey:@"protestHasPassword"] boolValue];
     int health = [[[note userInfo] valueForKey:@"protestHealth"] boolValue];
     int indexOfProtest = [self tablesourceContainsProtest:nameOfProtest];
     if (indexOfProtest != -1) { //if the protest is already in the list
@@ -181,18 +172,25 @@
 - (void)startChat:(NSNotification*)note
 {
     NSString *name = [[note userInfo] valueForKey:@"protestName"];
-    if (!_chatViewController) {
-        _chatViewController = [[ChatViewController alloc] init];
-    }
     
     [_configController dismissViewControllerAnimated:NO completion:^{
+        if (!_chatViewController) {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+            _chatViewController = [storyboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
+        }
+        
         [self presentViewController:_chatViewController animated:YES completion:^{
             [_chatViewController chatLoaded:name];
         }];
     }];
     
-    //NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:name, @"protestName", nil];
-    //[[NSNotificationCenter defaultCenter] postNotificationName:@"chatLoaded" object:self userInfo:info];
+    /*
+    [_configController dismissViewControllerAnimated:NO completion:^{
+        [self presentViewController:_chatViewController animated:YES completion:^{
+            [_chatViewController chatLoaded:name];
+        }];
+    }];
+     */
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -258,10 +256,11 @@
     [self joinProtest:cell.textLabel.text password:passwordTextField.text];
 }
 
-- (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password
-{
+- (void)joinProtest:(NSString*)nameOfProtest password:(NSString*)password {
+    
     if (!_chatViewController) {
-        _chatViewController = [[ChatViewController alloc] init];
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+        _chatViewController = [storyboard instantiateViewControllerWithIdentifier:@"ChatViewController"];
     }
     
     [self presentViewController:_chatViewController animated:YES completion:nil];
@@ -271,14 +270,14 @@
 
 - (void)startProtest {
     if (!_configController) {
-        _configController = [[ProtestConfigViewController alloc] init];
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+        _configController = [storyboard instantiateViewControllerWithIdentifier:@"ProtestConfigViewController"];
     } else {
         [_configController reset];
     }
-    [_configController dismissViewControllerAnimated:YES completion:nil];
-    [self presentViewController:_configController
-                                                 animated:YES
-                                               completion:nil];
+    
+    [self presentViewController:_configController animated:YES completion:nil];
+
 }
 
 - (void)didReceiveMemoryWarning

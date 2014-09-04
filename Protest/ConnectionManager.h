@@ -12,9 +12,12 @@
 #import "Peer.h"
 #import "CryptoManager.h"
 #import "Message.h"
-#import "ProtestViewController.h"
+#import "ViewController.h"
+#import "SRWebSocket.h"
+#import "FBEncryptorAES.h"
+#import "XRSA.h"
 
-@interface ConnectionManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate>
+@interface ConnectionManager : NSObject <MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate, SRWebSocketDelegate>
 {
     enum ProtestNetworkState : NSUInteger {
         ProtestNetworkStateNotConnected,
@@ -23,6 +26,8 @@
     BOOL censusOut;
     int networkSize;
     NSString *DIAGNOSTIC_ADDRESS;
+    SRWebSocket *socket;
+    NSString *netkey;
 }
 
 @property (nonatomic, strong) MCPeerID *peerID;
@@ -42,8 +47,6 @@
 @property (nonatomic, strong) NSMutableArray *secretMessagePath;
 @property (nonatomic) enum ProtestNetworkState state;
 
-@property (nonatomic) BOOL DIAGNOSTIC_MODE;
-
 @property (nonatomic) SecKeyRef leadersPublicKey;
 
 + (ConnectionManager *)shared;
@@ -53,10 +56,9 @@
 - (void)startProtest:(NSString*)name password:(NSString*)password;
 - (void)sendMessage:(id)message toPeer:(Peer*)peer;
 - (void)sendMessage:(Message*)message;
-- (void)pruneTree;
 - (void)searchForProtests;
 - (void)disconnectFromPeers;
-- (void)testMessageSending;
 - (void)showBrowserResults;
+- (void)setupSocket;
 
 @end

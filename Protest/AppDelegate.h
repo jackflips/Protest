@@ -1,9 +1,9 @@
 //
 //  AppDelegate.h
-//  MCTest
+//  Protest
 //
-//  Created by John Rogers on 4/5/14.
-//  Copyright (c) 2014 John Rogers. All rights reserved.
+//  Created by John Rogers on 9/2/14.
+//  Copyright (c) 2014 metacupcake. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

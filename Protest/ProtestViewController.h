@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ConnectionManager.h"
+#import "InternetManager.h"
 
 @interface ProtestViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate> {
     NSMutableArray *tableSource;
@@ -15,6 +16,7 @@
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) UIButton *startProtestButton;
+@property (nonatomic, strong) InternetManager *internetManager;
 
 - (void)finalTest;
 - (void)dismissConfig;

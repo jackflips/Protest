@@ -14,9 +14,6 @@
 
 @interface ChatViewController ()
 
--(void)sendMyMessage;
--(void)didReceiveDataWithNotification:(NSNotification *)notification;
-
 @end
 
 @implementation ChatViewController
@@ -138,6 +135,7 @@
 }
 
 - (void)addNoPeersWarning {
+    NSLog(@"added warning");
     [_chatSource addObject:_warningMessage];
     [_chatTable reloadData];
     NSIndexPath* ipath = [NSIndexPath indexPathForRow:[_chatTable numberOfRowsInSection:0]-1 inSection:0];
@@ -245,7 +243,6 @@
 #pragma mark - UITextField Delegate method implementation
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
-    [self sendMyMessage];
     return YES;
 }
 

@@ -82,6 +82,17 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
 
 @implementation CryptoManager
 
++ (instancetype)sharedProcessor {
+    static id sharedInstance = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    
+    return sharedInstance;
+}
+
 - (instancetype)init
 {
     self = [super init];
@@ -89,8 +100,8 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     if (self) {
         [self generate];
     }
-    _AESEncyptor = [[RNEncryptor alloc] init];
-    _AESDecryptor = [[RNDecryptor alloc] init];
+    AESEncryptor = [[RNEncryptor alloc] init];
+    AESDecryptor = [[RNDecryptor alloc] init];
     
     return self;
 }
@@ -137,7 +148,7 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     for (NSUInteger i = 0; i < [plainText length]; i += blockSize) {
         NSData *subPlainText = [plainText subdataWithRange:NSMakeRange(i, MIN(blockSize, [plainText length] - i))];
         size_t cipherTextLength = blockSizeIncludingPadding;
-        OSStatus status = SecKeyRawSign(key, kSecPaddingPKCS1, [subPlainText bytes], [subPlainText length], buffer, &cipherTextLength);
+        SecKeyRawSign(key, kSecPaddingPKCS1, [subPlainText bytes], [subPlainText length], buffer, &cipherTextLength);
         [cipherText appendBytes:buffer length:cipherTextLength];
     }
     free(buffer);
@@ -299,6 +310,59 @@ const char * __attribute__((pure)) errSecGetNameFromStatus(OSStatus errorCode) {
     if (keyRef == nil) return(FALSE);
     
     return keyRef;
+}
+
+
+- (NSData *)encryptString:(NSString *)plainText withX509Certificate:(NSData *)certificate {
+    
+    SecCertificateRef cert = SecCertificateCreateWithData(kCFAllocatorDefault, (__bridge CFDataRef)certificate);
+    SecPolicyRef policy = SecPolicyCreateBasicX509();
+    SecTrustRef trust;
+    OSStatus status = SecTrustCreateWithCertificates(cert, policy, &trust);
+    
+    SecTrustResultType trustResult;
+    if (status == noErr) {
+        status = SecTrustEvaluate(trust, &trustResult);
+    }
+    
+    SecKeyRef publicKey = SecTrustCopyPublicKey(trust);
+    
+    const char *plain_text = [plainText UTF8String];
+    size_t blockSize = SecKeyGetBlockSize(publicKey);
+    NSMutableData *collectedCipherData = [NSMutableData data];
+    
+    BOOL success = YES;
+    size_t cipherBufferSize = blockSize;
+    uint8_t *cipherBuffer = malloc(blockSize);
+    
+    int i;
+    for (i = 0; i < strlen(plain_text); i += blockSize-11) {
+        int j;
+        for (j = 0; j < blockSize-11 && plain_text[i+j] != '\0'; ++j) {
+            cipherBuffer[j] = plain_text[i+j];
+        }
+        
+        int result;
+        if ((result = SecKeyEncrypt(publicKey, kSecPaddingPKCS1, cipherBuffer, j, cipherBuffer, &cipherBufferSize)) == errSecSuccess) {
+            [collectedCipherData appendBytes:cipherBuffer length:cipherBufferSize];
+        } else {
+            success = NO;
+            break;
+        }
+    }
+    
+    /* Free the Security Framework Five! */
+    CFRelease(cert);
+    CFRelease(policy);
+    CFRelease(trust);
+    CFRelease(publicKey);
+    free(cipherBuffer);
+    
+    if (!success) {
+        return nil;
+    }
+    
+    return [NSData dataWithData:collectedCipherData];
 }
 
 - (void)dealloc
