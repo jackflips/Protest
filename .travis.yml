@@ -1,0 +1,4 @@
+language: objective-c
+
+script:
+  - xctool -workspace Protest.xcworkspace -scheme Protest -sdk iphonesimulator8.0 -arch i386 build
