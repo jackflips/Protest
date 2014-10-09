@@ -1,4 +1,7 @@
 language: objective-c
 
+before_script:
+  - gem install cocoapods --no-rdoc --no-ri  # We need Cocoapods ~> 0.34
+
 script:
   - xctool -workspace Protest.xcworkspace -scheme Protest -sdk iphonesimulator8.0 -arch i386 build
