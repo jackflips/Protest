@@ -3,7 +3,7 @@ Protest
 
 [![Build Status](https://travis-ci.org/jackflips/Protest.svg?branch=master)](https://travis-ci.org/jackflips/Protest)
 
-Note: Please do not use yet. This is a work in progress and there are extant security issues.
+Note: This is a work in progress and there are extant security issues.
 
 Peer to peer protest organizing application that allows protestors to communicate and coordinate with each other anonymously, without having to fight to be heard. Protests can be set up with a password, which disseminates via word of mouth in the crowd, ideally not being shared with police or security forces. Organizers can designate lieutenants and make the protest read-only except to them, helping to mitigate noise when there are hundreds or thousands of protesters.
 
