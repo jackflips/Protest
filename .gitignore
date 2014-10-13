@@ -1,15 +1,13 @@
 
-*.xcuserstate
-*.xcbkptlist
+.DS_Store
+build
+*.mode1v3
+*.pbxuser
+project.xcworkspace
+xcuserdata
+.svn
+DerivedData
+*.orig
 
-Protest.xcodeproj/project.xcworkspace/xcuserdata/johnrogers.xcuserdatad/UserInterfaceState.xcuserstate
 
-Protest.xcodeproj/xcuserdata/johnrogers.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
-
-Protest.xcodeproj/xcuserdata/jack.xcuserdatad/xcschemes/Protest.xcscheme
-
-Protest.xcodeproj/xcuserdata/jack.xcuserdatad/xcschemes/xcschememanagement.plist
-
-Protest.xcodeproj/xcuserdata/johnrogers.xcuserdatad/xcschemes/Protest.xcscheme
-
-Protest.xcodeproj/xcuserdata/johnrogers.xcuserdatad/xcschemes/xcschememanagement.plist
+/Pods/

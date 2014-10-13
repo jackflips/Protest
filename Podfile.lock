@@ -1,0 +1,19 @@
+PODS:
+  - DAKeyboardControl (2.4.0)
+  - RNCryptor (2.2)
+  - SocketRocket (0.3.1-beta2)
+  - XRSA (1.1.0)
+
+DEPENDENCIES:
+  - DAKeyboardControl (~> 2.4)
+  - RNCryptor (~> 2.2)
+  - SocketRocket (~> 0.3)
+  - XRSA (~> 1.1)
+
+SPEC CHECKSUMS:
+  DAKeyboardControl: 45a363c85c48a7df76f21f236d9f85800e001775
+  RNCryptor: 4f562062c39f288b99601674f2c50dd44b68d58a
+  SocketRocket: 79a68ae186063c65e1fe6f638b1ae2927aa5f304
+  XRSA: 69f56505e9a9a55be8143ec26c5d9906aa38c096
+
+COCOAPODS: 0.34.2
