@@ -13,9 +13,7 @@ Protest uses ad hoc wifi and bluetooth to communicate between devices, so it is 
 
 Security Model
 --------------
-Based on this paper: (http://ecee.colorado.edu/~ekeller/classes/fall2013_advsec/papers/tarzan_ccs02.pdf) 
-
-The protocol is designed to preserve the anonymity of all peers in the network. Messages are sent along a random path (n=3) through the network with layered encryption. The final peer in the chain decrypts the plaintext and broadcasts it to all peers in the network.
+Based on [this paper](http://ecee.colorado.edu/~ekeller/classes/fall2013_advsec/papers/tarzan_ccs02.pdf). The protocol is designed to preserve the anonymity of all peers in the network. Messages are sent along a random path through the network with layered encryption, similar to tor. The final peer in the chain decrypts the plaintext and broadcasts it to all peers in the network.
 
 ![alt tag](http://i.imgur.com/x9irP5W.png)
 
