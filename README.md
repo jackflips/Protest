@@ -5,9 +5,9 @@ Protest
 
 Note: Please do not use yet. This is a work in progress and there are extant security issues.
 
-Protest organizing application created originally for a hackathon at UC Santa Cruz. Allows protestors to communicate and coordinate with each other anonymously, without having to fight to be heard. It works peer to peer so even if police (or an oppressive regime) were to shut down cell phone towers (as they did here: http://wapo.st/1jdfMUY) protestors would still be able to send and recieve messages.
+Peer to peer protest organizing application that allows protestors to communicate and coordinate with each other anonymously, without having to fight to be heard. Protests can be set up with a password, which disseminates via word of mouth in the crowd, ideally not being shared with police or security forces. Organizers can designate lieutenants and make the protest read-only except to them, helping to mitigate noise when there are hundreds or thousands of protesters.
 
-Protests can be set up with a password, which disseminates via word of mouth in the crowd, ideally not being shared with police or security forces. Organizers can designate lieutenants and make the protest read-only except to them, helping to mitigate noise when there are hundreds or thousands of protesters.
+Protest uses ad hoc wifi and bluetooth to communicate between devices, so it is still functional even if the police or an oppresive regime were to [shut down cell towers(http://wapo.st/1jdfMUY).
 
 ![alt tag](http://i.imgur.com/CpFGhuh.png)
 
